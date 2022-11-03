@@ -1,0 +1,25 @@
+name: 'NPM'
+description: 'Installs NPM deps'
+
+inputs:
+  registry:
+    description: 'NPM registry'
+    default: 'https://registry.npmjs.org'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+        registry-url: ${{ inputs.registry }}
+
+
+    - name: Install deps in quiet mode
+      shell: bash
+      run: npm ci -q
+      env:
+        NODE_AUTH_TOKEN: ${{ env.NODE_AUTH_TOKEN }}

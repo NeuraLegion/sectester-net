@@ -1,0 +1,37 @@
+<Project>
+  <Import Project="..\Directory.Build.props"/>
+
+  <PropertyGroup>
+    <Authors>artem.derevnjuk@bright.com</Authors>
+    <Company>Bright Security</Company>
+    <Product>Sentry</Product>
+
+    <PackageTags>security;testing;e2e;test,.net;appsec;pentesting;qa;brightsec;scan;dast</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <RepositoryUrl>https://github.com/NeuraLegion/sectester-net</RepositoryUrl>
+
+    <PackageProjectUrl>https://brightsec.com/</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Prop required by Microsoft.SourceLink.GitHub -->
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Embed PDB inside the assembly -->
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildProjectDirectory)\README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+</Project>

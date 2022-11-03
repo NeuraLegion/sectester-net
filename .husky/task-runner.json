@@ -1,0 +1,14 @@
+{
+   "tasks": [
+      {
+         "name": "formatting",
+         "command": "dotnet",
+         "args": [ "format", "--include", "${staged}", "--no-restore" ]
+      },
+      {
+         "name": "npx commitlint --edit $1",
+         "command": "npx",
+         "args": [ "commitlint", "--edit", "$1" ]
+      }
+   ]
+}

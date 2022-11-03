@@ -1,0 +1,37 @@
+{
+  "name": "sectester-net",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeuraLegion/sectester-net.git"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": "^8.1.0"
+  },
+  "author": {
+    "name": "Artem Derevnjuk",
+    "email": "artem.derevnjuk@brightsec.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NeuraLegion/sectester-net/issues"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "scripts": {
+    "semantic-release": "semantic-release"
+  },
+  "homepage": "https://github.com/NeuraLegion/sectester-js#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "semantic-release": "~19.0.3"
+  }
+}

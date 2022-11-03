@@ -1,0 +1,36 @@
+{
+  "tasks": [
+    {
+      "name": "formatting",
+      "group": "pre-commit",
+      "command": "dotnet",
+      "args": [
+        "format",
+        "--include",
+        "${staged}",
+        "--no-restore"
+      ]
+    },
+    {
+      "name": "commitlint",
+      "command": "npx",
+      "group": "commit-msg",
+      "args": [
+        "--no",
+        "--",
+        "commitlint",
+        "--edit",
+        "${args}"
+      ]
+    },
+    {
+      "name": "refresh-index",
+      "command": "git",
+      "group": "post-commit",
+      "args": [
+        "update-index",
+        "--again"
+      ]
+    }
+  ]
+}

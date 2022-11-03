@@ -1,0 +1,55 @@
+name: CI / Automated testing
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET deps
+        uses: ./.github/workflows/composite/net
+
+  build-and-test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: install-deps
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Using macos-12 because we need Xcode 13.3 or later (macos-latest currently points at macos-11 which uses Xcode 13.2)
+        # Using windows-2019 because windows-latest is much slower and we don't need anything in particular from it.
+        os: [ ubuntu-latest, windows-2019, macos-12 ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET deps
+        uses: ./.github/workflows/composite/net
+
+      - name: Restore .NET Dependencies
+        run: dotnet restore --nologo
+
+      - name: Build
+        run: dotnet build -c Release --no-restore --nologo /p:CopyLocalLockFileAssemblies=true
+
+      - name: dotnet format
+        run: dotnet format --no-restore
+
+      - name: dotnet test
+        run: dotnet test -c Release --no-build --nologo
+
+

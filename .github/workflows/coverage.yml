@@ -1,0 +1,43 @@
+name: CI / Coverage
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - master
+
+env:
+  NX_CACHE: nx-cache
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install deps
+        uses: ./.github/workflows/composite/net
+
+      - name: Restore .NET Dependencies
+        run: dotnet restore --nologo
+
+      - name: Build
+        run: dotnet build -c Release --no-restore --nologo /p:CopyLocalLockFileAssemblies=true
+
+      - name: dotnet test
+        run: dotnet test -c Release --no-build --nologo
+
+      - name: Send reports to Codeclimate
+        uses: paambaati/codeclimate-action@v3.0.0
+        if: ${{ hashFiles('test/**/coverage/coverage.info') }}
+        env:
+          CC_TEST_REPORTER_ID: 1a61ea2fb28c8abe9961c5f2678c063d656d29ac41cc2b4614d7c2eafa576c21
+        with:
+          coverageLocations: test/**/coverage/coverage.info:lcov

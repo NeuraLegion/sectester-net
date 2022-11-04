@@ -32,7 +32,7 @@ jobs:
         run: dotnet build -c Release --no-restore --nologo /p:CopyLocalLockFileAssemblies=true
 
       - name: dotnet test
-        run: dotnet test -c Release --no-build --nologo
+        run: dotnet test -c Release --no-build --nologo /p:CollectCoverage=true /p:CoverletOutput=./coverage/ /p:CoverletOutputFormat=lcov
 
       - name: Send reports to Codeclimate
         uses: paambaati/codeclimate-action@v3.0.0

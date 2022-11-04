@@ -14,17 +14,20 @@ namespace SecTester.Core
 
     public string Api { get; private set; }
 
+    public Credentials? Credentials { get; private set; }
+
     // TODO: provide a more convenient way of setting these properties
     public string Name { get; } = "sectester-net";
     public string Version { get; } = "0.0.1";
     public string RepeaterVersion { get; } = "9.0.0";
 
-    public Configuration(string? hostname)
+    public Configuration(string? hostname, Credentials? credentials = null)
     {
       hostname = hostname?.Trim();
       hostname = hostname ?? throw new ArgumentNullException(nameof(hostname), "Please provide 'hostname' option.");
 
       ResolveUrls(hostname);
+      Credentials = credentials;
     }
 
     private void ResolveUrls(string hostname)

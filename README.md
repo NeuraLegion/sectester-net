@@ -54,7 +54,7 @@ Trying out Bright’s SecTester is _**free**_ 💸, so let’s get started!
 
 ### Installation
 
-First install the module via `yarn` or `npm` and do not forget to install the peer dependencies as well:
+First install the module via `dotnet` or `nuget.exe` and do not forget to install the peer dependencies as well:
 
 ```bash
 $ dotnet add package SecTester.Runner   && \

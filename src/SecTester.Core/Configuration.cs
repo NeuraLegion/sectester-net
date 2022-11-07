@@ -36,7 +36,7 @@ namespace SecTester.Core
       }
       catch
       {
-        throw new Exception("Please make sure that you pass correct 'hostname' option.");
+        throw new InvalidOperationException("Please make sure that you pass correct 'hostname' option.");
       }
     }
 

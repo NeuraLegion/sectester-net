@@ -4,4 +4,6 @@ global using FluentAssertions;
 global using FluentAssertions.Extensions;
 global using Microsoft.Extensions.DependencyInjection;
 global using NSubstitute;
+global using NSubstitute.ClearExtensions;
+global using NSubstitute.ExceptionExtensions;
 global using Xunit;

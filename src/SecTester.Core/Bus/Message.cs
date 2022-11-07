@@ -11,9 +11,9 @@ public abstract class Message<T>
 
   protected Message(
     T payload,
-    string? type,
-    string? correlationId,
-    DateTime? createdAt
+    string? type = null,
+    string? correlationId = null,
+    DateTime? createdAt = null
   )
   {
     Payload = payload;

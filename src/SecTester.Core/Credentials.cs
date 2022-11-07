@@ -14,7 +14,7 @@ namespace SecTester.Core
 
       if (!_tokenValidationRegexp.IsMatch(token))
       {
-        throw new Exception("Unable to recognize the API key.");
+        throw new InvalidOperationException("Unable to recognize the API key.");
       }
     }
   }

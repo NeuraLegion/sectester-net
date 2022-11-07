@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
+using SecTester.Core.Utils;
 
 namespace SecTester.Core
 {
@@ -12,7 +12,7 @@ namespace SecTester.Core
     private readonly Regex _schemaRegex = new(@"^.+:\/\/");
     private readonly Regex _hostnameNormalizationRegex = new(@"^(?!(?:\w+:)?\/\/)|^\/\/");
     private readonly string[] _loopbackAddresses = { "localhost", "127.0.0.1" };
-    private List<CredentialProvider>? _credentialProviders;
+    private readonly List<CredentialProvider> _credentialProviders;
 
     public string Bus { get; private set; }
 
@@ -20,7 +20,7 @@ namespace SecTester.Core
 
     public Credentials? Credentials { get; private set; }
 
-    public IReadOnlyCollection<CredentialProvider>? CredentialProviders => _credentialProviders?.AsReadOnly();
+    public IReadOnlyCollection<CredentialProvider> CredentialProviders => _credentialProviders.AsReadOnly();
 
     // TODO: provide a more convenient way of setting these properties
     public string Name { get; } = "sectester-net";
@@ -34,35 +34,18 @@ namespace SecTester.Core
 
       ResolveUrls(hostname);
       Credentials = credentials;
-      _credentialProviders = credentialProviders;
+      _credentialProviders = credentialProviders ?? new List<CredentialProvider>();
     }
 
     public async Task LoadCredentials()
     {
       if (Credentials == null)
       {
-        var cts = new CancellationTokenSource();
         var chain = _credentialProviders.ConvertAll(provider =>
           provider.Get()
         );
-        Credentials? credentials = null;
-
-        while (chain.Any())
-        {
-          // Wait for any task to complete.
-          var completedTask = await Task.WhenAny(chain);
-
-          if (completedTask.IsCompleted && completedTask.Result != null)
-          {
-            cts.Cancel();
-            credentials = completedTask.Result;
-            break;
-          }
-
-          chain = chain.Where(t => t != completedTask).ToList();
-        }
-
-        Credentials = credentials ?? throw new Exception("Could not load credentials from any providers");
+        var credentials = await TaskUtils.First(chain, x => x != null);
+        Credentials = credentials ?? throw new InvalidOperationException("Could not load credentials from any providers");
       }
     }
 

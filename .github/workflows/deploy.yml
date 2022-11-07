@@ -45,7 +45,7 @@ jobs:
         with:
           name: build
           path: |
-            src/**/Release/*.nupkg
+            src/**/bin/Release/*.nupkg
 
       - name: Publish package to NuGet
-        run: dotnet nuget push src/**/bin/Release/*.nupkg -s nuget.org -k ${{ secrets.NUGET_TOKEN }}
+        run: dotnet nuget push src/**/bin/Release/*.nupkg -s nuget -k ${{ secrets.NUGET_TOKEN }}

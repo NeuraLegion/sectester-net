@@ -23,13 +23,13 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "sed -i '' -e \"1,/<Version>/ s!<Version>.*</Version>!<Version>${nextRelease.version}</Version>!\" Directory.Build.props"
+        "prepareCmd": "sed -i -e 's!<Version>.*</Version>!<Version>${nextRelease.version}</Version>!' Directory.Build.props"
       }
     ],
     [
       "@semantic-release/git",
       {
-        "assets": ["src/**.csproj"],
+        "assets": ["**/Directory.Build.props", "src/**/*.csproj"],
         "message": "chore(release): cut the ${nextRelease.version} release [skip ci]"
       }
     ],

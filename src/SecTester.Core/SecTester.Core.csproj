@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Bus" />
     <Folder Include="CredentialProviders" />
     <Folder Include="Extensions" />
   </ItemGroup>

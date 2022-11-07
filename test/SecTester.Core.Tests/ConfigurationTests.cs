@@ -57,4 +57,70 @@ public class ConfigurationTests
     // assert
     configuration.Should().BeEquivalentTo(address);
   }
+
+  [Fact]
+  public async Task LoadCredentials_ProviderIsNotDefined_Nothing()
+  {
+    // arrange
+    var credentials = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
+    var configuration = new Configuration(hostname: "app.neuralegion.com", credentials: credentials);
+
+    // act
+    await configuration.LoadCredentials();
+
+    // assert
+    configuration.Should().BeEquivalentTo(new { Credentials = credentials });
+  }
+
+  [Fact]
+  public async Task LoadCredentials_GivenProvider_LoadCredentials()
+  {
+    // arrange
+    var сredentialProvider = Substitute.For<CredentialProvider>();
+    var credentials = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
+    var credentialProviders = new List<CredentialProvider> { сredentialProvider };
+    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+
+    сredentialProvider.Get().Returns(Task.FromResult(credentials));
+
+    // act
+    await configuration.LoadCredentials();
+
+    // assert
+    configuration.Should().BeEquivalentTo(new { Credentials = credentials });
+  }
+
+  [Fact]
+  public async Task LoadCredentials_NoOneProviderFindCredentials_ThrowError()
+  {
+    // arrange
+    var сredentialProvider = Substitute.For<CredentialProvider>();
+    var credentialProviders = new List<CredentialProvider> { сredentialProvider };
+    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+
+    // act
+    var act = () => configuration.LoadCredentials();
+
+    // assert
+    await act.Should().ThrowAsync<Exception>();
+  }
+
+  [Fact]
+  public async Task LoadCredentials_MultipleProviders_SetCredentialsFromFirst()
+  {
+    // arrange
+    var сredentialProvider = Substitute.For<CredentialProvider>();
+    var credentials1 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
+    var credentials2 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj1");
+    var credentialProviders = new List<CredentialProvider> { сredentialProvider, сredentialProvider, сredentialProvider };
+    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+
+    сredentialProvider.Get().Returns(Task.FromResult<Credentials?>(null), Task.FromResult(credentials1), Task.FromResult(credentials2));
+
+    // act
+    await configuration.LoadCredentials();
+
+    // assert
+    configuration.Should().BeEquivalentTo(new { Credentials = credentials1 });
+  }
 }

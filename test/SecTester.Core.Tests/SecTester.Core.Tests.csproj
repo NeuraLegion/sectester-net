@@ -7,5 +7,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\SecTester.Core\SecTester.Core.csproj" />
   </ItemGroup>
-
 </Project>

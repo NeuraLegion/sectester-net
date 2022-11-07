@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SecTester.Core.CredentialProviders;
 using SecTester.Core.Utils;
 
 namespace SecTester.Core
@@ -29,12 +30,21 @@ namespace SecTester.Core
 
     public Configuration(string? hostname, Credentials? credentials = null, List<CredentialProvider>? credentialProviders = null)
     {
+      credentialProviders ??= new List<CredentialProvider> { new EnvCredentialProvider() };
       hostname = hostname?.Trim();
       hostname = hostname ?? throw new ArgumentNullException(nameof(hostname), "Please provide 'hostname' option.");
 
       ResolveUrls(hostname);
+
+      if (credentials == null && (credentialProviders == null || !credentialProviders.Any()))
+      {
+        throw new InvalidOperationException(
+          $"Please provide either '{nameof(credentials)}' or '{nameof(credentialProviders)}'"
+        );
+      }
+
       Credentials = credentials;
-      _credentialProviders = credentialProviders ?? new List<CredentialProvider>();
+      _credentialProviders = credentialProviders;
     }
 
     public async Task LoadCredentials()

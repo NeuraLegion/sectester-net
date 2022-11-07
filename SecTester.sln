@@ -6,10 +6,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{27E70918-C7E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2C77C898-B581-47F6-A8BF-3C1EE589F052}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecTester.Core", "src\SecTester.Core\SecTester.Core.csproj", "{F5E1A845-BDCF-46D0-A8FE-CE47D41D35F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecTester.Core.Tests", "test\SecTester.Core.Tests\SecTester.Core.Tests.csproj", "{5608AF78-4476-47F0-8CEB-FD9849E8778B}"
+EndProject
 
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5E1A845-BDCF-46D0-A8FE-CE47D41D35F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E1A845-BDCF-46D0-A8FE-CE47D41D35F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E1A845-BDCF-46D0-A8FE-CE47D41D35F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E1A845-BDCF-46D0-A8FE-CE47D41D35F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5608AF78-4476-47F0-8CEB-FD9849E8778B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5608AF78-4476-47F0-8CEB-FD9849E8778B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5608AF78-4476-47F0-8CEB-FD9849E8778B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5608AF78-4476-47F0-8CEB-FD9849E8778B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

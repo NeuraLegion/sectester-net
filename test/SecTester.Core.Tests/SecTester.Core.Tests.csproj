@@ -7,4 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\SecTester.Core\SecTester.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CredentialProviders" />
+    <Folder Include="Extensions" />
+  </ItemGroup>
 </Project>

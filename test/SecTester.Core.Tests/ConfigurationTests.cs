@@ -47,6 +47,19 @@ public class ConfigurationTests
     act.Should().Throw<Exception>();
   }
 
+  [Fact]
+  public void Configuration_CredentialsOrCredentialProvidersNoDefined_ThrowError()
+  {
+    // arrange
+    const string hostname = "app.neuralegion.com";
+
+    // act
+    Action act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<CredentialProvider>());
+
+    // assert
+    act.Should().Throw<Exception>();
+  }
+
   [Theory]
   [MemberData(nameof(Hostnames))]
   public void Configuration_ValidHostname_ResolveApiAndBus(string input, object address)
@@ -81,7 +94,7 @@ public class ConfigurationTests
     var credentialProviders = new List<CredentialProvider> { сredentialProvider };
     var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
 
-    сredentialProvider.Get().Returns(Task.FromResult(credentials));
+    сredentialProvider.Get()!.Returns(Task.FromResult(credentials));
 
     // act
     await configuration.LoadCredentials();
@@ -115,7 +128,7 @@ public class ConfigurationTests
     var credentialProviders = new List<CredentialProvider> { сredentialProvider, сredentialProvider, сredentialProvider };
     var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
 
-    сredentialProvider.Get().Returns(Task.FromResult<Credentials?>(null), Task.FromResult(credentials1), Task.FromResult(credentials2));
+    сredentialProvider.Get()!.Returns(Task.FromResult<Credentials?>(null)!, Task.FromResult(credentials1), Task.FromResult(credentials2));
 
     // act
     await configuration.LoadCredentials();

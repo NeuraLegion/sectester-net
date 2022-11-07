@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/workflows/composite/net
 
       - name: Restore .NET Dependencies
-        run: dotnet restore --nologo
+        run: dotnet restore --nologo --locked-mode
 
       - name: Build
         run: dotnet build -c Release --no-restore --nologo /p:CopyLocalLockFileAssemblies=true

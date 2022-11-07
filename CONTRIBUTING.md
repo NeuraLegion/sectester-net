@@ -161,7 +161,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 To install all dependencies used by this project, issue this command in your terminal:
 
 ```bash
-$ dotnet restore --nologo
+$ dotnet restore --nologo --locked-mode
 ```
 
 ### Build

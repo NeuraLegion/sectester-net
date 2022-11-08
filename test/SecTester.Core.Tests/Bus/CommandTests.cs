@@ -2,8 +2,17 @@ using SecTester.Core.Bus;
 
 namespace SecTester.Core.Tests.Bus;
 
-public class CommandTests
+public class CommandTests : IDisposable
 {
+  private readonly CommandDispatcher _dispatcher;
+
+  public CommandTests()
+  {
+    _dispatcher = Substitute.For<CommandDispatcher>();
+  }
+
+  public void Dispose() => _dispatcher.ClearSubstitute();
+
   [Fact]
   public void Command_OnlyPayload_SetDefaultValuesToProps()
   {
@@ -64,6 +73,51 @@ public class CommandTests
     message.Should().BeEquivalentTo(expected);
   }
 
+  [Fact]
+  public void Command_Executes()
+  {
+    // arrange
+    const string payload = "text";
+    var command = new TestCommand(payload: payload);
+    _dispatcher.Execute(command).Returns(Task.FromResult<string?>(null));
+
+    // act
+    command.Execute(_dispatcher);
+
+    // assert
+    _dispatcher.Received(1).Execute(command);
+  }
+
+  [Fact]
+  public async Task Command_ExecutesWithResult()
+  {
+    // arrange
+    const string payload = "text";
+    const string expected = "result";
+    var command = new TestCommand(payload: payload);
+    _dispatcher.Execute(command)!.Returns(Task.FromResult(expected));
+
+    // act
+    var result = await command.Execute(_dispatcher);
+
+    // assert
+    result.Should().Be(expected);
+  }
+
+  [Fact]
+  public void Command_WhenException_RethrowsError()
+  {
+    // arrange
+    const string payload = "text";
+    var command = new TestCommand(payload: payload);
+    _dispatcher.Execute(command).ThrowsAsync<Exception>();
+
+    // act
+    var act = () => command.Execute(_dispatcher);
+
+    // assert
+    act.Should().ThrowAsync<Exception>();
+  }
 
   private class TestCommand : Command<string, string?>
   {

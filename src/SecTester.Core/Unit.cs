@@ -22,9 +22,17 @@ public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>, IComparable
 
   public override bool Equals(object? obj) => obj is Unit;
 
+  public override string ToString() => "()";
+
   public static bool operator ==(Unit first, Unit second) => true;
 
   public static bool operator !=(Unit first, Unit second) => false;
 
-  public override string ToString() => "()";
+  public static bool operator <(Unit left, Unit right) => false;
+
+  public static bool operator <=(Unit left, Unit right) => true;
+
+  public static bool operator >(Unit left, Unit right) => false;
+
+  public static bool operator >=(Unit left, Unit right) => true;
 }

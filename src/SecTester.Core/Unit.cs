@@ -6,7 +6,7 @@ namespace SecTester.Core;
 // Based on https://github.com/jbogard/MediatR/blob/master/src/MediatR.Contracts/Unit.cs
 public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>, IComparable
 {
-  private static readonly Unit _value = new();
+  private static readonly Unit _value;
 
   public static ref readonly Unit Value => ref _value;
 

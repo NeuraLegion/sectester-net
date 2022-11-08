@@ -1,1 +1,10 @@
+global using System.Net;
+global using System.Text.Json.Serialization;
+global using FluentAssertions;
+global using Microsoft.Extensions.DependencyInjection;
+global using NSubstitute;
+global using RichardSzalay.MockHttp;
+global using SecTester.Bus.Commands;
+global using SecTester.Bus.Dispatchers;
+global using SecTester.Core;
 global using Xunit;

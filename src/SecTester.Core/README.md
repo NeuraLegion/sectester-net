@@ -111,6 +111,125 @@ var config = new Configuration(
   credentialProviders: new List<CredentialProvider> { credentialsProvider });
 ```
 
+### Messages
+
+Message is used for syncing state between SDK, application and/or external services.
+This functionality is done by sending messages outside using a concrete implementation of `Dispatcher`.
+
+Depending on the type of derived class from the `Message`, it might be addressed to only one consumer or have typically multiple consumers as well.
+When a message is sent to multiple consumers, the appropriate event handler in each consumer handles the message.
+
+The `Message` is a data-holding class, but it implements a [Visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern#:~:text=In%20object%2Doriented%20programming%20and,structures%20without%20modifying%20the%20structures.)
+to allow clients to perform operations on it using a visitor class (see `Dispatcher`) without modifying the source.
+
+For instance, you can dispatch a message in a way that is more approach you or convenient from the client's perspective.
+
+```csharp
+public record Ping : Event 
+{
+  public readonly string Status;
+}
+
+var @event = new Ping("connected");
+
+// using a visitor pattern
+await @event.Execute(dispatcher);
+
+// or directly
+await dispatcher.execute(@event);
+```
+
+The same is applicable for the `Event`. You just need to use the `EventDispatcher` instead of `CommandDispatcher`.
+
+Each message have a correlation ID to ensure atomicity. The regular UUID is used, but you might also want to consider other options.
+
+### Request-response
+
+The request-response message (aka `Command`) style is useful when you need to exchange messages between various external services.
+Using `Command` you can easily ensure that the service has actually received the message and sent a response back.
+
+To create an instance of `Command` use the abstract class as follows:
+
+```csharp
+public record RequestOptions 
+{
+  public string Url;
+  public string Method;
+  public Dictionary<string, string>? headers;
+  public string? Body;
+}
+
+public record RequestOutput 
+{
+  public int Status;
+  public Dictionary<string, string>? headers;
+  public string? Body;
+}
+
+private record Request(RequestOptions Payload) : Command<RequestOutput>
+{
+  public RequestOptions Payload = Payload;
+}
+```
+
+To adjust its behavior you can use next options:
+
+| Option         | Description                                                                                  |
+|:---------------| -------------------------------------------------------------------------------------------- |
+| `ExpectReply`  | Indicates whether to wait for a reply. By default `true`.                                    |
+| `Ttl`          | Period of time that command should be handled before being discarded. By default `10000` ms. |
+| `Type`         | The name of a command. By default, it is the name of specific class.                         |
+| `CorelationId` | Used to ensure atomicity while working with EventBus. By default, random UUID.               |
+| `CreatedAt`    | The exact date and time the command was created.                                             |
+
+### Publish-subscribe
+
+When you just want to publish events without waiting for a response, it is better to use the `Event`.
+The ideal use case for the publish-subscribe model is when you want to simply notify another service that a certain condition has occurred.
+
+To create an instance of `Event` use the abstract class as follows:
+
+```csharp
+public record Issue
+{
+  public string Name;
+  public string Details;
+  public string Type;
+  public string? Cvss;
+  public string? Cwe;
+}
+
+private record IssueDetected(Issue Issue) : Event
+{
+  public Issue Issue = Issue;
+}
+```
+
+To adjust its behavior you can use next options:
+
+| Option         | Description                                                                    |
+|:---------------| ------------------------------------------------------------------------------ |
+| `Type`         | The name of a command. By default, it is the name of specific class.           |
+| `CorelationId` | Used to ensure atomicity while working with EventBus. By default, random UUID. |
+| `CreatedAt`    | The exact date and time the event was created.                                 |
+
+To create an event handler, you should implement the `Handler` interface and use the IoC container to register a handler using the interface as a provider:
+
+```csharp
+public class IssueDetectedHandler : EventHandler<Issue> 
+{
+  public Task<Unit> Handle(IssueDetected @event) 
+  {
+    // implementation
+    return Unit.Task;
+  }
+}
+```
+
+> It is not possible to register multiple event handlers for a single event pattern.
+
+As soon as the `IssueDetected` event appears, the event handler takes a single argument, the data passed from the client (in this case, an event payload which has been sent over the network).
+
 ## License
 
 Copyright © 2022 [Bright Security](https://brightsec.com/).

@@ -1,3 +1,5 @@
+using SecTester.Core.Logger;
+
 namespace SecTester.Core.Tests;
 
 public class ConfigurationTests
@@ -135,5 +137,25 @@ public class ConfigurationTests
 
     // assert
     configuration.Should().BeEquivalentTo(new { Credentials = credentials1 });
+  }
+  
+  [Fact]
+  public void Constructor_LogLevelOmitted_SetLogLevelToError()
+  {
+    // act
+    var configuration = new Configuration(hostname: "app.neuralegion.com");
+
+    // assert
+    configuration.LogLevel.Should().Be(LogLevel.Error);
+  }
+  
+  [Fact]
+  public void Constructor_GivenSpecificLogLevel_SetLogLevelToValue()
+  {
+    // act
+    var configuration = new Configuration(hostname: "app.neuralegion.com", logLevel:LogLevel.Verbose);
+
+    // assert
+    configuration.LogLevel.Should().Be(LogLevel.Verbose);
   }
 }

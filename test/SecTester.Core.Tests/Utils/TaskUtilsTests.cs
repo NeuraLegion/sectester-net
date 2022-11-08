@@ -11,8 +11,8 @@ public class TaskUtilsTests
     Task<int>[] tasks =
     {
       Task.Delay(1).ContinueWith(_ => 1),
-      Task.Delay(10).ContinueWith(_ => 2),
-      Task.Delay(20).ContinueWith(_ => 3)
+      Task.Delay(2).ContinueWith(_ => 2),
+      Task.Delay(3).ContinueWith(_ => 3)
     };
 
     // act
@@ -29,15 +29,15 @@ public class TaskUtilsTests
     Task<int>[] tasks =
     {
       Task.Delay(1).ContinueWith(_ => 1),
-      Task.Delay(10).ContinueWith(_ => 2),
-      Task.Delay(20).ContinueWith(_ => 3)
+      Task.Delay(2).ContinueWith(_ => 2),
+      Task.Delay(3).ContinueWith(_ => 3)
     };
 
     // act
     int? result = await TaskUtils.First(tasks, x => x >= 2);
 
     // assert
-    result.Should().Be(2);
+    result.Should().BeGreaterOrEqualTo(2);
   }
 
   [Fact]
@@ -60,8 +60,8 @@ public class TaskUtilsTests
     Task<int>[] tasks =
     {
       Task.FromException<int>(new Exception("something went wrong")),
-      Task.Delay(10).ContinueWith(_ => 2),
-      Task.Delay(20).ContinueWith(_ => 3)
+      Task.Delay(2).ContinueWith(_ => 2),
+      Task.Delay(3).ContinueWith(_ => 3)
     };
 
     // act

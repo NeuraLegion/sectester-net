@@ -3,19 +3,37 @@ using System.Threading.Tasks;
 
 namespace SecTester.Core.Bus;
 
-public class Command<T, TR> : Message<T>
+public record Command<TResponse> : Message
 {
-  public bool ExpectReply { get; protected set; }
-  public int Ttl { get; protected set; }
+  private readonly int _ttl;
+  private const int DefaultTtl = 10000;
+  public bool ExpectReply { get; protected init; }
 
-  public Command(T payload, string? type = null, string? correlationId = null, DateTime? createdAt = null, bool? expectReply = null,
-    int? ttl = null) : base(payload, type, correlationId, createdAt)
+  public int Ttl
   {
-    ExpectReply = expectReply ?? true;
-    Ttl = ttl != null && ttl > 0 ? (int)ttl : 10000;
+    get => _ttl;
+    protected init => _ttl = value > 0 ? value : DefaultTtl;
   }
 
-  public Task<TR?> Execute(CommandDispatcher dispatcher)
+  public Command()
+  {
+    ExpectReply = true;
+    Ttl = DefaultTtl;
+  }
+
+  public Command(bool expectReply, int ttl)
+  {
+    ExpectReply = expectReply;
+    Ttl = ttl;
+  }
+
+  public Command(string type, string correlationId, DateTime createdAt, bool expectReply, int ttl) : base(type, correlationId, createdAt)
+  {
+    ExpectReply = expectReply;
+    Ttl = ttl;
+  }
+
+  public Task<TResponse?> Execute(CommandDispatcher dispatcher)
   {
     return dispatcher.Execute(this);
   }

@@ -50,11 +50,18 @@ public class MessageTests
     message.Should().BeEquivalentTo(expected);
   }
 
-  private class TestMessage : Message<string>
+  private record TestMessage : Message
   {
-    public TestMessage(string payload, string? type = null, string? correlationId = null, DateTime? createdAt = null) :
-      base(payload, type, correlationId, createdAt)
+    public string Payload;
+
+    public TestMessage(string payload)
     {
+      Payload = payload;
+    }
+
+    public TestMessage(string payload, string type, string correlationId, DateTime createdAt) : base(type, correlationId, createdAt)
+    {
+      Payload = payload;
     }
   }
 }

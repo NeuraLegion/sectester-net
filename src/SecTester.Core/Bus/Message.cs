@@ -2,23 +2,27 @@ using System;
 
 namespace SecTester.Core.Bus;
 
-public abstract class Message<T>
+public abstract record Message
 {
-  public string CorrelationId { get; protected set; }
-  public DateTime CreatedAt { get; protected set; }
-  public T Payload { get; protected set; }
-  public string Type { get; protected set; }
+  public string CorrelationId { get; protected init; }
+  public DateTime CreatedAt { get; protected init; }
+  public string Type { get; protected init; }
+
+  protected Message()
+  {
+    Type = this.GetType().Name;
+    CorrelationId = Guid.NewGuid().ToString();
+    CreatedAt = DateTime.Now;
+  }
 
   protected Message(
-    T payload,
-    string? type = null,
-    string? correlationId = null,
-    DateTime? createdAt = null
+    string type,
+    string correlationId,
+    DateTime createdAt
   )
   {
-    Payload = payload;
-    Type = type ?? this.GetType().Name;
-    CorrelationId = correlationId ?? Guid.NewGuid().ToString();
-    CreatedAt = createdAt ?? DateTime.Now;
+    Type = type;
+    CorrelationId = correlationId;
+    CreatedAt = createdAt;
   }
 }

@@ -4,6 +4,6 @@ namespace SecTester.Core.Bus;
 
 public interface CommandDispatcher
 {
-  Task<TR?> Execute<T, TR>(Command<T, TR> message);
+  Task<TResult?> Execute<TResult>(Command<TResult> message);
   Task<object> Execute(object payload);
 }

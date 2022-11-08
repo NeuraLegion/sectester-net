@@ -49,7 +49,7 @@ public class CommandTests : IDisposable
     };
 
     // act
-    var message = new TestCommand(payload, ttl: ttl);
+    var message = new TestCommandWithTtl(payload, ttl);
 
     // assert
     message.Should().BeEquivalentTo(expected);
@@ -67,7 +67,7 @@ public class CommandTests : IDisposable
     };
 
     // act
-    var message = new TestCommand(payload, ttl: ttl);
+    var message = new TestCommandWithTtl(payload, ttl);
 
     // assert
     message.Should().BeEquivalentTo(expected);
@@ -78,7 +78,7 @@ public class CommandTests : IDisposable
   {
     // arrange
     const string payload = "text";
-    var command = new TestCommand(payload: payload);
+    var command = new TestCommand(Payload: payload);
     _dispatcher.Execute(command).Returns(Task.FromResult<string?>(null));
 
     // act
@@ -94,7 +94,7 @@ public class CommandTests : IDisposable
     // arrange
     const string payload = "text";
     const string expected = "result";
-    var command = new TestCommand(payload: payload);
+    var command = new TestCommand(Payload: payload);
     _dispatcher.Execute(command)!.Returns(Task.FromResult(expected));
 
     // act
@@ -109,7 +109,7 @@ public class CommandTests : IDisposable
   {
     // arrange
     const string payload = "text";
-    var command = new TestCommand(payload: payload);
+    var command = new TestCommand(Payload: payload);
     _dispatcher.Execute(command).ThrowsAsync<Exception>();
 
     // act
@@ -119,10 +119,16 @@ public class CommandTests : IDisposable
     act.Should().ThrowAsync<Exception>();
   }
 
-  private class TestCommand : Command<string, string?>
+  private record TestCommand(string Payload) : Command<string?>
   {
-    public TestCommand(string payload, string? type = null, string? correlationId = null, DateTime? createdAt = null, bool? expectReply = null, int? ttl = null) : base(payload, type, correlationId, createdAt, expectReply, ttl)
+    public string Payload = Payload;
+  }
+
+  private record TestCommandWithTtl : TestCommand
+  {
+    public TestCommandWithTtl(string payload, int ttl) : base(payload)
     {
+      Ttl = ttl;
     }
   }
 }

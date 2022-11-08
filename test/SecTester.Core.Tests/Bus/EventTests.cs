@@ -18,7 +18,7 @@ public class EventTests : IDisposable
   {
     // arrange
     const string payload = "text";
-    var @event = new TestEvent(payload: payload);
+    var @event = new TestEvent(Payload: payload);
     _dispatcher.Publish(@event).Returns(Task.CompletedTask);
 
     // act
@@ -33,7 +33,7 @@ public class EventTests : IDisposable
   {
     // arrange
     const string payload = "text";
-    var @event = new TestEvent(payload: payload);
+    var @event = new TestEvent(Payload: payload);
     _dispatcher.Publish(@event).ThrowsAsync<Exception>();
 
     // act
@@ -43,10 +43,8 @@ public class EventTests : IDisposable
     act.Should().ThrowAsync<Exception>();
   }
 
-  private class TestEvent : Event<string>
+  private record TestEvent(string Payload) : Event
   {
-    public TestEvent(string payload) : base(payload)
-    {
-    }
+    public string Payload = Payload;
   }
 }

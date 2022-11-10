@@ -11,7 +11,11 @@ public class EventTests : IDisposable
     _dispatcher = Substitute.For<EventDispatcher>();
   }
 
-  public void Dispose() => _dispatcher.ClearSubstitute();
+  public void Dispose()
+  {
+    _dispatcher.ClearSubstitute();
+    GC.SuppressFinalize(this);
+  }
 
   [Fact]
   public void Event_Publishes()

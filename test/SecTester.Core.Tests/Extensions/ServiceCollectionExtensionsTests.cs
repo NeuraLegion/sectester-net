@@ -4,18 +4,24 @@ namespace SecTester.Core.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests
 {
+  private readonly ServiceCollection _services;
+
+  public ServiceCollectionExtensionsTests()
+  {
+    _services = new ServiceCollection();
+  }
+
   [Fact]
   public void AddSecTesterConfig_Hostname_ReturnInstanceWithDefaultOptions()
   {
     // arrange
     const string hostname = "app.neuralegion.com";
-    var services = new ServiceCollection();
 
     // act
-    services.AddSecTesterConfig(hostname);
+    _services.AddSecTesterConfig(hostname);
 
     // assert
-    var provider = services.BuildServiceProvider();
+    using var provider = _services.BuildServiceProvider();
     var restService = provider.GetRequiredService<Configuration>();
     restService.Should().BeOfType<Configuration>();
   }
@@ -25,13 +31,12 @@ public class ServiceCollectionExtensionsTests
   {
     // arrange
     var configuration = new Configuration("app.neuralegion.com");
-    var services = new ServiceCollection();
 
     // act
-    services.AddSecTesterConfig(configuration);
+    _services.AddSecTesterConfig(configuration);
 
     // assert
-    var provider = services.BuildServiceProvider();
+    using var provider = _services.BuildServiceProvider();
     var restService = provider.GetRequiredService<Configuration>();
     restService.Should().BeEquivalentTo(configuration);
   }

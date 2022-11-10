@@ -15,16 +15,10 @@ public record Command<TResponse> : Message
     protected init => _ttl = value > 0 ? value : DefaultTtl;
   }
 
-  public Command()
+  public Command(bool? expectReply = null, int? ttl = null)
   {
-    ExpectReply = true;
-    Ttl = DefaultTtl;
-  }
-
-  public Command(bool expectReply, int ttl)
-  {
-    ExpectReply = expectReply;
-    Ttl = ttl;
+    ExpectReply = expectReply ?? true;
+    Ttl = ttl ?? DefaultTtl;
   }
 
   public Command(string type, string correlationId, DateTime createdAt, bool expectReply, int ttl) : base(type, correlationId, createdAt)

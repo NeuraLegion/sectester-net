@@ -11,7 +11,11 @@ public class CommandTests : IDisposable
     _dispatcher = Substitute.For<CommandDispatcher>();
   }
 
-  public void Dispose() => _dispatcher.ClearSubstitute();
+  public void Dispose()
+  {
+    _dispatcher.ClearSubstitute();
+    GC.SuppressFinalize(this);
+  }
 
   [Fact]
   public void Command_OnlyPayload_SetDefaultValuesToProps()

@@ -1,3 +1,5 @@
+using SecTester.Core.Tests.Fixtures;
+
 namespace SecTester.Core.Tests.Utils;
 
 public class MessageUtilsTests
@@ -6,15 +8,11 @@ public class MessageUtilsTests
   {
     new object[]
     {
-      typeof(ConcreteEvent), nameof(ConcreteEvent)
+      typeof(TestEvent), nameof(TestEvent)
     },
     new object[]
     {
-      typeof(ConcreteEvent2), nameof(ConcreteEvent)
-    },
-    new object[]
-    {
-      typeof(ConcreteEvent3), "custom"
+      typeof(TestEvent2), "custom"
     }
   };
 
@@ -29,11 +27,23 @@ public class MessageUtilsTests
     result.Should().Be(expected);
   }
 
-  private record ConcreteEvent : Event;
+  [Fact]
+  public void MessageUtils_GivenGenericType_ReturnsType()
+  {
+    // act
+    var result = MessageUtils.GetMessageType<TestEvent>();
 
-  [MessageType(name: nameof(ConcreteEvent))]
-  private record ConcreteEvent2 : Event;
+    // assert
+    result.Should().Be("TestEvent");
+  }
 
-  [MessageType(name: "custom")]
-  private record ConcreteEvent3 : Event;
+  [Fact]
+  public void MessageUtils_GivenGenericTypeWithAttribute_ReturnsType()
+  {
+    // act
+    var result = MessageUtils.GetMessageType<TestEvent2>();
+
+    // assert
+    result.Should().Be("custom");
+  }
 }

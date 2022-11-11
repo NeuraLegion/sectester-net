@@ -1,3 +1,5 @@
+using SecTester.Core.Tests.Fixtures;
+
 namespace SecTester.Core.Tests.Bus;
 
 public class CommandTests : IDisposable
@@ -119,18 +121,5 @@ public class CommandTests : IDisposable
 
     // assert
     act.Should().ThrowAsync<Exception>();
-  }
-
-  private record TestCommand(string Payload) : Command<string?>
-  {
-    public string Payload = Payload;
-  }
-
-  private record TestCommandWithTtl : TestCommand
-  {
-    public TestCommandWithTtl(string payload, int ttl) : base(payload)
-    {
-      Ttl = ttl;
-    }
   }
 }

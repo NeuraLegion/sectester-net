@@ -2,6 +2,8 @@ namespace SecTester.Core.Tests.CredentialProviders;
 
 public class EnvCredentialProviderTests
 {
+  private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
+
   [Fact]
   public async Task Get_EnvVariableIsNotProvided_ReturnNull()
   {
@@ -23,15 +25,14 @@ public class EnvCredentialProviderTests
     try
     {
       // arrange
-      const string token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
-      Environment.SetEnvironmentVariable(EnvCredentialProvider.BrightToken, token);
+      Environment.SetEnvironmentVariable(EnvCredentialProvider.BrightToken, Token);
       var envCredentialProvider = new EnvCredentialProvider();
 
       // act
       var result = await envCredentialProvider.Get();
 
       // assert
-      result.Should().BeEquivalentTo(new { Token = token });
+      result.Should().BeEquivalentTo(new { Token });
     }
     finally
     {

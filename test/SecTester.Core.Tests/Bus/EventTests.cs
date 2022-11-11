@@ -1,3 +1,5 @@
+using SecTester.Core.Tests.Fixtures;
+
 namespace SecTester.Core.Tests.Bus;
 
 public class EventTests : IDisposable
@@ -43,10 +45,5 @@ public class EventTests : IDisposable
 
     // assert
     act.Should().ThrowAsync<Exception>();
-  }
-
-  private record TestEvent(string Payload) : Event
-  {
-    public string Payload = Payload;
   }
 }

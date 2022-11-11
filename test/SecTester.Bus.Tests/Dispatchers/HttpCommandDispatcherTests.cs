@@ -1,3 +1,5 @@
+using SecTester.Bus.Tests.Fixtures;
+
 namespace SecTester.Bus.Tests.Dispatchers;
 
 public class HttpCommandDispatcherTests : IDisposable
@@ -170,27 +172,5 @@ public class HttpCommandDispatcherTests : IDisposable
     // assert
     await act.Should().ThrowAsync<Exception>();
     _mockHttp.VerifyNoOutstandingExpectation();
-  }
-
-  private record BazQux
-  {
-    public string Baz { get; }
-
-    [JsonConstructor]
-    public BazQux(string baz)
-    {
-      Baz = baz;
-    }
-  }
-
-  private record FooBar
-  {
-    public string Foo { get; }
-
-    [JsonConstructor]
-    public FooBar(string foo)
-    {
-      Foo = foo;
-    }
   }
 }

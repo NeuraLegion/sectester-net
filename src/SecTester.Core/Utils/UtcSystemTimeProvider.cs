@@ -2,7 +2,7 @@ using System;
 
 namespace SecTester.Core.Utils;
 
-public class UtcSystemTimeProvider : ISystemTimeProvider
+public class UtcSystemTimeProvider : SystemTimeProvider
 {
   public DateTime Now => DateTime.UtcNow;
 }

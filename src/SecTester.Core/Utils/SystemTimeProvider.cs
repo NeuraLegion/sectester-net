@@ -2,7 +2,7 @@ using System;
 
 namespace SecTester.Core.Utils;
 
-public interface ISystemTimeProvider
+public interface SystemTimeProvider
 {
   DateTime Now { get; }
 }

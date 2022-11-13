@@ -1,7 +1,3 @@
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute.ExceptionExtensions;
-using SecTester.Bus.Extensions;
-
 namespace SecTester.Bus.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests

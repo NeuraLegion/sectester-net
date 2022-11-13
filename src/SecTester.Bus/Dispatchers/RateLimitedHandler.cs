@@ -16,30 +16,13 @@ internal sealed class RateLimitedHandler
   private readonly RateLimiter _rateLimiter;
 
   public RateLimitedHandler(RateLimiter limiter)
-    : base(new HttpClientHandler()) => _rateLimiter = limiter;
-
-  protected override async Task<HttpResponseMessage> SendAsync(
-    HttpRequestMessage request, CancellationToken cancellationToken)
+    : base(new HttpClientHandler
+    {
+      AllowAutoRedirect = true,
+      AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+    })
   {
-    using RateLimitLease lease = await _rateLimiter.AcquireAsync(
-      permitCount: 1, cancellationToken);
-
-    if (lease.IsAcquired)
-    {
-      return await base.SendAsync(request, cancellationToken);
-    }
-
-    var response = new HttpResponseMessage((HttpStatusCode)429);
-    if (lease.TryGetMetadata(
-          MetadataName.RetryAfter, out TimeSpan retryAfter))
-    {
-      response.Headers.Add(
-        "Retry-After",
-        ((int)retryAfter.TotalSeconds).ToString(
-          NumberFormatInfo.InvariantInfo));
-    }
-
-    return response;
+    _rateLimiter = limiter;
   }
 
   async ValueTask IAsyncDisposable.DisposeAsync()
@@ -48,6 +31,30 @@ internal sealed class RateLimitedHandler
 
     Dispose(disposing: false);
     GC.SuppressFinalize(this);
+  }
+
+  protected override async Task<HttpResponseMessage> SendAsync(
+    HttpRequestMessage request, CancellationToken cancellationToken)
+  {
+    using var lease = await _rateLimiter.AcquireAsync(
+      1, cancellationToken);
+
+    if (lease.IsAcquired)
+    {
+      return await base.SendAsync(request, cancellationToken);
+    }
+
+    var response = new HttpResponseMessage((HttpStatusCode)429);
+    if (lease.TryGetMetadata(
+          MetadataName.RetryAfter, out var retryAfter))
+    {
+      response.Headers.Add(
+        "Retry-After",
+        ((int)retryAfter.TotalSeconds).ToString(
+          NumberFormatInfo.InvariantInfo));
+    }
+
+    return response;
   }
 
   protected override void Dispose(bool disposing)

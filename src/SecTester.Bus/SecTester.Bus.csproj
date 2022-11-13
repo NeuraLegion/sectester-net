@@ -12,6 +12,7 @@
     <Folder Include="Commands" />
     <Folder Include="Dispatchers" />
     <Folder Include="Extensions" />
+    <Folder Include="Internal" />
   </ItemGroup>
 
   <ItemGroup>

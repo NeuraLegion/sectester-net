@@ -1,5 +1,3 @@
-using SecTester.Core.Utils;
-
 namespace SecTester.Core.Tests.Utils;
 
 public class TaskUtilsTests

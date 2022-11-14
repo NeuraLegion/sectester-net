@@ -1,5 +1,3 @@
-using SecTester.Core.CredentialProviders;
-
 namespace SecTester.Core.Tests.CredentialProviders;
 
 public class EnvCredentialProviderTests

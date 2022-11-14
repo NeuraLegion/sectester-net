@@ -1,4 +1,5 @@
 using System;
+using SecTester.Core.Utils;
 
 namespace SecTester.Core.Bus;
 
@@ -10,7 +11,7 @@ public abstract record Message
 
   protected Message()
   {
-    Type = this.GetType().Name;
+    Type = MessageUtils.GetMessageType(GetType());
     CorrelationId = Guid.NewGuid().ToString();
     CreatedAt = DateTime.Now;
   }

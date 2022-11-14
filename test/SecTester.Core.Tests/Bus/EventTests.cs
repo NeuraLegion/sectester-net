@@ -1,5 +1,3 @@
-using SecTester.Core.Bus;
-
 namespace SecTester.Core.Tests.Bus;
 
 public class EventTests : IDisposable

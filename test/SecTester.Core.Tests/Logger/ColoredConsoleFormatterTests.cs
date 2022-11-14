@@ -1,10 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Options;
-using SecTester.Core.Logger;
-using SecTester.Core.Utils;
-
 namespace SecTester.Core.Tests.Logger;
 
 public class ColoredConsoleFormatterTests
@@ -41,7 +34,9 @@ public class ColoredConsoleFormatterTests
     systemTimeProviderMock.Now.Returns(DateTime.Now);
     optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
     {
-      TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false
+      TimestampFormat = "HH:mm:ss",
+      UseUtcTimestamp = false,
+      IncludeScopes = false
     });
 
     using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock);

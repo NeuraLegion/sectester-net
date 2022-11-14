@@ -1,11 +1,3 @@
-using System.Globalization;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Options;
-using SecTester.Core.Logger;
-using SecTester.Core.Utils;
-
 namespace SecTester.Core.Tests.Logger;
 
 public class DefaultConsoleFormatterTests
@@ -93,7 +85,9 @@ public class DefaultConsoleFormatterTests
     systemTimeProviderMock.Now.Returns(DateTime.Now);
     optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
     {
-      TimestampFormat = "  ", IncludeScopes = false, UseUtcTimestamp = false
+      TimestampFormat = "  ",
+      IncludeScopes = false,
+      UseUtcTimestamp = false
     });
 
     using var sut = new DefaultConsoleFormatter(optionsMonitorMock, systemTimeProviderMock);

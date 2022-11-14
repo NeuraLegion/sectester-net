@@ -46,11 +46,11 @@ public class ServiceCollectionExtensionsTests
   public void AddLogging_SetMinimumLevelToErrorByDefault()
   {
     // arrange
+    var configuration = new Configuration("app.neuralegion.com");
     var services = new ServiceCollection();
-    services.AddSystemTimeProvider();
 
     // act
-    services.AddDefaultLogging();
+    services.AddSecTesterConfig(configuration);
 
     // assert
     var provider = services.BuildServiceProvider();
@@ -58,17 +58,16 @@ public class ServiceCollectionExtensionsTests
     logger.IsEnabled(LogLevel.Error).Should().BeTrue();
     logger.IsEnabled(LogLevel.Warning).Should().BeFalse();
   }
-  
     
   [Fact]
   public void AddLogging_GivenLogLevel_SetMinimumLevelToValue()
   {
     // arrange
+    var configuration = new Configuration("app.neuralegion.com", logLevel:LogLevel.Information);
     var services = new ServiceCollection();
-    services.AddSystemTimeProvider();
-
+    
     // act
-    services.AddDefaultLogging(LogLevel.Information);
+    services.AddSecTesterConfig(configuration);
 
     // assert
     var provider = services.BuildServiceProvider();

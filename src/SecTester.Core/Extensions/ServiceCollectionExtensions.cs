@@ -10,34 +10,30 @@ namespace SecTester.Core.Extensions
   {
     public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, string hostname)
     {
-      collection.Add(new ServiceDescriptor(typeof(Configuration), new Configuration(hostname)));
+      collection.AddSecTesterConfig(new Configuration(hostname));
       return collection;
     }
 
     public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, Configuration configuration)
     {
-      collection.Add(new ServiceDescriptor(typeof(Configuration), configuration));
-      return collection;
-    }
-
-    public static IServiceCollection AddSystemTimeProvider(this IServiceCollection collection, SystemTimeProvider? instance = null)
-    {
-      collection.AddSingleton(instance ?? new UtcSystemTimeProvider());
-      return collection;
-    }
-
-    public static IServiceCollection AddDefaultLogging(this IServiceCollection collection, LogLevel logLevel = LogLevel.Error)
-    {
-      
-      collection.AddLogging((builder) =>
+      collection.AddSingleton(configuration);
+      collection.AddSingleton<SystemTimeProvider>(new UtcSystemTimeProvider());
+      collection.AddLogging(builder =>
       {
-        builder.AddConsoleFormatter<ColoredConsoleFormatter, DefaultConsoleFormatterOptions>();
-        builder.SetMinimumLevel(logLevel);
-        builder.AddConsole(options =>
-        {
-          options.LogToStandardErrorThreshold = LogLevel.Error;
-          options.FormatterName = nameof(ColoredConsoleFormatter);
-        });
+        builder.SetMinimumLevel(configuration.LogLevel)
+          .AddConsole(options =>
+          {
+            options.LogToStandardErrorThreshold = LogLevel.Error;
+            options.FormatterName = nameof(ColoredConsoleFormatter);
+          })
+          .AddConsoleFormatter<ColoredConsoleFormatter, ConsoleFormatterOptions>(
+            options =>
+            {
+              options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+              options.UseUtcTimestamp = false;
+              options.IncludeScopes = false;
+            }
+          );
       });
 
       return collection;

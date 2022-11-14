@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using SecTester.Core.Logger;
 using SecTester.Core.Utils;
@@ -17,11 +18,14 @@ public class ColoredConsoleFormatterTests
     new object[] { LogLevel.Debug, "\x1B[1m\x1B[37m" }, new object[] { LogLevel.Trace, "\x1B[1m\x1B[36m" }
   };
 
-  static LogEntry<Tuple<string, object[]>> CreateLogEntry(LogLevel logLevel, string message, params object[] args)
+  private readonly IExternalScopeProvider _externalScopeProviderMock = Substitute.For<IExternalScopeProvider>();
+
+  private static LogEntry<Tuple<string, object[]>> CreateLogEntry(LogLevel logLevel, string message,
+    params object[] args)
   {
     return new LogEntry<Tuple<string, object[]>>(logLevel, "category", 1, new Tuple<string, object[]>(message, args),
       null,
-      (state, exception) => exception != null ? exception.ToString() : string.Format(state.Item1, state.Item2));
+      (state, exception) => exception?.ToString() ?? string.Format(state.Item1, state.Item2));
   }
 
   [Theory]
@@ -29,23 +33,24 @@ public class ColoredConsoleFormatterTests
   public void Write_GivenLogLevel_LogColorSequence(LogLevel logLevel, string foregroundAnsiColor)
   {
     // arrange
-    var optionsMonitorMock = Substitute.For<IOptionsMonitor<DefaultConsoleFormatterOptions>>();
+    var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
     var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(logLevel, "message");
 
     systemTimeProviderMock.Now.Returns(DateTime.Now);
-    optionsMonitorMock.CurrentValue.Returns(new DefaultConsoleFormatterOptions() { TimestampFormat = "HH:mm:ss" });
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
+    {
+      TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false
+    });
 
-    var expectedTail = $"{DefaultForegroundColor} message{Environment.NewLine}";
-
-    var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock);
+    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock);
 
     // act
-    sut.Write(logEntry, null, outStringWriter);
+    sut.Write(logEntry, _externalScopeProviderMock, outStringWriter);
 
     // assert
     outStringWriter.ToString().Should().StartWith(foregroundAnsiColor);
-    outStringWriter.ToString().Should().EndWith(expectedTail);
+    outStringWriter.ToString().Should().EndWith($"{DefaultForegroundColor} message{Environment.NewLine}");
   }
 }

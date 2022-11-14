@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -29,17 +30,17 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
 
 
   private readonly IDisposable _optionsReloadToken;
-  private DefaultConsoleFormatterOptions _formatterOptions;
+  private ConsoleFormatterOptions _formatterOptions;
 
-  protected SystemTimeProvider _systemTimeProvider;
+  private SystemTimeProvider _systemTimeProvider;
 
-  public DefaultConsoleFormatter(IOptionsMonitor<DefaultConsoleFormatterOptions> options,
+  public DefaultConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options,
     SystemTimeProvider systemTimeProvider)
     : this(nameof(DefaultConsoleFormatter), options, systemTimeProvider)
   {
   }
 
-  public DefaultConsoleFormatter(string name, IOptionsMonitor<DefaultConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider)
+  public DefaultConsoleFormatter(string name, IOptionsMonitor<ConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider)
     : base(name)
   {
     _optionsReloadToken = options.OnChange(ReloadLoggerOptions);
@@ -47,14 +48,15 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
     _systemTimeProvider = systemTimeProvider;
   }
 
-  private void ReloadLoggerOptions(DefaultConsoleFormatterOptions options)
+  [ExcludeFromCodeCoverage]
+  private void ReloadLoggerOptions(ConsoleFormatterOptions options)
   {
     _formatterOptions = options;
   }
 
   public override void Write<TState>(
     in LogEntry<TState> logEntry,
-    IExternalScopeProvider? scopeProvider,
+    IExternalScopeProvider scopeProvider,
     TextWriter textWriter)
   {
     string? message =
@@ -66,14 +68,13 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
       return;
     }
 
-    WriteHeader(logEntry, scopeProvider, textWriter);
+    WriteHeader(logEntry, textWriter);
     textWriter.Write(" ");
     textWriter.WriteLine(message);
   }
 
   protected virtual void WriteHeader<TState>(
     in LogEntry<TState> logEntry,
-    IExternalScopeProvider? scopeProvider,
     TextWriter textWriter)
   {
     textWriter.Write(FormatHeader(logEntry.LogLevel));
@@ -103,7 +104,7 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
 
   public void Dispose()
   {
-    _optionsReloadToken?.Dispose();
+    _optionsReloadToken.Dispose();
     GC.SuppressFinalize(this);
   }
 }

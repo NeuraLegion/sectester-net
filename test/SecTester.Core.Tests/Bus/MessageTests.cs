@@ -1,5 +1,3 @@
-using SecTester.Core.Bus;
-
 namespace SecTester.Core.Tests.Bus;
 
 public class MessageTests
@@ -52,7 +50,7 @@ public class MessageTests
 
   private record TestMessage : Message
   {
-    public string Payload;
+    public string Payload { get; }
 
     public TestMessage(string payload)
     {

@@ -4,5 +4,5 @@ namespace SecTester.Core.Bus;
 
 public interface EventDispatcher
 {
-  Task Publish(Event message);
+  Task Publish<TEvent>(TEvent message) where TEvent : Event;
 }

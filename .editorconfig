@@ -104,7 +104,7 @@ csharp_preserve_single_line_blocks = true
 # Naming rules
 dotnet_diagnostic.CA1715.severity = none
 dotnet_diagnostic.CA1716.severity = none
-dotnet_code_quality.ca1711.allowed_suffixes = EventHandler
+dotnet_diagnostic.CA1848.severity = none
 
 [*.md]
 max_line_length = off

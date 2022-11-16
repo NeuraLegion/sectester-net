@@ -1,15 +1,14 @@
+using SecTester.Core.Tests.Fixtures;
+
 namespace SecTester.Core.Tests.Bus;
 
 public class MessageTypeAttributeTests
 {
-  [MessageType(name: "custom_name")]
-  private record ConcreteEvent : Event;
-
   [Fact]
   public void EventNameAttribute_SetsCustomName()
   {
     // arrange
-    var info = typeof(ConcreteEvent);
+    var info = typeof(TestEvent2);
 
     // act
     var attribute = info.GetCustomAttributes(typeof(MessageTypeAttribute), true).FirstOrDefault();
@@ -17,7 +16,7 @@ public class MessageTypeAttributeTests
     // assert
     attribute.Should().BeEquivalentTo(new
     {
-      Name = "custom_name"
+      Name = "custom"
     });
   }
 }

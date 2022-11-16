@@ -10,19 +10,24 @@ public class HttpCommandDispatcherTests : IDisposable
   private readonly HttpCommandDispatcher _dispatcher;
   private readonly MessageSerializer _messageSerializer;
   private readonly IHttpClientFactory _httpClientFactory;
+  private readonly RetryStrategy _retryStrategy;
 
   public HttpCommandDispatcherTests()
   {
     _mockHttp = new MockHttpMessageHandler();
     _httpClientFactory = Substitute.For<IHttpClientFactory>();
     _messageSerializer = Substitute.For<DefaultMessageSerializer>();
-    var config = new HttpCommandDispatcherConfig(BaseUrl, Token);
+    _retryStrategy = Substitute.For<RetryStrategy>();
+    _retryStrategy.Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>()).Returns(x => x.ArgAt<Func<Task<HttpResponseMessage>>>(0).Invoke());
     _httpClientFactory.CreateClient(Arg.Any<string>()).Returns(_mockHttp.ToHttpClient());
-    _dispatcher = new HttpCommandDispatcher(_httpClientFactory, config, _messageSerializer);
+
+    var config = new HttpCommandDispatcherConfig(BaseUrl, Token);
+    _dispatcher = new HttpCommandDispatcher(_httpClientFactory, config, _messageSerializer, _retryStrategy);
   }
 
   public void Dispose()
   {
+    _retryStrategy.ClearSubstitute();
     _httpClientFactory.ClearSubstitute();
     _messageSerializer.ClearSubstitute();
     _mockHttp.Clear();
@@ -228,6 +233,25 @@ public class HttpCommandDispatcherTests : IDisposable
 
     // assert
     await act.Should().ThrowAsync<Exception>();
+    _mockHttp.VerifyNoOutstandingExpectation();
+  }
+
+  [Fact]
+  public async Task Execute_NonSuccessStatusCode_RetriesRequest()
+  {
+    // arrange
+    const string path = "/api/test";
+    var command = new HttpRequest<BazQux>(path);
+
+    _mockHttp.Expect($"{BaseUrl}{path}")
+      .Respond(HttpStatusCode.BadGateway);
+
+    // act
+    var act = () => _dispatcher.Execute(command);
+
+    // assert
+    await act.Should().ThrowAsync<Exception>();
+    await _retryStrategy.Received().Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>());
     _mockHttp.VerifyNoOutstandingExpectation();
   }
 }

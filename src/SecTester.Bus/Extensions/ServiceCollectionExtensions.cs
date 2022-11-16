@@ -81,8 +81,8 @@ public static class ServiceCollectionExtensions
     var factory = new ConnectionFactory
     {
       Uri = new Uri(configuration.Url),
-      RequestedHeartbeat = (TimeSpan)configuration.HeartbeatInterval!,
-      RequestedConnectionTimeout = (TimeSpan)configuration.ConnectTimeout!,
+      RequestedHeartbeat = configuration.HeartbeatInterval,
+      RequestedConnectionTimeout = configuration.ConnectTimeout,
       DispatchConsumersAsync = true,
       Password = configuration.Password,
       UserName = configuration.Username

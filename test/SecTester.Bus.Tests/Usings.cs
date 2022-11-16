@@ -12,6 +12,7 @@ global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using NSubstitute;
 global using NSubstitute.ClearExtensions;
+global using NSubstitute.ExceptionExtensions;
 global using RabbitMQ.Client;
 global using RabbitMQ.Client.Events;
 global using RichardSzalay.MockHttp;

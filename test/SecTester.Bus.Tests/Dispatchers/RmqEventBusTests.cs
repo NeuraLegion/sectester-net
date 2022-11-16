@@ -220,7 +220,7 @@ public class RmqEventBusTests : IDisposable
   }
 
   [Fact]
-  public async Task ReceiverHandler_RedeliveredEvent_IgnoresMessage()
+  public async Task ReceiverHandler_RedeliveredEvent_SkipsMessage()
   {
     // act
     var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
@@ -235,7 +235,7 @@ public class RmqEventBusTests : IDisposable
   }
 
   [Fact]
-  public async Task ReceiverHandler_InstanceOfHandlerNotFound_IgnoresMessage()
+  public async Task ReceiverHandler_InstanceOfHandlerNotFound_SkipsMessage()
   {
     // arrange
     var message = new ConcreteEvent("foo");
@@ -266,7 +266,6 @@ public class RmqEventBusTests : IDisposable
   {
     // arrange
     var message = new ConcreteEvent("foo");
-
     var json = JsonSerializer.Serialize(message,
       new JsonSerializerOptions
       {
@@ -286,7 +285,37 @@ public class RmqEventBusTests : IDisposable
   }
 
   [Fact]
-  public async Task ReceiverHandler_NewEvent_HandlesMessage()
+  public async Task ReceiverHandler_EventListenerThrowsError_SilentlyHandlesError()
+  {
+    // arrange
+    var message = new ConcreteEvent("foo");
+
+    var json = JsonSerializer.Serialize(message,
+      new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+      });
+    var body = Encoding.UTF8.GetBytes(json);
+    var basicProperties = Substitute.For<IBasicProperties>();
+    basicProperties.Type = nameof(ConcreteEvent);
+
+    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var exception = new Exception("something went wrong");
+    eventHandler.Handle(Arg.Any<ConcreteEvent>()).ThrowsAsync(exception);
+    _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
+    _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
+
+    // act
+    var act = () => _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+
+    // assert
+    await act.Should().NotThrowAsync();
+  }
+
+  [Fact]
+  public async Task ReceiverHandler_NewEvent_RoutesMessageByType()
   {
     // arrange
     var message = new ConcreteEvent("foo");
@@ -309,6 +338,34 @@ public class RmqEventBusTests : IDisposable
 
     // act
     await _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+
+    // assert
+    await eventHandler.Received().Handle(Arg.Any<ConcreteEvent>());
+  }
+
+  [Fact]
+  public async Task ReceiverHandler_NewEvent_RoutesMessageByRoutingKey()
+  {
+    // arrange
+    var message = new ConcreteEvent("foo");
+
+    var json = JsonSerializer.Serialize(message,
+      new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+      });
+    var body = Encoding.UTF8.GetBytes(json);
+
+    var basicProperties = Substitute.For<IBasicProperties>();
+
+    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
+    _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
+
+    // act
+    await _consumer.HandleBasicDeliver(default, default, false, default, nameof(ConcreteEvent), basicProperties, body);
 
     // assert
     await eventHandler.Received().Handle(Arg.Any<ConcreteEvent>());

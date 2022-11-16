@@ -135,7 +135,7 @@ public class RmqEventBus : EventBus, IDisposable
   {
     channel.ExchangeDeclare(_options.Exchange, "direct", true);
     channel.QueueDeclare(_options.ClientQueue, exclusive: false, autoDelete: true, durable: true);
-    channel.BasicQos(0, _options.PrefetchCount ?? 1, false);
+    channel.BasicQos(0, _options.PrefetchCount, false);
   }
 
   private async Task ReceiverHandler(object sender, BasicDeliverEventArgs args)
@@ -145,15 +145,20 @@ public class RmqEventBus : EventBus, IDisposable
       return;
     }
 
-    var name = args.BasicProperties.Type ?? args.RoutingKey;
+    var name = string.IsNullOrEmpty(args.BasicProperties.Type) ? args.RoutingKey : args.BasicProperties.Type;
     var handlers = GetHandlers(name);
-
-    var consumedMessage =
-      CreateConsumedMessage(name, args.Body.ToArray(), args.BasicProperties.ReplyTo, args.BasicProperties.CorrelationId);
+    var body = Encoding.UTF8.GetString(args.Body.ToArray());
+    var consumedMessage = new ConsumedMessage
+    {
+      Name = name,
+      Payload = body,
+      ReplyTo = args.BasicProperties.ReplyTo,
+      CorrelationId = args.BasicProperties.CorrelationId
+    };
 
     _logger.LogDebug(
-      "Received a event ({Name}) with following payload: {Payload}", consumedMessage.Name,
-      consumedMessage.Payload
+      "Received a event ({Name}) with following payload: {Body}", consumedMessage.Name,
+      body
     );
 
     foreach (var handler in handlers)
@@ -164,7 +169,6 @@ public class RmqEventBus : EventBus, IDisposable
 
   private List<Type> GetHandlers(string eventName)
   {
-
     if (!_handlers.ContainsKey(eventName))
     {
       throw new NoSubscriptionFoundException(eventName);
@@ -184,23 +188,22 @@ public class RmqEventBus : EventBus, IDisposable
     {
       await using var scope = _scopeFactory.CreateAsyncScope();
       var instance = scope.ServiceProvider.GetService(eventHandler);
+      var eventType = GetEventType(consumedMessage.Name);
 
-      if (instance == null)
+      if (instance == null || eventType == null)
       {
         return;
       }
 
       var concreteType = eventHandler.GetConcreteEventListenerType();
+      var payload = DeserializePayload(consumedMessage.Payload, eventType);
       var method = concreteType.GetMethod("Handle");
       var task = (Task)method!.Invoke(instance, new[]
       {
-        consumedMessage.Payload
+        payload
       });
 
-      await task.ConfigureAwait(false);
-
-      var resultProperty = task.GetType().GetProperty("Result");
-      var response = resultProperty!.GetValue(task);
+      var response = await task.Cast<object?>();
 
       if (response != null && !string.IsNullOrEmpty(consumedMessage.ReplyTo))
       {
@@ -209,12 +212,7 @@ public class RmqEventBus : EventBus, IDisposable
     }
     catch (Exception err)
     {
-      _logger.LogDebug(
-        err,
-        "Error while processing a message ({CorrelationId}) due to error occurred. Event: {Event}",
-        consumedMessage.CorrelationId,
-        consumedMessage
-      );
+      _logger.LogDebug(err, "Error while processing a message ({CorrelationId}) due to error occurred. Event: {Payload}", consumedMessage.CorrelationId, consumedMessage.Payload);
     }
   }
 
@@ -254,7 +252,7 @@ public class RmqEventBus : EventBus, IDisposable
     properties.DeliveryMode = 2;
     properties.ContentType = "application/json";
 
-    _logger.LogDebug("Send a message with following parameters: {Json}", messageParams);
+    _logger.LogDebug("Send a message with following parameters: {Params}", messageParams);
 
     channel.BasicPublish(messageParams.Exchange ?? "",
       messageParams.RoutingKey,
@@ -263,19 +261,20 @@ public class RmqEventBus : EventBus, IDisposable
       body);
   }
 
-  private ConsumedMessage CreateConsumedMessage(string name, byte[] body, string? replyTo = default, string? correlationId = default)
+  private static TPayload? DeserializePayload<TPayload>(string data)
   {
-    var type = GetEventType(name)!;
-    var data = Encoding.UTF8.GetString(body);
-    var payload = JsonSerializer.Deserialize(data, type,
+    return (TPayload?)DeserializePayload(data, typeof(TPayload));
+  }
+
+  private static object? DeserializePayload(string data, Type type)
+  {
+    return JsonSerializer.Deserialize(data, type,
       new JsonSerializerOptions
       {
         IncludeFields = true,
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
       });
-
-    return new ConsumedMessage(name, payload!, replyTo, correlationId);
   }
 
   private void BindQueue(string eventName)

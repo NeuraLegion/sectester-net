@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SecTester.Bus.Dispatchers;
 
-[ExcludeFromCodeCoverage]
 internal sealed record MessageParams<T>
 {
   public T? Payload { get; init; }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using SecTester.Core.Bus;
 
@@ -9,20 +8,31 @@ internal static class GenericTypeExtensions
 {
   public static Type GetConcreteEventListenerType(this Type type)
   {
-    var genericTypes = GetEventListenerGenericTypes(type);
-    var types = genericTypes as Type[] ?? genericTypes.ToArray();
+    var (input, output) = GetEventListenerGenericTypes(type);
     var interfaceType = typeof(EventListener<,>);
 
-    return interfaceType.MakeGenericType(types);
+    return interfaceType.MakeGenericType(input, output);
   }
 
-  private static IEnumerable<Type> GetEventListenerGenericTypes(this Type type)
+  private static Tuple<Type, Type> GetEventListenerGenericTypes(this Type type)
   {
-    var interfaceType = typeof(EventListener<,>);
     var genericTypes = type.GetInterfaces()
-      .Where(it => it.IsGenericType && it.GetGenericTypeDefinition() == interfaceType)
-      .SelectMany(it => it.GetGenericArguments());
+      .Where(IsEventListenerType)
+      .SelectMany(it => it.GetGenericArguments())
+      .ToArray();
 
-    return genericTypes;
+    return new Tuple<Type, Type>(genericTypes.First(), genericTypes.Last());
+  }
+
+  private static bool IsEventListenerType(Type it)
+  {
+    var interfaceType = GetEventListenerType();
+
+    return it.IsGenericType && it.GetGenericTypeDefinition() == interfaceType;
+  }
+
+  private static Type GetEventListenerType()
+  {
+    return typeof(EventListener<,>);
   }
 }

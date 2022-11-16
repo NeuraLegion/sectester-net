@@ -48,6 +48,54 @@ public class HttpCommandDispatcherTests : IDisposable
   }
 
   [Fact]
+  public async Task Execute_QueryParameters_SendsWithQueryString()
+  {
+    // arrange
+    const string path = "/api/test";
+    var command = new HttpRequest<Unit>(path, expectReply: false, @params: new Dictionary<string, string>
+    {
+      {
+        "foo", "bar"
+      }
+    });
+
+    _mockHttp.Expect($"{BaseUrl}{path}")
+      .WithQueryString("foo=bar")
+      .WithHeaders("authorization", $"api-key {Token}")
+      .Respond(HttpStatusCode.NoContent);
+
+    // act
+    await _dispatcher.Execute(command);
+
+    // assert
+    _mockHttp.VerifyNoOutstandingExpectation();
+  }
+
+  [Fact]
+  public async Task Execute_QueryParameters_AppendsQueryToExistingInUri()
+  {
+    // arrange
+    const string path = "/api/test?foo=bar";
+    var command = new HttpRequest<Unit>(path, expectReply: false, @params: new Dictionary<string, string>
+    {
+      {
+        "baz", "xyzzy"
+      }
+    });
+
+    _mockHttp.Expect($"{BaseUrl}{path}")
+      .WithQueryString("foo=bar&baz=xyzzy")
+      .WithHeaders("authorization", $"api-key {Token}")
+      .Respond(HttpStatusCode.NoContent);
+
+    // act
+    await _dispatcher.Execute(command);
+
+    // assert
+    _mockHttp.VerifyNoOutstandingExpectation();
+  }
+
+  [Fact]
   public async Task Execute_GivenCommand_SendsCorrelationIdHeader()
   {
     // arrange
@@ -88,11 +136,12 @@ public class HttpCommandDispatcherTests : IDisposable
   {
     // arrange
     const string path = "/api/test";
-    const string body = @"{""foo"":""bar""}";
+    var body = JsonContent.Create(new FooBar("bar"), typeof(FooBar));
     var command = new HttpRequest<Unit>(path, HttpMethod.Post, body: body, expectReply: false);
+    var expectedBody = await body.ReadAsStringAsync().ConfigureAwait(false);
 
     _mockHttp.Expect(HttpMethod.Post, $"{BaseUrl}{path}")
-      .WithContent(body)
+      .WithContent(expectedBody)
       .Respond(HttpStatusCode.NoContent);
 
     // act
@@ -117,7 +166,10 @@ public class HttpCommandDispatcherTests : IDisposable
 
     // assert
     _mockHttp.VerifyNoOutstandingExpectation();
-    result.Should().BeEquivalentTo(new { Baz = "qux" });
+    result.Should().BeEquivalentTo(new
+    {
+      Baz = "qux"
+    });
   }
 
   [Fact]

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Bus.Commands;
@@ -15,22 +14,23 @@ public class HttpCommandDispatcher : CommandDispatcher
 {
   private readonly IHttpClientFactory _httpClientFactory;
   private readonly HttpCommandDispatcherConfig _config;
+  private readonly MessageSerializer _messageSerializer;
 
   private readonly HttpMethod[] _methodsForbidBody =
   {
     HttpMethod.Head, HttpMethod.Options, HttpMethod.Get, HttpMethod.Trace
   };
 
-  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config)
+  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config, MessageSerializer messageSerializer)
   {
-    _config = config;
-    _httpClientFactory = httpClientFactory;
+    _config = config ?? throw new ArgumentNullException(nameof(config));
+    _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
   }
 
   public async Task<TResult?> Execute<TResult>(Command<TResult> message)
   {
-    using var cts = new CancellationTokenSource();
-    cts.CancelAfter(TimeSpan.FromMilliseconds(message.Ttl));
+    using var cts = new CancellationTokenSource(message.Ttl);
     var res = await PerformHttpRequest((HttpRequest<TResult>)message, cts.Token);
 
     if (message.ExpectReply)
@@ -45,15 +45,7 @@ public class HttpCommandDispatcher : CommandDispatcher
   private async Task<TResult?> ParserResponse<TResult>(HttpResponseMessage res)
   {
     var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
-    var data = JsonSerializer.Deserialize<TResult>(responseBody,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
-
-    return data;
+    return _messageSerializer.Deserialize<TResult>(responseBody);
   }
 
   private async Task<HttpResponseMessage> PerformHttpRequest<TResult>(HttpRequest<TResult> request, CancellationToken cancellationToken)

@@ -15,6 +15,9 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddSecTesterBus(this IServiceCollection collection)
   {
     collection
+      .AddSingleton<MessageSerializer, DefaultMessageSerializer>()
+      .AddTransient(CreateHttpCommandDispatcherConfig)
+      .AddSingleton<CommandDispatcher, HttpCommandDispatcher>()
       .AddHttpClient(nameof(HttpCommandDispatcher), (sp, client) =>
       {
         var config = sp.GetService<HttpCommandDispatcherConfig>() ??
@@ -29,23 +32,25 @@ public static class ServiceCollectionExtensions
           PermitLimit = 10
         }))
       );
-    collection.AddTransient(sp =>
-    {
-      var config = sp.GetService<Configuration>() ??
-                   throw new InvalidOperationException("Unable to find a configuration.");
-      return new HttpCommandDispatcherConfig(config.Api, config.Credentials!.Token, TimeSpan.FromSeconds(10));
-    });
-    collection.AddSingleton<HttpCommandDispatcher>();
+
     return collection;
+  }
+
+  private static HttpCommandDispatcherConfig CreateHttpCommandDispatcherConfig(IServiceProvider sp)
+  {
+
+    var config = sp.GetService<Configuration>() ??
+                 throw new InvalidOperationException("Unable to find a configuration.");
+    return new HttpCommandDispatcherConfig(config.Api, config.Credentials!.Token, TimeSpan.FromSeconds(10));
   }
 
   [ExcludeFromCodeCoverage]
   public static IServiceCollection AddSecTesterBus(this IServiceCollection collection, string clientQueue)
   {
-    AddSecTesterBus(collection);
-    collection.AddSingleton(sp => CreateDefaultEventBusOptions(clientQueue, sp));
-    collection.AddSingleton<RmqConnectionManager, DefaultRmqConnectionManager>(CreateRmqConnectionManager);
-    collection.AddSingleton<EventBus, RmqEventBus>(CreateRmqEventBus);
+    AddSecTesterBus(collection).AddSingleton(sp => CreateDefaultEventBusOptions(clientQueue, sp))
+      .AddSingleton<RmqConnectionManager, DefaultRmqConnectionManager>(CreateRmqConnectionManager)
+      .AddSingleton<EventBus, RmqEventBus>(CreateRmqEventBus);
+
     return collection;
   }
 
@@ -70,8 +75,9 @@ public static class ServiceCollectionExtensions
     var connectionManager = sp.GetRequiredService<RmqConnectionManager>();
     var iLifetimeScope = sp.GetRequiredService<IServiceScopeFactory>();
     var logger = sp.GetRequiredService<ILogger<RmqEventBus>>();
+    var messageSerializer = sp.GetRequiredService<MessageSerializer>();
 
-    return new RmqEventBus(configuration, connectionManager, logger, iLifetimeScope);
+    return new RmqEventBus(configuration, connectionManager, logger, iLifetimeScope, messageSerializer);
   }
 
   [ExcludeFromCodeCoverage]

@@ -45,17 +45,4 @@ public class TaskExtensionsTests
     // assert
     result.Should().BeOfType(typeof(Task<object?>));
   }
-
-  [Fact]
-  public async Task Cast_VoidReturnType_ThrowsError()
-  {
-    // arrange
-    var task = Task.CompletedTask;
-
-    // act
-    var act = () => task.Cast<FooBar?>();
-
-    // assert
-    await act.Should().ThrowAsync<ArgumentException>();
-  }
 }

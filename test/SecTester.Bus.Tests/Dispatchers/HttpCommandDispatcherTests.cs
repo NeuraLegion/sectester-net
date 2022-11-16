@@ -8,18 +8,23 @@ public class HttpCommandDispatcherTests : IDisposable
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
   private readonly MockHttpMessageHandler _mockHttp;
   private readonly HttpCommandDispatcher _dispatcher;
+  private readonly MessageSerializer _messageSerializer;
+  private readonly IHttpClientFactory _httpClientFactory;
 
   public HttpCommandDispatcherTests()
   {
     _mockHttp = new MockHttpMessageHandler();
-    var httpClientFactory = Substitute.For<IHttpClientFactory>();
+    _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    _messageSerializer = Substitute.For<DefaultMessageSerializer>();
     var config = new HttpCommandDispatcherConfig(BaseUrl, Token);
-    httpClientFactory.CreateClient(Arg.Any<string>()).Returns(_mockHttp.ToHttpClient());
-    _dispatcher = new HttpCommandDispatcher(httpClientFactory, config);
+    _httpClientFactory.CreateClient(Arg.Any<string>()).Returns(_mockHttp.ToHttpClient());
+    _dispatcher = new HttpCommandDispatcher(_httpClientFactory, config, _messageSerializer);
   }
 
   public void Dispose()
   {
+    _httpClientFactory.ClearSubstitute();
+    _messageSerializer.ClearSubstitute();
     _mockHttp.Clear();
     GC.SuppressFinalize(this);
   }

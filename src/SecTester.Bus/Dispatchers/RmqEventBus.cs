@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,13 +23,15 @@ public class RmqEventBus : EventBus, IDisposable
   private readonly ILogger _logger;
   private readonly RmqEventBusOptions _options;
   private readonly IServiceScopeFactory _scopeFactory;
+  private readonly MessageSerializer _messageSerializer;
   private IModel _channel;
 
   public RmqEventBus(RmqEventBusOptions options, RmqConnectionManager connectionManager, ILogger logger,
-    IServiceScopeFactory scopeFactory)
+    IServiceScopeFactory scopeFactory, MessageSerializer messageSerializer)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _connectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
+    _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     _channel = CreateConsumerChannel();
@@ -196,7 +197,7 @@ public class RmqEventBus : EventBus, IDisposable
       }
 
       var concreteType = eventHandler.GetConcreteEventListenerType();
-      var payload = DeserializePayload(consumedMessage.Payload, eventType);
+      var payload = _messageSerializer.Deserialize(consumedMessage.Payload, eventType);
       var method = concreteType.GetMethod("Handle");
       var task = (Task)method!.Invoke(instance, new[]
       {
@@ -235,13 +236,7 @@ public class RmqEventBus : EventBus, IDisposable
   private void SendMessage<T>(MessageParams<T> messageParams)
   {
     using var channel = _connectionManager.CreateChannel();
-    var json = JsonSerializer.Serialize(messageParams.Payload,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = _messageSerializer.Serialize(messageParams.Payload);
     var body = Encoding.UTF8.GetBytes(json);
     var properties = channel.CreateBasicProperties();
     var timestamp = new DateTimeOffset(messageParams.CreatedAt ?? DateTime.UtcNow).ToUnixTimeMilliseconds();
@@ -259,22 +254,6 @@ public class RmqEventBus : EventBus, IDisposable
       true,
       properties,
       body);
-  }
-
-  private static TPayload? DeserializePayload<TPayload>(string data)
-  {
-    return (TPayload?)DeserializePayload(data, typeof(TPayload));
-  }
-
-  private static object? DeserializePayload(string data, Type type)
-  {
-    return JsonSerializer.Deserialize(data, type,
-      new JsonSerializerOptions
-      {
-        IncludeFields = true,
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-      });
   }
 
   private void BindQueue(string eventName)

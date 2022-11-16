@@ -4,12 +4,13 @@ namespace SecTester.Bus.Tests.Dispatchers;
 
 public class RmqEventBusTests : IDisposable
 {
+  private readonly AsyncEventingBasicConsumer _basicConsumer;
   private readonly RmqEventBus _bus;
   private readonly IModel _channel;
   private readonly RmqConnectionManager _connectionManager;
-  private readonly AsyncEventingBasicConsumer _consumer;
   private readonly ILogger _logger;
   private readonly RmqEventBusOptions _options;
+  private readonly AsyncEventingBasicConsumer _replyConsumer;
   private readonly IServiceScopeFactory _scopeFactory;
   private readonly MessageSerializer _messageSerializer;
 
@@ -20,9 +21,12 @@ public class RmqEventBusTests : IDisposable
     _logger = Substitute.For<ILogger>();
     _scopeFactory = Substitute.For<IServiceScopeFactory>();
     _channel = Substitute.For<IModel>();
-    _consumer = new AsyncEventingBasicConsumer(_channel);
+
+    _basicConsumer = new AsyncEventingBasicConsumer(_channel);
+    _replyConsumer = new AsyncEventingBasicConsumer(_channel);
+
     _connectionManager.CreateChannel().Returns(_channel);
-    _connectionManager.CreateConsumer(_channel).Returns(_consumer);
+    _connectionManager.CreateConsumer(_channel).Returns(_basicConsumer, _replyConsumer);
 
     _options = new RmqEventBusOptions("amqp://localhost:5672", Exchange: "event-bus", ClientQueue: "Agent", AppQueue: "App");
     _bus = new RmqEventBus(_options, _connectionManager, _logger, _scopeFactory, _messageSerializer);
@@ -49,11 +53,19 @@ public class RmqEventBusTests : IDisposable
   }
 
   [Fact]
-  public void Constructor_StartsConsuming()
+  public void Constructor_StartsConsumingRegularMessages()
   {
     // assert
     _connectionManager.Received().CreateConsumer(Arg.Any<IModel>());
-    _channel.Received().BasicConsume(_options.ClientQueue, false, _consumer);
+    _channel.Received().BasicConsume(_options.ClientQueue, false, _basicConsumer);
+  }
+
+  [Fact]
+  public void Constructor_StartsConsumingFromReplyQueue()
+  {
+    // assert
+    _connectionManager.Received().CreateConsumer(Arg.Any<IModel>());
+    _channel.Received().BasicConsume("amq.rabbitmq.reply-to", false, _replyConsumer);
   }
 
   [Fact]
@@ -78,7 +90,7 @@ public class RmqEventBusTests : IDisposable
 
     // assert
     _channel.Received(1).Dispose();
-    _connectionManager.Received(2).CreateConsumer(_channel);
+    _connectionManager.Received().CreateConsumer(_channel);
   }
 
   [Fact]
@@ -217,7 +229,7 @@ public class RmqEventBusTests : IDisposable
         string.IsNullOrEmpty(x.ReplyTo) &&
         x.CorrelationId == message.CorrelationId &&
         x.Type == message.Type &&
-        x.DeliveryMode == 2 &&
+        x.Persistent == true &&
         x.Timestamp.UnixTime == timestamp),
       Arg.Is<ReadOnlyMemory<byte>>(x => x.ToArray().SequenceEqual(body)));
   }
@@ -231,10 +243,95 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // arrange
-    await _consumer.HandleBasicDeliver(default, default, true, default, default, default, default);
+    await _basicConsumer.HandleBasicDeliver(default, default, true, default, default, default, default);
 
     // assert
     await eventHandler.DidNotReceive().Handle(Arg.Any<ConcreteEvent>());
+  }
+
+  [Fact]
+  public async Task Execute_GivenCommand_SendsCommandToQueue()
+  {
+    // arrange
+    var command = new ConcreteCommand("foo", false);
+    var timestamp = new DateTimeOffset(command.CreatedAt).ToUnixTimeMilliseconds();
+    var json = JsonSerializer.Serialize(command,
+      new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+      });
+    var body = Encoding.UTF8.GetBytes(json);
+
+    // act
+    var result = await _bus.Execute(command);
+
+    // assert
+    result.Should().BeOfType<Unit>();
+    _channel.Received().BasicPublish("",
+      _options.AppQueue,
+      true,
+      Arg.Is<IBasicProperties>(x =>
+        x.ContentType == "application/json" &&
+        x.ReplyTo == "amq.rabbitmq.reply-to" &&
+        x.CorrelationId == command.CorrelationId &&
+        x.Type == command.Type &&
+        x.Persistent == true &&
+        x.Timestamp.UnixTime == timestamp),
+      Arg.Is<ReadOnlyMemory<byte>>(x => x.ToArray().SequenceEqual(body)));
+  }
+
+  [Fact]
+  public async Task Execute_GivenCommand_SendsMessageToQueueAndGetsReply()
+  {
+    // arrange
+    var command = new ConcreteCommand2("foo");
+    var reply = new FooBar("bar");
+    var json = JsonSerializer.Serialize(reply,
+      new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+      });
+    var body = Encoding.UTF8.GetBytes(json);
+    var basicProperties = Substitute.For<IBasicProperties>();
+    basicProperties.Type = nameof(ConcreteCommand2);
+    basicProperties.CorrelationId = command.CorrelationId;
+
+    // act
+    var task = _bus.Execute(command);
+    await _replyConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    var result = await task;
+
+    // assert
+    result.Should().BeOfType<FooBar>();
+  }
+
+  [Fact]
+  public async Task Execute_NoReplyForGivenTime_ThrowsError()
+  {
+    // arrange
+    var command = new ConcreteCommand2("foo", true, 1);
+    var reply = new FooBar("bar");
+    var json = JsonSerializer.Serialize(reply,
+      new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        IncludeFields = true
+      });
+    var body = Encoding.UTF8.GetBytes(json);
+    var basicProperties = Substitute.For<IBasicProperties>();
+    basicProperties.Type = nameof(ConcreteCommand2);
+    basicProperties.CorrelationId = command.CorrelationId;
+
+    // act
+    var act = () => _bus.Execute(command);
+
+    // assert
+    await act.Should().ThrowAsync<Exception>();
   }
 
   [Fact]
@@ -258,7 +355,7 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // act
-    await _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    await _basicConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
 
     // assert
     await eventHandler.DidNotReceive().Handle(Arg.Any<ConcreteEvent>());
@@ -281,7 +378,7 @@ public class RmqEventBusTests : IDisposable
     basicProperties.Type = nameof(ConcreteEvent);
 
     // act
-    var act = () => _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    var act = () => _basicConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
 
     // assert
     await act.Should().ThrowAsync<NoSubscriptionFoundException>();
@@ -311,7 +408,7 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // act
-    var act = () => _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    var act = () => _basicConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
 
     // assert
     await act.Should().NotThrowAsync();
@@ -340,7 +437,7 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // act
-    await _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    await _basicConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
 
     // assert
     await eventHandler.Received().Handle(Arg.Any<ConcreteEvent>());
@@ -368,7 +465,7 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // act
-    await _consumer.HandleBasicDeliver(default, default, false, default, nameof(ConcreteEvent), basicProperties, body);
+    await _basicConsumer.HandleBasicDeliver(default, default, false, default, nameof(ConcreteEvent), basicProperties, body);
 
     // assert
     await eventHandler.Received().Handle(Arg.Any<ConcreteEvent>());
@@ -400,7 +497,7 @@ public class RmqEventBusTests : IDisposable
     _bus.Register<ConcreteFirstHandler, ConcreteEvent, FooBar>();
 
     // act
-    await _consumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    await _basicConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
 
     // assert
     await eventHandler.Received().Handle(Arg.Any<ConcreteEvent>());
@@ -410,7 +507,7 @@ public class RmqEventBusTests : IDisposable
       Arg.Is<IBasicProperties>(x =>
         x.ContentType == "application/json" &&
         x.CorrelationId == "1" &&
-        x.DeliveryMode == 2),
+        x.Persistent == true),
       Arg.Any<ReadOnlyMemory<byte>>());
 
   }

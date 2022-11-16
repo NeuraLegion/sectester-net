@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,11 +19,14 @@ namespace SecTester.Bus.Dispatchers;
 
 public class RmqEventBus : EventBus, IDisposable
 {
+  private const string ReplyQueueName = "amq.rabbitmq.reply-to";
+
   private readonly RmqConnectionManager _connectionManager;
   private readonly List<Type> _eventTypes = new();
   private readonly Dictionary<string, List<Type>> _handlers = new();
   private readonly ILogger _logger;
   private readonly RmqEventBusOptions _options;
+  private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingMessages = new();
   private readonly IServiceScopeFactory _scopeFactory;
   private readonly MessageSerializer _messageSerializer;
   private IModel _channel;
@@ -54,9 +59,31 @@ public class RmqEventBus : EventBus, IDisposable
     return Task.CompletedTask;
   }
 
-  public Task<TResult?> Execute<TResult>(Command<TResult> message)
+  public async Task<TResult?> Execute<TResult>(Command<TResult> message)
   {
-    throw new NotImplementedException();
+    var tcs = new TaskCompletionSource<string>();
+    _pendingMessages[message.CorrelationId] = tcs;
+    var ct = new CancellationTokenSource(message.Ttl);
+    using var register = ct.Token.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
+
+    SendMessage(new MessageParams<object>
+    {
+      Payload = message,
+      Type = message.Type,
+      ReplyTo = ReplyQueueName,
+      RoutingKey = _options.AppQueue,
+      CorrelationId = message.CorrelationId,
+      CreatedAt = message.CreatedAt
+    });
+
+    if (!message.ExpectReply)
+    {
+      return default;
+    }
+
+    var result = await tcs.Task.ConfigureAwait(false);
+
+    return _messageSerializer.Deserialize<TResult>(result);
   }
 
   public void Register<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
@@ -108,6 +135,23 @@ public class RmqEventBus : EventBus, IDisposable
     GC.SuppressFinalize(this);
   }
 
+  private async Task ReplyReceiverHandler(BasicDeliverEventArgs args)
+  {
+    var data = Encoding.UTF8.GetString(args.Body.ToArray());
+
+    if (!string.IsNullOrEmpty(args.BasicProperties.CorrelationId))
+    {
+      _logger.LogDebug(
+        "Received a reply ({CorrelationId}) with following payload: {Payload}",
+        args.BasicProperties.CorrelationId,
+        data
+      );
+
+      _pendingMessages.TryRemove(args.BasicProperties.CorrelationId!, out var tcs);
+      tcs?.SetResult(data);
+    }
+  }
+
   private IModel CreateConsumerChannel()
   {
     _connectionManager.TryConnect();
@@ -121,6 +165,7 @@ public class RmqEventBus : EventBus, IDisposable
 
     BindQueueToExchange(channel);
     StartBasicConsume(channel);
+    StartReplyQueueConsume(channel);
 
     return channel;
   }
@@ -131,6 +176,14 @@ public class RmqEventBus : EventBus, IDisposable
     consumer.Received += ReceiverHandler;
     channel.BasicConsume(_options.ClientQueue, false, consumer);
   }
+
+  private void StartReplyQueueConsume(IModel channel)
+  {
+    var consumer = _connectionManager.CreateConsumer(channel);
+    consumer.Received += (_, args) => ReplyReceiverHandler(args);
+    channel.BasicConsume(ReplyQueueName, false, consumer);
+  }
+
 
   private void BindQueueToExchange(IModel channel)
   {
@@ -244,8 +297,9 @@ public class RmqEventBus : EventBus, IDisposable
     properties.CorrelationId = messageParams.CorrelationId;
     properties.Type = messageParams.Type;
     properties.Timestamp = new AmqpTimestamp(timestamp);
-    properties.DeliveryMode = 2;
+    properties.Persistent = true;
     properties.ContentType = "application/json";
+    properties.ReplyTo = messageParams.ReplyTo;
 
     _logger.LogDebug("Send a message with following parameters: {Params}", messageParams);
 

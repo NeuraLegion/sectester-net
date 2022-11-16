@@ -47,9 +47,10 @@ Then you have to create an instance of `HttpRequest` instead of a custom command
 addition to the `Body` that a command accepts by default:
 
 ```csharp
-HttpRequest<object> command = new(url: "/api/v1/repeaters",
+var body = JsonContent.Create(new { Foo = "bar" });
+var command = new HttpRequest<Unit>(url: "/api/v1/repeaters",
   method: HttpMethods.Post,
-  body: @"{""foo"":""bar""}");
+  body: body);
 ```
 
 Once it is done, you can perform a request using `HttpComandDispatcher` as follows:
@@ -61,9 +62,9 @@ var response = await httpDispatcher.execute(command);
 Below you will find a list of parameters that can be used to configure a command:
 
 | Option          | Description                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------ |
+| --------------- |--------------------------------------------------------------------------------------------|
 | `Url`           | Absolute URL or path that will be used for the request. By default, `/`                    |
-| `Method`        | HTTP method that is going to be used when making the request. By default, `GET`            |
+| `Method`        | HTTP method that is going to be used when making the request. By default, `HttpMethod.Get` |
 | `Params`        | Use to set query parameters.                                                               |
 | `Body`          | Message that we want to transmit to the remote service.                                    |
 | `ExpectReply`   | Indicates whether to wait for a reply. By default true.                                    |

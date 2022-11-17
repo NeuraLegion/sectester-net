@@ -64,7 +64,7 @@ public class RmqEventBus : EventBus, IDisposable
     var tcs = new TaskCompletionSource<string>();
     _pendingMessages[message.CorrelationId] = tcs;
     var ct = new CancellationTokenSource(message.Ttl);
-    using var register = ct.Token.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
+    using var register = ct.Token.Register(() => tcs.TrySetCanceled(), false);
 
     SendMessage(new MessageParams<object>
     {
@@ -135,7 +135,7 @@ public class RmqEventBus : EventBus, IDisposable
     GC.SuppressFinalize(this);
   }
 
-  private async Task ReplyReceiverHandler(BasicDeliverEventArgs args)
+  private Task ReplyReceiverHandler(BasicDeliverEventArgs args)
   {
     var data = Encoding.UTF8.GetString(args.Body.ToArray());
 
@@ -150,6 +150,8 @@ public class RmqEventBus : EventBus, IDisposable
       _pendingMessages.TryRemove(args.BasicProperties.CorrelationId!, out var tcs);
       tcs?.SetResult(data);
     }
+
+    return Task.CompletedTask;
   }
 
   private IModel CreateConsumerChannel()
@@ -217,7 +219,7 @@ public class RmqEventBus : EventBus, IDisposable
 
     foreach (var handler in handlers)
     {
-      await HandleEvent(handler, consumedMessage);
+      await HandleEvent(handler, consumedMessage).ConfigureAwait(false);
     }
   }
 
@@ -257,7 +259,7 @@ public class RmqEventBus : EventBus, IDisposable
         payload
       });
 
-      var response = await task.Cast<object?>();
+      var response = await task.Cast<object?>().ConfigureAwait(false);
 
       if (response != null && !string.IsNullOrEmpty(consumedMessage.ReplyTo))
       {
@@ -266,7 +268,8 @@ public class RmqEventBus : EventBus, IDisposable
     }
     catch (Exception err)
     {
-      _logger.LogDebug(err, "Error while processing a message ({CorrelationId}) due to error occurred. Event: {Payload}", consumedMessage.CorrelationId, consumedMessage.Payload);
+      _logger.LogDebug(err, "Error while processing a message ({CorrelationId}) due to error occurred. Event: {Payload}",
+        consumedMessage.CorrelationId, consumedMessage.Payload);
     }
   }
 

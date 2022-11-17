@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using SecTester.Core.Bus;
 
 namespace SecTester.Bus.Dispatchers;
 
@@ -9,13 +11,15 @@ public class DefaultRmqConnectionManager : RmqConnectionManager
 {
   private readonly IConnectionFactory _connectionFactory;
   private readonly ILogger _logger;
+  private readonly RetryStrategy _retryStrategy;
   private readonly object _sync = new();
   private IConnection? _connection;
 
-  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger logger)
+  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger logger, RetryStrategy retryStrategy)
   {
     _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _retryStrategy = retryStrategy ?? throw new ArgumentNullException(nameof(retryStrategy));
   }
 
   public bool IsConnected => _connection is { IsOpen: true };
@@ -55,7 +59,10 @@ public class DefaultRmqConnectionManager : RmqConnectionManager
   {
     lock (_sync)
     {
-      _connection = _connectionFactory.CreateConnection();
+      var task = _retryStrategy.Acquire(() =>
+        Task.Run(() => _connectionFactory.CreateConnection())).ConfigureAwait(false);
+
+      _connection = task.GetAwaiter().GetResult();
 
       if (!IsConnected)
       {

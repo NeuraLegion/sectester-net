@@ -1,3 +1,5 @@
+using System.Net.Sockets;
+
 namespace SecTester.Bus.Tests.Dispatchers;
 
 public class DefaultRmqConnectionManagerTests : IDisposable
@@ -7,6 +9,7 @@ public class DefaultRmqConnectionManagerTests : IDisposable
   private readonly IConnection _connection;
   private readonly IConnectionFactory _connectionFactory;
   private readonly ILogger _logger;
+  private readonly RetryStrategy _retryStrategy;
 
   public DefaultRmqConnectionManagerTests()
   {
@@ -16,15 +19,19 @@ public class DefaultRmqConnectionManagerTests : IDisposable
     _channel = Substitute.For<IModel>();
     _connectionFactory.CreateConnection().Returns(_connection);
     _connection.CreateModel().Returns(_channel);
+    _retryStrategy = Substitute.For<RetryStrategy>();
+    _retryStrategy.Acquire(Arg.Any<Func<Task<IConnection>>>()).Returns(x => x.ArgAt<Func<Task<IConnection>>>(0).Invoke());
+
     _connection.Endpoint.Returns(new AmqpTcpEndpoint
     {
       HostName = "localhost"
     });
-    _manager = new DefaultRmqConnectionManager(_connectionFactory, _logger);
+    _manager = new DefaultRmqConnectionManager(_connectionFactory, _logger, _retryStrategy);
   }
 
   public void Dispose()
   {
+    _retryStrategy.ClearSubstitute();
     _connection.ClearSubstitute();
     _channel.ClearSubstitute();
     _connectionFactory.ClearSubstitute();
@@ -127,6 +134,21 @@ public class DefaultRmqConnectionManagerTests : IDisposable
 
     // assert
     _connectionFactory.Received().CreateConnection();
+  }
+
+  [Fact]
+  public void Connect_ConnectionError_Retries()
+  {
+    // arrange
+    _connection.IsOpen.Returns(false, true);
+    _connectionFactory.CreateConnection().Throws(new SocketException());
+
+    // act
+    var act = () => _manager.Connect();
+
+    // assert
+    act.Should().Throw<SocketException>();
+    _retryStrategy.Received().Acquire(Arg.Any<Func<Task<IConnection>>>());
   }
 
   [Fact]

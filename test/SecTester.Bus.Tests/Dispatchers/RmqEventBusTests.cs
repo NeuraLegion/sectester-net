@@ -4,6 +4,13 @@ namespace SecTester.Bus.Tests.Dispatchers;
 
 public class RmqEventBusTests : IDisposable
 {
+  private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+  {
+    PropertyNameCaseInsensitive = true,
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    IncludeFields = true
+  };
+
   private readonly AsyncEventingBasicConsumer _basicConsumer;
   private readonly RmqEventBus _bus;
   private readonly IModel _channel;
@@ -207,13 +214,7 @@ public class RmqEventBusTests : IDisposable
   {
     // act
     var message = new ConcreteEvent("foo");
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
     var timestamp = new DateTimeOffset(message.CreatedAt).ToUnixTimeMilliseconds();
 
@@ -255,13 +256,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var command = new ConcreteCommand("foo", false);
     var timestamp = new DateTimeOffset(command.CreatedAt).ToUnixTimeMilliseconds();
-    var json = JsonSerializer.Serialize(command,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(command, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
 
     // act
@@ -288,13 +283,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var command = new ConcreteCommand2("foo");
     var reply = new FooBar("bar");
-    var json = JsonSerializer.Serialize(reply,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(reply, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteCommand2);
@@ -314,15 +303,6 @@ public class RmqEventBusTests : IDisposable
   {
     // arrange
     var command = new ConcreteCommand2("foo", true, 1);
-    var reply = new FooBar("bar");
-    var json = JsonSerializer.Serialize(reply,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
-    var body = Encoding.UTF8.GetBytes(json);
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteCommand2);
     basicProperties.CorrelationId = command.CorrelationId;
@@ -340,13 +320,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var message = new ConcreteEvent("foo");
 
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
@@ -366,13 +340,7 @@ public class RmqEventBusTests : IDisposable
   {
     // arrange
     var message = new ConcreteEvent("foo");
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
@@ -390,13 +358,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var message = new ConcreteEvent("foo");
 
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
@@ -420,13 +382,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var message = new ConcreteEvent("foo");
 
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
 
     var basicProperties = Substitute.For<IBasicProperties>();
@@ -449,13 +405,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var message = new ConcreteEvent("foo");
 
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
 
     var basicProperties = Substitute.For<IBasicProperties>();
@@ -477,13 +427,7 @@ public class RmqEventBusTests : IDisposable
     // arrange
     var message = new ConcreteEvent("foo");
 
-    var json = JsonSerializer.Serialize(message,
-      new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        IncludeFields = true
-      });
+    var json = JsonSerializer.Serialize(message, JsonSerializerOptions);
     var body = Encoding.UTF8.GetBytes(json);
 
     var basicProperties = Substitute.For<IBasicProperties>();

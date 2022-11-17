@@ -24,19 +24,21 @@ public class HttpCommandDispatcher : CommandDispatcher
   private readonly IHttpClientFactory _httpClientFactory;
   private readonly HttpCommandDispatcherConfig _config;
   private readonly MessageSerializer _messageSerializer;
+  private readonly RetryStrategy _retryStrategy;
 
   public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config,
-    MessageSerializer messageSerializer)
+    MessageSerializer messageSerializer, RetryStrategy retryStrategy)
   {
     _config = config ?? throw new ArgumentNullException(nameof(config));
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
+    _retryStrategy = retryStrategy ?? throw new ArgumentNullException(nameof(retryStrategy));
   }
 
   public async Task<TResult?> Execute<TResult>(Command<TResult> message)
   {
     using var cts = new CancellationTokenSource(message.Ttl);
-    var res = await PerformHttpRequest((HttpRequest<TResult>)message, cts.Token).ConfigureAwait(false);
+    var res = await _retryStrategy.Acquire(() => PerformHttpRequest((HttpRequest<TResult>)message, cts.Token)).ConfigureAwait(false);
 
     if (message.ExpectReply)
     {

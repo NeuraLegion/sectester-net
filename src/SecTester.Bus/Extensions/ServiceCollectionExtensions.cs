@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using SecTester.Bus.Dispatchers;
+using SecTester.Bus.RetryStrategies;
 using SecTester.Core;
 using SecTester.Core.Bus;
 
@@ -17,7 +18,9 @@ public static class ServiceCollectionExtensions
     collection
       .AddSingleton<MessageSerializer, DefaultMessageSerializer>()
       .AddTransient(CreateHttpCommandDispatcherConfig)
+      .AddTransient(_ => new ExponentialBackoffOptions())
       .AddSingleton<CommandDispatcher, HttpCommandDispatcher>()
+      .AddSingleton<RetryStrategy, ExponentialBackoffRetryStrategy>()
       .AddHttpClient(nameof(HttpCommandDispatcher), (sp, client) =>
       {
         var config = sp.GetService<HttpCommandDispatcherConfig>() ??
@@ -84,6 +87,7 @@ public static class ServiceCollectionExtensions
   private static DefaultRmqConnectionManager CreateRmqConnectionManager(IServiceProvider sp)
   {
     var configuration = sp.GetRequiredService<RmqEventBusOptions>();
+    var retryStrategy = sp.GetRequiredService<RetryStrategy>();
     var factory = new ConnectionFactory
     {
       Uri = new Uri(configuration.Url),
@@ -95,6 +99,6 @@ public static class ServiceCollectionExtensions
     };
     var logger = sp.GetRequiredService<ILogger<DefaultRmqConnectionManager>>();
 
-    return new DefaultRmqConnectionManager(factory, logger);
+    return new DefaultRmqConnectionManager(factory, logger, retryStrategy);
   }
 }

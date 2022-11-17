@@ -51,6 +51,23 @@ public class ExponentialBackoffRetryStrategyTests : IDisposable
   }
 
   [Fact]
+  public async Task Acquire_Canceled_PreventsRetries()
+  {
+    // arrange
+    var error = new Exception("Unhandled error");
+    var cts = new CancellationTokenSource();
+    cts.Cancel();
+    _mockInterface.Execute().ThrowsAsync(error);
+
+    // act
+    var act = () => _sut.Acquire(() => _mockInterface.Execute(), cts.Token);
+
+    // assert
+    await act.Should().ThrowAsync<OperationCanceledException>();
+    await _mockInterface.DidNotReceive().Execute();
+  }
+
+  [Fact]
   public async Task Acquire_NotRetryableError_PreventsRetries()
   {
     // arrange

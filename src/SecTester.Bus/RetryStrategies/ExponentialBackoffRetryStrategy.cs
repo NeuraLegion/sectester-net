@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using RabbitMQ.Client.Exceptions;
 using SecTester.Core.Bus;
@@ -16,7 +17,7 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
     _options = options;
   }
 
-  public async Task<TResult> Acquire<TResult>(Func<Task<TResult>> task)
+  public async Task<TResult> Acquire<TResult>(Func<Task<TResult>> task, CancellationToken cancellationToken = default)
   {
     var depth = 0;
 
@@ -24,6 +25,8 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
     {
       try
       {
+        cancellationToken.ThrowIfCancellationRequested();
+
         return await task().ConfigureAwait(false);
       }
       catch (Exception e)
@@ -36,7 +39,7 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
         }
 
         var retryAttempt = TimeSpan.FromMilliseconds(Math.Pow(2, depth) * _options.MinInterval);
-        await Task.Delay(retryAttempt).ConfigureAwait(false);
+        await Task.Delay(retryAttempt, cancellationToken).ConfigureAwait(false);
       }
     }
   }

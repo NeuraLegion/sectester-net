@@ -4,9 +4,9 @@ namespace SecTester.Scan.Models;
 
 public enum Protocol
 {
-  [EnumMember(Value = "http")] 
+  [EnumMember(Value = "http")]
   Http,
-  
-  [EnumMember(Value = "ws")] 
+
+  [EnumMember(Value = "ws")]
   Ws
 }

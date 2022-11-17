@@ -4,48 +4,48 @@ namespace SecTester.Scan.Models;
 
 public enum RequestMethod
 {
-  [EnumMember(Value="GET")]
+  [EnumMember(Value = "GET")]
   Get,
-  
-  [EnumMember(Value="PUT")]
+
+  [EnumMember(Value = "PUT")]
   Put,
-  
-  [EnumMember(Value="POST")]
+
+  [EnumMember(Value = "POST")]
   Post,
-  
-  [EnumMember(Value="PATCH")]
-  Patch, 
-  
-  [EnumMember(Value="DELETE")]
+
+  [EnumMember(Value = "PATCH")]
+  Patch,
+
+  [EnumMember(Value = "DELETE")]
   Delete,
-  
-  [EnumMember(Value="COPY")]
+
+  [EnumMember(Value = "COPY")]
   Copy,
-  
-  [EnumMember(Value="HEAD")]
+
+  [EnumMember(Value = "HEAD")]
   Head,
-  
-  [EnumMember(Value="OPTIONS")]
+
+  [EnumMember(Value = "OPTIONS")]
   Options,
-  
-  [EnumMember(Value="LINK")]
-  Link, 
-  
-  [EnumMember(Value="UNLINK")]
+
+  [EnumMember(Value = "LINK")]
+  Link,
+
+  [EnumMember(Value = "UNLINK")]
   Unlink,
-  
-  [EnumMember(Value="PURGE")]
+
+  [EnumMember(Value = "PURGE")]
   Purge,
-  
-  [EnumMember(Value="LOCK")]
-  Lock, 
-  
-  [EnumMember(Value="UNLOCK")]
+
+  [EnumMember(Value = "LOCK")]
+  Lock,
+
+  [EnumMember(Value = "UNLOCK")]
   Unlock,
-  
-  [EnumMember(Value="PROPFIND")]
+
+  [EnumMember(Value = "PROPFIND")]
   Propfind,
-  
-  [EnumMember(Value="VIEW")]
-  View 
+
+  [EnumMember(Value = "VIEW")]
+  View
 }

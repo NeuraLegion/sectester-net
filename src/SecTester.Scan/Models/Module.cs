@@ -4,9 +4,9 @@ namespace SecTester.Scan.Models;
 
 public enum Module
 {
-  [EnumMember(Value = "dast")] 
+  [EnumMember(Value = "dast")]
   Dast,
 
-  [EnumMember(Value = "fuzzer")] 
+  [EnumMember(Value = "fuzzer")]
   Fuzzer
 }

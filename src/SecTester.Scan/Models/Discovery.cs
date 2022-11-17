@@ -4,12 +4,12 @@ namespace SecTester.Scan.Models;
 
 public enum Discovery
 {
-  [EnumMember(Value = "crawler")] 
+  [EnumMember(Value = "crawler")]
   Crawler,
-  
-  [EnumMember(Value = "archive")] 
+
+  [EnumMember(Value = "archive")]
   Archive,
-  
-  [EnumMember(Value = "oas")] 
+
+  [EnumMember(Value = "oas")]
   Oas
 }

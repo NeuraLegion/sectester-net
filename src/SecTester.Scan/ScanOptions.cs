@@ -1,13 +1,9 @@
+using System;
+
 namespace SecTester.Scan;
 
-public class ScanOptions
+public record ScanOptions(TimeSpan? Timeout = default, TimeSpan? PollingInterval = default)
 {
-  public int? Timeout { get; set; }
-  public int? PollingInterval { get; set; }
-
-  public ScanOptions(int? timeout = default, int? pollingInterval = default)
-  {
-    Timeout = timeout;
-    PollingInterval = pollingInterval;
-  }
+  public TimeSpan? Timeout { get; set; } = Timeout;
+  public TimeSpan? PollingInterval { get; set; } = PollingInterval;
 }

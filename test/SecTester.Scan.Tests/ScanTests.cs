@@ -1,5 +1,3 @@
-#pragma warning disable CS8604
-
 namespace SecTester.Scan.Tests;
 
 public class ScanTests
@@ -8,10 +6,23 @@ public class ScanTests
   public void Constructor_GivenNullScans_ThrowError()
   {
     // act
-    Action act = () => new Scan(null as Scans, 0, 0);
+    Action act = () => new Scan(null!, new ScanOptions());
 
     // assert
-    act.Should().Throw<ArgumentNullException>();
+    act.Should().Throw<ArgumentNullException>().WithMessage("*scans*");
+  }
+
+  [Fact]
+  public void Constructor_GivenNullScanOptions_ThrowError()
+  {
+    // arrange
+    var scans = Substitute.For<Scans>();
+
+    // act
+    Action act = () => new Scan(scans, null!);
+
+    // assert
+    act.Should().Throw<ArgumentNullException>().WithMessage("*options*");
   }
 
   [Fact]
@@ -21,7 +32,7 @@ public class ScanTests
     var scans = Substitute.For<Scans>();
 
     // act
-    using var scan = new Scan(scans, 0, 0);
+    using var scan = new Scan(scans, new ScanOptions());
 
     // assert
     scan.Active.Should().BeTrue();
@@ -34,7 +45,7 @@ public class ScanTests
     var scans = Substitute.For<Scans>();
 
     // act
-    using var scan = new Scan(scans, 0, 0);
+    using var scan = new Scan(scans, new ScanOptions());
 
     // assert
     scan.Done.Should().BeFalse();

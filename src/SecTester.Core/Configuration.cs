@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SecTester.Core.CredentialProviders;
-using SecTester.Core.Logger;
 using SecTester.Core.Utils;
 
 namespace SecTester.Core
@@ -22,9 +21,9 @@ namespace SecTester.Core
     public string Api { get; private set; }
 
     public Credentials? Credentials { get; private set; }
-    
+
     public LogLevel LogLevel { get; private set; }
-    
+
     public IReadOnlyCollection<CredentialProvider> CredentialProviders => _credentialProviders.AsReadOnly();
 
     // TODO: provide a more convenient way of setting these properties

@@ -4,7 +4,7 @@ namespace SecTester.Scan.Models;
 
 public enum TestType
 {
-  [EnumMember(Value = "angular_csti")] 
+  [EnumMember(Value = "angular_csti")]
   AngularCsti,
 
   [EnumMember(Value = "backup_locations")]
@@ -18,14 +18,14 @@ public enum TestType
 
   [EnumMember(Value = "business_constraint_bypass")]
   BusinessConstraintBypass,
-  
-  [EnumMember(Value = "common_files")] 
+
+  [EnumMember(Value = "common_files")]
   CommonFiles,
 
   [EnumMember(Value = "cookie_security")]
   CookieSecurity,
-  
-  [EnumMember(Value = "csrf")] 
+
+  [EnumMember(Value = "csrf")]
   Csrf,
 
   [EnumMember(Value = "date_manipulation")]
@@ -36,8 +36,8 @@ public enum TestType
 
   [EnumMember(Value = "directory_listing")]
   DirectoryListing,
-  
-  [EnumMember(Value = "dom_xss")] 
+
+  [EnumMember(Value = "dom_xss")]
   DomXss,
 
   [EnumMember(Value = "email_injection")]
@@ -45,8 +45,8 @@ public enum TestType
 
   [EnumMember(Value = "exposed_couch_db_apis")]
   ExposedCouchDbApis,
-  
-  [EnumMember(Value = "file_upload")] 
+
+  [EnumMember(Value = "file_upload")]
   FileUpload,
 
   [EnumMember(Value = "full_path_disclosure")]
@@ -54,11 +54,11 @@ public enum TestType
 
   [EnumMember(Value = "header_security")]
   HeaderSecurity,
-  
-  [EnumMember(Value = "hrs")] 
+
+  [EnumMember(Value = "hrs")]
   Hrs,
-  
-  [EnumMember(Value = "html_injection")] 
+
+  [EnumMember(Value = "html_injection")]
   HtmlInjection,
 
   [EnumMember(Value = "http_method_fuzzing")]
@@ -66,8 +66,8 @@ public enum TestType
 
   [EnumMember(Value = "http_response_splitting")]
   HttpResponseSplitting,
-  
-  [EnumMember(Value = "id_enumeration")] 
+
+  [EnumMember(Value = "id_enumeration")]
   IdEnumeration,
 
   [EnumMember(Value = "improper_asset_management")]
@@ -75,67 +75,67 @@ public enum TestType
 
   [EnumMember(Value = "insecure_tls_configuration")]
   InsecureTlsConfiguration,
-  
-  [EnumMember(Value = "jwt")] 
+
+  [EnumMember(Value = "jwt")]
   Jwt,
-  
-  [EnumMember(Value = "ldapi")] 
+
+  [EnumMember(Value = "ldapi")]
   Ldapi,
-  
-  [EnumMember(Value = "lfi")] 
+
+  [EnumMember(Value = "lfi")]
   Lfi,
 
   [EnumMember(Value = "mass_assignment")]
   MassAssignment,
-  
-  [EnumMember(Value = "nosql")] 
+
+  [EnumMember(Value = "nosql")]
   Nosql,
-  
-  [EnumMember(Value = "open_buckets")] 
+
+  [EnumMember(Value = "open_buckets")]
   OpenBuckets,
-  
-  [EnumMember(Value = "open_database")] 
+
+  [EnumMember(Value = "open_database")]
   OpenDatabase,
-  
-  [EnumMember(Value = "osi")] 
+
+  [EnumMember(Value = "osi")]
   Osi,
 
   [EnumMember(Value = "proto_pollution")]
   ProtoPollution,
-  
-  [EnumMember(Value = "retire_js")] 
+
+  [EnumMember(Value = "retire_js")]
   RetireJs,
-  
-  [EnumMember(Value = "rfi")] 
+
+  [EnumMember(Value = "rfi")]
   Rfi,
-  
-  [EnumMember(Value = "secret_tokens")] 
+
+  [EnumMember(Value = "secret_tokens")]
   SecretTokens,
 
   [EnumMember(Value = "server_side_js_injection")]
   ServerSideJsInjection,
-  
-  [EnumMember(Value = "sqli")] 
+
+  [EnumMember(Value = "sqli")]
   Sqli,
-  
-  [EnumMember(Value = "ssrf")] 
+
+  [EnumMember(Value = "ssrf")]
   Ssrf,
-  
-  [EnumMember(Value = "ssti")] 
+
+  [EnumMember(Value = "ssti")]
   Ssti,
 
   [EnumMember(Value = "version_control_systems")]
   VersionControlSystems,
 
-  [EnumMember(Value = "wordpress")] 
+  [EnumMember(Value = "wordpress")]
   Wordpress,
 
-  [EnumMember(Value = "xpathi")] 
+  [EnumMember(Value = "xpathi")]
   Xpathi,
 
-  [EnumMember(Value = "xss")] 
+  [EnumMember(Value = "xss")]
   Xss,
 
-  [EnumMember(Value = "xxe")] 
+  [EnumMember(Value = "xxe")]
   Xxe
 }

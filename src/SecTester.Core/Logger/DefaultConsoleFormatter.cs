@@ -1,6 +1,6 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -32,7 +32,7 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
   private readonly IDisposable _optionsReloadToken;
   private ConsoleFormatterOptions _formatterOptions;
 
-  private SystemTimeProvider _systemTimeProvider;
+  private readonly SystemTimeProvider _systemTimeProvider;
 
   public DefaultConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options,
     SystemTimeProvider systemTimeProvider)

@@ -1,7 +1,3 @@
-using System.Runtime.Serialization;
-using System.Text.Json;
-using SecTester.Scan.Models;
-
 namespace SecTester.Scan.Tests.Models;
 
 public class JsonStringEnumMemberConverterTests
@@ -21,7 +17,7 @@ public class JsonStringEnumMemberConverterTests
     Converters = { new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase, false) }
   };
 
-  private class Foo
+  private record Foo
   {
     public AttackParamLocation? AttackParamLocation { get; set; }
   }
@@ -36,7 +32,7 @@ public class JsonStringEnumMemberConverterTests
     var data = JsonSerializer.Deserialize<Foo>(payload, JsonSerializerOptions);
 
     // assert
-    data.Should().NotBeNull();
+    data.Should().BeOfType<Foo>();
     data?.AttackParamLocation.Should().Be(AttackParamLocation.ArtificalQuery);
   }
 
@@ -58,7 +54,8 @@ public class JsonStringEnumMemberConverterTests
   public void Serialize_GivenValue_AnnotatedValueSerialized()
   {
     // arrange
-    var payload = new Foo() { AttackParamLocation = AttackParamLocation.ArtificalQuery };
+    var payload = new Foo
+    { AttackParamLocation = AttackParamLocation.ArtificalQuery };
 
     // act
     var data = JsonSerializer.Serialize(payload, JsonSerializerOptions);

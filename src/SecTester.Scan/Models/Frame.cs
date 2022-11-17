@@ -4,9 +4,9 @@ namespace SecTester.Scan.Models;
 
 public enum Frame
 {
-  [EnumMember(Value="outgoing")] 
+  [EnumMember(Value = "outgoing")]
   Outgoing,
-  
-  [EnumMember(Value="incoming")] 
+
+  [EnumMember(Value = "incoming")]
   Incoming
 }

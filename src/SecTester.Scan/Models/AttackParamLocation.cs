@@ -6,22 +6,22 @@ public enum AttackParamLocation
 {
   [EnumMember(Value = "artifical-fragment")]
   ArtificalFragment,
-  
+
   [EnumMember(Value = "artifical-query")]
   ArtificalQuery,
-  
-  [EnumMember(Value = "body")] 
+
+  [EnumMember(Value = "body")]
   Body,
-  
-  [EnumMember(Value = "fragment")] 
+
+  [EnumMember(Value = "fragment")]
   Fragment,
-  
-  [EnumMember(Value = "header")] 
+
+  [EnumMember(Value = "header")]
   Header,
-  
-  [EnumMember(Value = "path")] 
+
+  [EnumMember(Value = "path")]
   Path,
-  
-  [EnumMember(Value = "query")] 
+
+  [EnumMember(Value = "query")]
   Query
 }

@@ -10,7 +10,7 @@ namespace SecTester.Scan;
 public interface Scans
 {
   Task<string> CreateScan(ScanConfig config);
-  Task<List<Issue>> ListIssues(string id, int? limit, string? nextId, DateTime? nextCreatedAt);
+  Task<IEnumerable<Issue>> ListIssues(string id, int? limit, string? nextId, DateTime? nextCreatedAt);
   Task StopScan(string id);
   Task DeleteScan(string id);
   Task<ScanState> GetScan(string id);

@@ -1,5 +1,5 @@
 namespace SecTester.Scan.Har;
 
-public class HarContent
+public record Har
 {
 }

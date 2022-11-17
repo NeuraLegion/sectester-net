@@ -3,21 +3,8 @@ using System.Collections.Generic;
 
 namespace SecTester.Scan.Models;
 
-public class Request
+public record Request(string Url, RequestMethod? Method = default, Dictionary<string, string>? Headers = default,
+  string? Body = default, Protocol? Protocol = default)
 {
-  public string Url { get; set; }
-  public RequestMethod? Method { get; set; }
-  public Dictionary<string, string>? Headers { get; set; }
-  public string? Body { get; set; }
-  public Protocol? Protocol { get; set; }
-
-  public Request(string url, RequestMethod? method = default, Dictionary<string, string>? headers = default,
-    string? body = default, Protocol? protocol = default)
-  {
-    Url = url ?? throw new ArgumentNullException(nameof(url));
-    Method = method;
-    Headers = headers;
-    Body = body;
-    Protocol = protocol;
-  }
+  public string Url { get; init; } = Url ?? throw new ArgumentNullException(nameof(Url));
 }

@@ -2,14 +2,8 @@ using System;
 
 namespace SecTester.Scan.Models;
 
-public class Screenshot
+public record Screenshot(string Url, string Title)
 {
-  public string Url { get; set; }
-  public string Title { get; set; }
-
-  public Screenshot(string url, string title)
-  {
-    Url = url ?? throw new ArgumentNullException(nameof(url));
-    Title = title ?? throw new ArgumentNullException(nameof(title));
-  }
+  public string Url { get; init; } = Url ?? throw new ArgumentNullException(nameof(Url));
+  public string Title { get; init; } = Title ?? throw new ArgumentNullException(nameof(Title));
 }

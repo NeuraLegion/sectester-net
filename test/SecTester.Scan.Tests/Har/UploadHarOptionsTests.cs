@@ -7,7 +7,7 @@ namespace SecTester.Scan.Tests.Har;
 public class UploadHarContentOptionsTests
 {
   private const string FileName = "filename";
-  private static readonly HarContent HarContent = new();
+  private static readonly SecTester.Scan.Har.Har Har = new();
 
   private static readonly JsonSerializerOptions JsonSerializerOptions = new()
   {
@@ -21,10 +21,10 @@ public class UploadHarContentOptionsTests
   public void Constructor_WithAllParameters_AssignProperties()
   {
     // act
-    var options = new UploadHarOptions(HarContent, FileName, true);
+    var options = new UploadHarOptions(Har, FileName, true);
 
     // assert
-    options.HarContent.Should().Be(HarContent);
+    options.Har.Should().Be(Har);
     options.FileName.Should().Be(FileName);
     options.Discard.Should().Be(true);
   }
@@ -33,7 +33,7 @@ public class UploadHarContentOptionsTests
   public void Constructor_GivenNullHarContent_ThrowError()
   {
     // act
-    Action act = () => new UploadHarOptions(null as HarContent, FileName);
+    Action act = () => new UploadHarOptions(null as SecTester.Scan.Har.Har, FileName);
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -43,7 +43,7 @@ public class UploadHarContentOptionsTests
   public void Constructor_GivenNullFileName_ThrowError()
   {
     // act
-    Action act = () => new UploadHarOptions(HarContent, null);
+    Action act = () => new UploadHarOptions(Har, null as string);
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -53,7 +53,7 @@ public class UploadHarContentOptionsTests
   public void FileName_DeserializeLowercaseFilename_Deserialized()
   {
     // arrange
-    var payload = @"{""harContent"":{}, ""filename"":""filename""}";
+    var payload = @"{""har"":{}, ""filename"":""filename""}";
 
     // act
     var options = JsonSerializer.Deserialize<UploadHarOptions>(payload, JsonSerializerOptions);
@@ -67,7 +67,7 @@ public class UploadHarContentOptionsTests
   public void FileName_SerializeLowercaseFilename_Serialized()
   {
     // arrange
-    var options = new UploadHarOptions(HarContent, FileName, true);
+    var options = new UploadHarOptions(Har, FileName, true);
 
     // act
     var data = JsonSerializer.Serialize(options, JsonSerializerOptions);

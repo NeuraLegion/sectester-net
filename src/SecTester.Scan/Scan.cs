@@ -36,7 +36,7 @@ public class Scan : IDisposable
     GC.SuppressFinalize(this);
   }
 
-  public Task<Issue[]> Issues(int? limit, string? nextId, DateTime? nextCreatedAt)
+  public Task<IEnumerable<Issue>> Issues()
   {
     throw new NotImplementedException();
   }

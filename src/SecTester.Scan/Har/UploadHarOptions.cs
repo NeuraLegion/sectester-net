@@ -3,18 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace SecTester.Scan.Har;
 
-public class UploadHarOptions
+public record UploadHarOptions(Har Har, string FileName, bool? Discard = default)
 {
-  public HarContent HarContent { get; set; }
+  public Har Har { get; init; } = Har ?? throw new ArgumentNullException(nameof(Har));
 
-  [JsonPropertyName("filename")] 
-  public string FileName { get; set; }
-  public bool? Discard { get; set; }
-
-  public UploadHarOptions(HarContent harContent, string fileName, bool? discard = default)
-  {
-    HarContent = harContent ?? throw new ArgumentNullException(nameof(harContent));
-    FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-    Discard = discard;
-  }
+  [JsonPropertyName("filename")]
+  public string FileName { get; init; } = FileName ?? throw new ArgumentNullException(nameof(FileName));
 }

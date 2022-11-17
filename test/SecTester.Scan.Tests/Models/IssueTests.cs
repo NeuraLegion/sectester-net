@@ -47,14 +47,14 @@ public class IssueTests
     // act
     var issue = new Issue(Id, Order, Details, Name, Severity, Protocol, Remedy, _time, _originalRequest, _request, Link,
       exposure,
-      comments: comments,
-      resources: resources,
-      screenshots: screenshots,
-      cvss: cvss,
-      cwe: cwe,
-      frames: frames,
-      originalFrames: originalFrames,
-      response: response);
+      resources,
+      comments,
+      screenshots,
+      cvss,
+      cwe,
+      frames,
+      originalFrames,
+      response);
 
     // assert
     issue.Id.Should().Be(Id);

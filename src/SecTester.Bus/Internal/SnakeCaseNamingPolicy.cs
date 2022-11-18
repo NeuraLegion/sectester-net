@@ -1,11 +1,11 @@
 using System.Text.Json;
 using SecTester.Core.Utils;
 
-namespace SecTester.Core.Json;
+namespace SecTester.Bus.Internal;
 
-class SnakeCaseNamingPolicy : JsonNamingPolicy
+internal class SnakeCaseNamingPolicy : JsonNamingPolicy
 {
-  public static SnakeCaseNamingPolicy Instance { get; } = new SnakeCaseNamingPolicy();
+  public static JsonNamingPolicy  Instance { get; } = new SnakeCaseNamingPolicy();
 
   public override string ConvertName(string name)
   {

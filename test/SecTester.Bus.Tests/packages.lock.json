@@ -1347,6 +1347,15 @@
           "Microsoft.Extensions.Logging": "[6.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.0.0, )"
         }
+      },
+      "sectester.scan": {
+        "type": "Project",
+        "dependencies": {
+          "Macross.Json.Extensions": "[3.0.0, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
+          "SecTester.Core": "[0.14.0, )",
+          "System.Text.Json": "[6.0.0, )"
+        }
       }
     }
   }

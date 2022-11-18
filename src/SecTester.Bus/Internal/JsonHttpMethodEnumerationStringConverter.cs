@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace SecTester.Bus.Internal;
 
-public class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod>
+internal class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod>
 {
   private static readonly HttpMethod _patch = new("PATCH");
   private static readonly HttpMethod _copy = new("COPY");
@@ -19,7 +19,7 @@ public class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod
   private static readonly HttpMethod _view = new("VIEW");
   private static readonly HttpMethod _trace = new("TRACE");
 
-  private static readonly Dictionary<string, HttpMethod> _map = new()
+  private static readonly Dictionary<string, HttpMethod> _map = new(StringComparer.InvariantCultureIgnoreCase)
   {
     { HttpMethod.Delete.ToString(), HttpMethod.Delete },
     { HttpMethod.Get.ToString(), HttpMethod.Get },
@@ -45,13 +45,12 @@ public class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod
     {
       case JsonTokenType.String:
         var token = reader.GetString();
-        if (token is not null && _map.TryGetValue(token, out HttpMethod httpMethod))
+        if (token is null || !_map.TryGetValue(token, out var httpMethod))
         {
-          return httpMethod;
+          throw new JsonException(
+            $"Unexpected value {token} when parsing the {nameof(HttpMethod)}.");
         }
-
-        throw new JsonException(
-          $"Unexpected value {token} when parsing the {nameof(HttpMethod)}.");
+        return httpMethod;
       case JsonTokenType.Null:
         return null;
       default:
@@ -62,6 +61,14 @@ public class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod
 
   public override void Write(Utf8JsonWriter writer, HttpMethod value, JsonSerializerOptions options)
   {
-    writer.WriteStringValue(value.ToString());
+    var method = value.ToString();
+
+    if (!_map.TryGetValue(method, out var httpMethod))
+    {
+      throw new JsonException(
+        $"Unexpected value {method} when writing the {nameof(HttpMethod)}."); 
+    }
+    
+    writer.WriteStringValue(httpMethod.ToString());
   }
 }

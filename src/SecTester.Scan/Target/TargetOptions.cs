@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using SecTester.Scan.Models;
 
 namespace SecTester.Scan.Target;
 
@@ -26,7 +25,7 @@ public interface TargetOptions
   /// <summary>
   ///   The request method to be used when making the request, GET by default
   /// </summary>
-  RequestMethod? Method { get; set; }
+  HttpMethod? Method { get; set; }
 
   /// <summary>
   ///   The headers

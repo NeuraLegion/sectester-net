@@ -1,23 +1,19 @@
-#pragma warning disable CS8601
 namespace SecTester.Core.Tests.Utils;
 
 public class StringUtilsTests
 {
-  public static readonly object[][] SnakeCaseMapping = {
-    new object[] { null as object, null as object },
+  public static readonly IEnumerable<object[]> SnakeCaseMapping = new List<object[]>(){
+    new object[] { null!, null! },
     new object[] { "", "" },
-    new object[] { "0", "0" },
-    new[] { "FOO", "foo" }, 
-    new[] { "Bar", "bar" }, 
-    new[] { "fooBar", "foo_bar" },
-    new[] { "FooBar", "foo_bar" },
-    new[] { "1FooBar", "1_foo_bar" },
-    new[] { "Foo1Bar", "foo1_bar" },
-    new[] { "FooBar1", "foo_bar1" },
-    new[] { "Foo_Bar", "foo_bar" },
-    new[] { "Foo_bar", "foo_bar" },
-    new[] { "foo_Bar", "foo_bar" },
-    new[] { "foo_bar", "foo_bar" },
+    new object[] { "lowercase", "lowercase" }, 
+    new object[] { "UPPERCASE", "uppercase" }, 
+    new object[] { "camelCase", "camel_case" }, 
+    new object[] { "snake_case", "snake_case" },
+    new object[] { "kebab-case", "kebab-case" },
+    new object[] { "PascalCase", "pascal_case" },
+    new object[] { "camelCase_with_snake", "camel_case_with_snake" },
+    new object[] { "PascalCase_with_snake", "pascal_case_with_snake" },
+    new object[] { "kebab-case_with_snake", "kebab-case_with_snake" },
   };
 
   [Theory]

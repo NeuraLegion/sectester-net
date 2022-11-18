@@ -97,7 +97,7 @@ public class DefaultMessageSerializerTests
   }
   
   [Fact]
-  public void  Deserialize_GivenMissingFiledInput_ReturnObject()
+  public void  Deserialize_GivenMissingFieldInput_ReturnObject()
   {
     // act
     var result = _sut.Deserialize<Tuple<FooEnum?>>("{}");

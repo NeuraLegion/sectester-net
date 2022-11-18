@@ -44,6 +44,7 @@ public enum TestType
   Sqli,
   Ssrf,
   Ssti,
+  UnvalidatedRedirect,
   VersionControlSystems,
   Wordpress,
   Xpathi,

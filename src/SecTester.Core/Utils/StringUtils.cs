@@ -1,66 +1,26 @@
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SecTester.Core.Utils;
 
 public static class StringUtils
 {
-  private enum SnakeCaseState
+  private static readonly Regex CamelCaseRegex = new(@"([a-z0-9])([A-Z])");
+  private static readonly Regex PascalCaseRegex = new(@"([A-Z])([A-Z][a-z])");
+
+  private static readonly Regex[] SupportedCaseRegexes =
   {
-    Start,
-    Lower,
-    Upper
-  }
+    PascalCaseRegex, CamelCaseRegex
+  };
 
-  public static string? ToSnakeCase(this string? name)
+  public static string? ToSnakeCase(this string? value)
   {
-    if (name == null || name.Length == 0)
-    {
-      return name;
-    }
+    return string.IsNullOrEmpty(value)
+      ? value
+      : SupportedCaseRegexes.Aggregate(value!,
+          (input, regex) => regex.Replace(input, "$1_$2"))
+        .ToLowerInvariant();
 
-    StringBuilder sb = new StringBuilder();
-    SnakeCaseState state = SnakeCaseState.Start;
-
-    for (var i = 0; i < name.Length; ++i)
-    {
-      if (char.IsUpper(name[i]))
-      {
-        switch (state)
-        {
-          case SnakeCaseState.Upper:
-            bool hasNext = (i + 1 < name.Length);
-            if (i > 0 && hasNext)
-            {
-              char nextChar = name[i + 1];
-              if (!char.IsUpper(nextChar) && nextChar != '_')
-              {
-                sb.Append('_');
-              }
-            }
-
-            break;
-          case SnakeCaseState.Lower:
-            sb.Append('_');
-            break;
-        }
-
-        char c = char.ToLowerInvariant(name[i]);
-        sb.Append(c);
-
-        state = SnakeCaseState.Upper;
-      }
-      else if (name[i] == '_')
-      {
-        sb.Append('_');
-        state = SnakeCaseState.Start;
-      }
-      else
-      {
-        sb.Append(name[i]);
-        state = SnakeCaseState.Lower;
-      }
-    }
-
-    return sb.ToString();
   }
 }

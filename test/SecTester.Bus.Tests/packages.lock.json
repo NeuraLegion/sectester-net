@@ -83,6 +83,11 @@
           "System.Diagnostics.EventLog": "6.0.0"
         }
       },
+      "Macross.Json.Extensions": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "AkNshs6dopj8FXsmkkJxvLivN2SyDJQDbjcds5lo9+Y6L4zpcoXdmzXQ3VVN+AIWQr0CTD5A7vkuHGAr2aypZg=="
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "7.0.0",
@@ -1325,11 +1330,12 @@
       "sectester.bus": {
         "type": "Project",
         "dependencies": {
+          "Macross.Json.Extensions": "[3.0.0, )",
           "Microsoft.Bcl.AsyncInterfaces": "[7.0.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
           "Microsoft.Extensions.Http": "[6.0.0, )",
           "RabbitMQ.Client": "[6.4.0, )",
-          "SecTester.Core": "[0.9.0, )",
+          "SecTester.Core": "[0.14.0, )",
           "System.Text.Json": "[6.0.0, )",
           "System.Threading.RateLimiting": "[7.0.0, )"
         }

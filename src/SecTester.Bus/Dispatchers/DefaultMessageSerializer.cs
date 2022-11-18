@@ -1,5 +1,7 @@
 using System;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using SecTester.Core.Json;
 
 namespace SecTester.Bus.Dispatchers;
 
@@ -9,7 +11,8 @@ public class DefaultMessageSerializer : MessageSerializer
   {
     IncludeFields = true,
     PropertyNameCaseInsensitive = true,
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    Converters = { new JsonStringEnumMemberConverter(SnakeCaseNamingPolicy.Instance, false) }
   };
 
   public T? Deserialize<T>(string data)

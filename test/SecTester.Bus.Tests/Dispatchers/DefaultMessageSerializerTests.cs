@@ -24,6 +24,14 @@ public class DefaultMessageSerializerTests
     new object[] { @"{""Foo"":""bar""}" },
     new object[] { @"{""FoO"":""bar""}" }
   };
+  
+  public static IEnumerable<object[]> EnumValues => new List<object[]>
+  {
+    new object[] { typeof(FooEnum), FooEnum.Bar, @"""bar""" },
+    new object[] { typeof(FooEnum), FooEnum.FooBar, @"""foo_bar""" },
+    new object[] { typeof(FooEnum), FooEnum.BazQux, @"""baz-qux""" },
+    new object[] { typeof(FooEnum?), null!, @"null" },
+  };
 
   [Theory]
   [MemberData(nameof(Objects))]
@@ -64,5 +72,38 @@ public class DefaultMessageSerializerTests
     {
       Foo = "bar"
     });
+  }
+  
+  [Theory]
+  [MemberData(nameof(EnumValues))]
+  public void Serialize_GivenEnumValue_ReturnString(Type type, object value, string valueString)
+  {
+    // act
+    var data = _sut.Serialize(value);
+
+    // assert
+    data.Should().Be(valueString);
+  }
+
+  [Theory]
+  [MemberData(nameof(EnumValues))]
+  public void  Deserialize_GivenString_ReturnEnumValue(Type type, object value, string valueString)
+  {
+    // act
+    var result = _sut.Deserialize(valueString, type);
+
+    // assert
+    result.Should().Be(value);
+  }
+  
+  [Fact]
+  public void  Deserialize_GivenMissingFiledInput_ReturnObject()
+  {
+    // act
+    var result = _sut.Deserialize<Tuple<FooEnum?>>("{}");
+
+    // assert
+    result.Should().BeOfType<Tuple<FooEnum?>>();
+    result!.Item1.Should().BeNull();
   }
 }

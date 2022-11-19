@@ -7,7 +7,7 @@ namespace SecTester.Bus.Dispatchers;
 
 public class DefaultMessageSerializer : MessageSerializer
 {
-  private JsonSerializerOptions Options => new()
+  private static readonly JsonSerializerOptions Options = new()
   {
     IncludeFields = true,
     PropertyNameCaseInsensitive = true,

@@ -2,7 +2,8 @@ namespace SecTester.Core.Tests.Utils;
 
 public class StringUtilsTests
 {
-  public static readonly IEnumerable<object[]> SnakeCaseMapping = new List<object[]>{
+  public static readonly IEnumerable<object[]> SnakeCaseMapping = new List<object[]>
+  {
     new object[] { null!, null! },
     new object[] { "", "" },
     new object[] { "lowercase", "lowercase" }, 

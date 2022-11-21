@@ -1,15 +1,22 @@
 using System;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using SecTester.Bus.Internal;
 
 namespace SecTester.Bus.Dispatchers;
 
 public class DefaultMessageSerializer : MessageSerializer
 {
-  private JsonSerializerOptions Options => new()
+  private static readonly JsonSerializerOptions Options = new()
   {
     IncludeFields = true,
     PropertyNameCaseInsensitive = true,
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    Converters =
+    {
+      new JsonHttpMethodEnumerationStringConverter(),
+      new JsonStringEnumMemberConverter(SnakeCaseNamingPolicy.Instance, false)
+    }
   };
 
   public T? Deserialize<T>(string data)

@@ -21,21 +21,21 @@ public class ColoredConsoleFormatter : DefaultConsoleFormatter
     in LogEntry<TState> logEntry,
     TextWriter textWriter)
   {
-      textWriter.Write(GetForegroundColorAnsiCode(logEntry.LogLevel));
-      textWriter.Write(FormatHeader(logEntry.LogLevel));
-      textWriter.Write(DefaultForegroundColor);  
+    textWriter.Write(GetForegroundColorAnsiCode(logEntry.LogLevel));
+    textWriter.Write(FormatHeader(logEntry.LogLevel));
+    textWriter.Write(DefaultForegroundColor);
   }
 
   static string GetForegroundColorAnsiCode(LogLevel level) =>
     level switch
     {
-      LogLevel.Critical  => "\x1B[1m\x1B[31m",  // ConsoleColor.Red
+      LogLevel.Critical => "\x1B[1m\x1B[31m",  // ConsoleColor.Red
       LogLevel.Error => "\x1B[31m",             // ConsoleColor.DarkRed
       LogLevel.Warning => "\x1B[1m\x1B[33m",    // ConsoleColor.Yellow
       LogLevel.Information => "\x1B[32m",       // ConsoleColor.DarkGreen
-      LogLevel.Debug =>  "\x1B[1m\x1B[37m",     // ConsoleColor.White
-      LogLevel.Trace =>  "\x1B[1m\x1B[36m",     // ConsoleColor.Cyan
-      
+      LogLevel.Debug => "\x1B[1m\x1B[37m",     // ConsoleColor.White
+      LogLevel.Trace => "\x1B[1m\x1B[36m",     // ConsoleColor.Cyan
+
       _ => DefaultForegroundColor
     };
 }

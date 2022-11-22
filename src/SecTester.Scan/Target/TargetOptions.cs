@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
@@ -25,7 +24,7 @@ public interface TargetOptions
   /// <summary>
   ///   The request method to be used when making the request, GET by default
   /// </summary>
-  HttpMethod? Method { get; set; }
+  HttpMethod? Method { get; init; }
 
   /// <summary>
   ///   The headers
@@ -35,5 +34,5 @@ public interface TargetOptions
   /// <summary>
   /// The optional method of serializing `Query`
   /// </summary>
-  Func<IDictionary<string, IEnumerable<string>>, string>? SerializeQuery { get; init; }
+  string SerializeQuery(IEnumerable<KeyValuePair<string, string>> pairs);
 }

@@ -13,8 +13,8 @@ public class IssueTests
   private const Protocol Protocol = SecTester.Scan.Models.Protocol.Http;
   private const string Remedy = "remedy";
   private const string Link = "link";
-  private readonly Request _originalRequest = new("http://example.com");
-  private readonly Request _request = new("http://example.com");
+  private readonly SecTester.Scan.Models.Request _originalRequest = new("http://example.com");
+  private readonly SecTester.Scan.Models.Request _request = new("http://example.com");
   private readonly DateTime _time = DateTime.Now;
 
   [Fact]

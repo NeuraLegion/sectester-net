@@ -6,6 +6,6 @@ internal enum FooEnum
 {
   Bar,
   FooBar,
-  [EnumMember(Value = "baz-qux")] 
+  [EnumMember(Value = "baz-qux")]
   BazQux
 }

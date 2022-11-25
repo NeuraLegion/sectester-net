@@ -7,23 +7,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Bus.Commands;
 using SecTester.Core.Bus;
+using SecTester.Core.Utils;
 
 namespace SecTester.Bus.Dispatchers;
 
 public class HttpCommandDispatcher : CommandDispatcher
 {
+  private const string AuthScheme = "api-key";
+  private const string CorrelationIdHeaderField = "x-correlation-id";
+  private readonly HttpCommandDispatcherConfig _config;
+
+  private readonly IHttpClientFactory _httpClientFactory;
+  private readonly MessageSerializer _messageSerializer;
+
   private readonly IReadOnlyCollection<HttpMethod> _methodsForbidBody =
-    new List<HttpMethod>()
+    new List<HttpMethod>
     {
       HttpMethod.Head, HttpMethod.Options, HttpMethod.Get, HttpMethod.Trace
     };
 
-  private const string AuthScheme = "api-key";
-  private const string CorrelationIdHeaderField = "x-correlation-id";
-
-  private readonly IHttpClientFactory _httpClientFactory;
-  private readonly HttpCommandDispatcherConfig _config;
-  private readonly MessageSerializer _messageSerializer;
   private readonly RetryStrategy _retryStrategy;
 
   public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config,
@@ -57,7 +59,7 @@ public class HttpCommandDispatcher : CommandDispatcher
 
   private async Task<HttpResponseMessage> PerformHttpRequest<TResult>(HttpRequest<TResult> request, CancellationToken cancellationToken)
   {
-    var options = await CreateHttpRequestMessage(request).ConfigureAwait(false);
+    var options = CreateHttpRequestMessage(request);
     using var httpClient = _httpClientFactory.CreateClient(nameof(HttpCommandDispatcher));
     var response = await httpClient.SendAsync(options,
       request.ExpectReply ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead,
@@ -68,10 +70,10 @@ public class HttpCommandDispatcher : CommandDispatcher
     return response;
   }
 
-  private async Task<HttpRequestMessage> CreateHttpRequestMessage<TResult>(HttpRequest<TResult> request)
+  private HttpRequestMessage CreateHttpRequestMessage<TResult>(HttpRequest<TResult> request)
   {
     var content = request.Body != null && !_methodsForbidBody.Contains(request.Method) ? request.Body : null;
-    var requestUri = await CreateUri(request.Url, request.Params).ConfigureAwait(false);
+    var requestUri = CreateUri(request.Url, request.Params);
 
     var options = new HttpRequestMessage
     {
@@ -102,10 +104,9 @@ public class HttpCommandDispatcher : CommandDispatcher
     return CreateUri(string.Concat(uri, separator, query));
   }
 
-  private async Task<Uri> CreateUri(string uri, IEnumerable<KeyValuePair<string, string>>? query)
+  private Uri CreateUri(string uri, IEnumerable<KeyValuePair<string, string>>? query)
   {
-    var formUrlEncodedContent = new FormUrlEncodedContent(query ?? Enumerable.Empty<KeyValuePair<string, string>>());
-    var queryString = await formUrlEncodedContent.ReadAsStringAsync().ConfigureAwait(false);
+    var queryString = query is not null ? UrlUtils.SerializeQuery(query) : "";
 
     return CreateUri(uri, queryString);
 

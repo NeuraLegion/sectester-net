@@ -25,15 +25,15 @@ public class DefaultMessageSerializerTests
     new object[] { @"{""Foo"":""bar""}" },
     new object[] { @"{""FoO"":""bar""}" }
   };
-  
+
   public static IEnumerable<object[]> EnumValues => new List<object[]>
   {
     new object[] { FooEnum.Bar, @"""bar""" },
     new object[] { FooEnum.FooBar, @"""foo_bar""" },
     new object[] { FooEnum.BazQux, @"""baz-qux""" },
   };
-  
-    public static readonly IEnumerable<object[]> AttackParamLocationEnumerable = new List<object[]>
+
+  public static readonly IEnumerable<object[]> AttackParamLocationEnumerable = new List<object[]>
   {
     new object[] { AttackParamLocation.ArtificalFragment, @"""artifical-fragment"""},
     new object[] { AttackParamLocation.ArtificalQuery, @"""artifical-query"""},
@@ -138,7 +138,7 @@ public class DefaultMessageSerializerTests
     new object[] { TestType.Xss, @"""xss"""},
     new object[] { TestType.Xxe, @"""xxe"""}
   };
-  
+
   public static readonly IEnumerable<object[]> HttpMethodEnumerable = new List<object[]>
   {
     new object[] { HttpMethod.Delete, @"""DELETE"""},
@@ -199,7 +199,7 @@ public class DefaultMessageSerializerTests
       Foo = "bar"
     });
   }
-  
+
   [Theory]
   [MemberData(nameof(EnumValues))]
   [MemberData(nameof(AttackParamLocationEnumerable))]
@@ -239,7 +239,7 @@ public class DefaultMessageSerializerTests
     // assert
     result.Should().Be(expected);
   }
-  
+
   [Fact]
   public void Deserialize_GivenMissingFieldInput_ReturnObject()
   {
@@ -250,7 +250,7 @@ public class DefaultMessageSerializerTests
     result.Should().BeOfType<Tuple<FooEnum?>>();
     result!.Item1.Should().BeNull();
   }
-  
+
   [Fact]
   public void Deserialize_GivenNullFieldInput_ReturnObject()
   {
@@ -266,12 +266,12 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenMissingMember_ThrowError()
   {
     // act
-    var act = () =>_sut.Deserialize(@"""FOO""", typeof(HttpMethod));
+    var act = () => _sut.Deserialize(@"""FOO""", typeof(HttpMethod));
 
     // assert
     act.Should().Throw<JsonException>().WithMessage("*FOO*");
   }
-  
+
   [Fact]
   public void Serialize_GivenMissingMember_ThrowError()
   {
@@ -281,5 +281,4 @@ public class DefaultMessageSerializerTests
     // assert
     act.Should().Throw<JsonException>().WithMessage("*FOO*");
   }
-  
 }

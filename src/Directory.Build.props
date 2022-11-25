@@ -2,9 +2,10 @@
   <Import Project="..\Directory.Build.props"/>
 
   <PropertyGroup>
-    <Authors>artem.derevnjuk@bright.com</Authors>
+    <Authors>artem.derevnjuk@brightsec.com,dmitry.ostrikov@brightsec.com</Authors>
     <Company>Bright Security</Company>
-    <Product>Sentry</Product>
+    <Product>SecTester</Product>
+    <Description>This SDK is designed to provide all the basic tools and functions that will allow you to easily integrate the Bright security testing engine into your own project.</Description>
 
     <PackageTags>security;testing;e2e;test,.net;appsec;pentesting;qa;brightsec;scan;dast</PackageTags>
     <RepositoryType>git</RepositoryType>

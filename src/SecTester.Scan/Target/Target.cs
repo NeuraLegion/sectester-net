@@ -202,8 +202,8 @@ public sealed class Target : TargetOptions
 
   private Target WithBody(HttpContent body, Func<Task<PostData>> buildAction)
   {
-    Body = body;
-    _bodyGenerator = buildAction;
+    Body = body ?? throw new ArgumentNullException(nameof(body));
+    _bodyGenerator = buildAction ?? throw new ArgumentNullException(nameof(buildAction));
     return this;
   }
 
@@ -212,7 +212,7 @@ public sealed class Target : TargetOptions
   /// </summary>
   public Target WithMethod(HttpMethod value)
   {
-    Method = value;
+    Method = value ?? throw new ArgumentNullException(nameof(value));
     return this;
   }
 
@@ -221,7 +221,13 @@ public sealed class Target : TargetOptions
   /// </summary>
   public Target WithMethod(string value)
   {
-    return WithMethod(new HttpMethod(value));
+    if (string.IsNullOrEmpty(value))
+    {
+      throw new ArgumentNullException(nameof(value));
+    }
+
+    var httpMethod = new HttpMethod(value.ToUpperInvariant());
+    return WithMethod(httpMethod);
   }
 
   /// <summary>
@@ -279,7 +285,7 @@ public sealed class Target : TargetOptions
       _computedHeaders[pair.Key.ToLowerInvariant()] = pair.Value;
     }
 
-    return headers.SelectMany(pair =>
+    return _computedHeaders.SelectMany(pair =>
       pair.Value.Select(value => new Header(pair.Key, value))).ToList();
   }
 

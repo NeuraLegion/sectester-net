@@ -17,7 +17,7 @@ public class TargetTests
   private const string Cookie = "cookie";
 
   [Fact]
-  public async Task ToHarRequest_ReturnSimpleGetRequest()
+  public async Task ToHarRequest_CreatesComprehensiveRequest()
   {
     // arrange
     var target = new SecTester.Scan.Target.Target(BaseUrl);
@@ -36,6 +36,139 @@ public class TargetTests
       Cookies = Array.Empty<Cookie>(),
       HeadersSize = -1,
       BodySize = -1
+    });
+  }
+
+  [Fact]
+  public async Task ToHarRequest_TargetOptionsIsPassed_CreatesComprehensiveRequest()
+  {
+    // arrange
+    const string httpMethod = "put";
+    var target = new SecTester.Scan.Target.Target(BaseUrl)
+      .WithMethod(httpMethod)
+      .WithQuery(new[]
+      {
+        new KeyValuePair<string, string>("foo", "bar")
+      })
+      .WithHeaders(new[]
+      {
+        new KeyValuePair<string, IEnumerable<string>>(ContentType, new[]
+        {
+          PlainText
+        })
+      })
+      .WithBody("text");
+    var target2 = new SecTester.Scan.Target.Target(target);
+
+    // act
+    var result = await target2.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Method = "PUT",
+      Url = $"{BaseUrl}/?foo=bar",
+      HttpVersion = DefaultHttpVersion,
+      Headers = new object[]
+      {
+        new
+        {
+          Name = ContentType, Value = $"{PlainText}; charset=utf-8"
+        }
+      },
+      QueryString = new object[]
+      {
+        new
+        {
+          Name = "foo", Value = "bar"
+        }
+      },
+      Cookies = Array.Empty<Cookie>(),
+      HeadersSize = -1,
+      BodySize = -1
+    });
+  }
+
+  public async Task ToHarRequest_MinimalTargetOptionsIsPassed_CreatesComprehensiveRequest()
+  {
+    // arrange
+    var target = new SecTester.Scan.Target.Target(BaseUrl);
+    var target2 = new SecTester.Scan.Target.Target(target);
+
+    // act
+    var result = await target2.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Method,
+      Url = BaseUrl,
+      HttpVersion = DefaultHttpVersion,
+      Headers = Array.Empty<Header>(),
+      QueryString = Array.Empty<QueryParameter>(),
+      Cookies = Array.Empty<Cookie>(),
+      HeadersSize = -1,
+      BodySize = -1
+    });
+  }
+
+  [Fact]
+  public async Task ToHarRequest_SetsMethod()
+  {
+    // arrange
+    var httpMethod = HttpMethod.Delete;
+    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod(httpMethod);
+
+    // act
+    var result = await target.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Method = httpMethod.ToString()
+    });
+  }
+
+  [Fact]
+  public async Task ToHarRequest_NormalizesMethod()
+  {
+    // arrange
+    const string httpMethod = "get";
+    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod(httpMethod);
+
+    // act
+    var result = await target.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Method = httpMethod.ToUpperInvariant()
+    });
+  }
+
+  [Fact]
+  public void ToHarRequest_MethodIsEmptyString_ThrowsError()
+  {
+    // act
+    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithMethod("");
+
+    // assert
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
+  public async Task ToHarRequest_MethodAsString_SetsMethod()
+  {
+    // arrange
+    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod("PUT");
+
+    // act
+    var result = await target.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Method = "PUT"
     });
   }
 
@@ -117,6 +250,16 @@ public class TargetTests
   }
 
   [Fact]
+  public void ToHarRequest_QueryIsNull_ThrowsError()
+  {
+    // act
+    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithQuery(null!);
+
+    // assert
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
   public async Task ToHarRequest_UsesCustomQuerySerializer()
   {
     // arrange
@@ -144,6 +287,16 @@ public class TargetTests
         }
       }
     });
+  }
+
+  [Fact]
+  public void ToHarRequest_HeadersIsNull_ThrowsError()
+  {
+    // act
+    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithHeaders(null!);
+
+    // assert
+    act.Should().Throw<ArgumentNullException>();
   }
 
   [Fact]
@@ -270,7 +423,17 @@ public class TargetTests
   }
 
   [Fact]
-  public async Task ToHarRequest_ContentTypeIsInHeaders_ParsesJsonBody()
+  public void ToHarRequest_BodyIsNull_ThrowsError()
+  {
+    // act
+    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithBody((HttpContent)null!);
+
+    // assert
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
+  public async Task ToHarRequest_ContentTypeIsInHeaders_CreatesPostData()
   {
     // arrange
     const string body = @"{""foo"":""bar""}";
@@ -300,7 +463,33 @@ public class TargetTests
   }
 
   [Fact]
-  public async Task ToHarRequest_BodyIsJsonContent_InfersContentType()
+  public async Task ToHarRequest_BodyIsStringWithMimeType_CreatesPostData()
+  {
+    // arrange
+    var content = new ByteArrayContent(new byte[]
+    {
+      0x00, 0x01
+    });
+    var text = await content.ReadAsStringAsync();
+    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(text);
+
+    // act
+    var result = await target.ToHarRequest();
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      PostData = new
+      {
+        Text = text,
+        MimeType = $"{PlainText}; charset=utf-8",
+        Params = Array.Empty<PostDataParameter>()
+      }
+    });
+  }
+
+  [Fact]
+  public async Task ToHarRequest_BodyIsJsonContent_CreatesPostData()
   {
     // arrange
     const string expectedBody = @"{""foo"":""bar""}";
@@ -319,14 +508,14 @@ public class TargetTests
       PostData = new
       {
         Text = expectedBody,
-        MimeType = ApplicationJson,
+        MimeType = content.Headers.ContentType?.ToString(),
         Params = Array.Empty<PostDataParameter>()
       }
     });
   }
 
   [Fact]
-  public async Task ToHarRequest_BodyIsFormUrlEncodedContent_ParsesParams()
+  public async Task ToHarRequest_BodyIsFormUrlEncodedContent_CreatesPostData()
   {
     // arrange
     var input = new KeyValuePair<string, string>[]
@@ -358,7 +547,7 @@ public class TargetTests
   }
 
   [Fact]
-  public async Task ToHarRequest_BodyIsFormData_ParsesParams()
+  public async Task ToHarRequest_BodyIsFormData_CreatesPostData()
   {
     // arrange
     const string fileName = "file.bin";

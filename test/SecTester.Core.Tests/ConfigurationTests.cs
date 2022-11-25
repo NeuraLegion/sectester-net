@@ -28,7 +28,7 @@ public class ConfigurationTests
     const string hostname = null!;
 
     // act
-    Action act = () => new Configuration(hostname);
+    var act = () => new Configuration(hostname);
 
     // assert
     act.Should().Throw<Exception>();
@@ -41,7 +41,7 @@ public class ConfigurationTests
     const string hostname = ":test";
 
     // act
-    Action act = () => new Configuration(hostname);
+    var act = () => new Configuration(hostname);
 
     // assert
     act.Should().Throw<Exception>();
@@ -54,7 +54,7 @@ public class ConfigurationTests
     const string hostname = "app.neuralegion.com";
 
     // act
-    Action act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<CredentialProvider>());
+    var act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<CredentialProvider>());
 
     // assert
     act.Should().Throw<Exception>();

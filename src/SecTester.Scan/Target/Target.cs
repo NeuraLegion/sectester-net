@@ -246,13 +246,7 @@ public sealed class Target : TargetOptions
     var url = UrlUtils.NormalizeUrl(uriBuilder.ToString());
     var queryParameters = BuildQueryParameters();
     var headers = BuildHeaderParameters();
-    PostData? postData = null;
-
-    if (_bodyGenerator is not null)
-    {
-      postData = await _bodyGenerator!.Invoke().ConfigureAwait(false);
-    }
-
+    var postData = _bodyGenerator is not null ? await _bodyGenerator.Invoke().ConfigureAwait(false) : null;
 
     return new Request
     {

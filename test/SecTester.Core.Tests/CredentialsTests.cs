@@ -16,7 +16,7 @@ public class CredentialsTests
     const string token = "qwerty";
 
     // act
-    Action act = () => new Credentials(token);
+    var act = () => new Credentials(token);
 
     // assert
     act.Should().Throw<Exception>();
@@ -29,7 +29,7 @@ public class CredentialsTests
     const string token = "";
 
     // act
-    Action act = () => new Credentials(token);
+    var act = () => new Credentials(token);
 
     // assert
     act.Should().Throw<Exception>();

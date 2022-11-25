@@ -6,6 +6,7 @@ public enum AttackParamLocation
 {
   [EnumMember(Value = "artifical-fragment")]
   ArtificalFragment,
+
   [EnumMember(Value = "artifical-query")]
   ArtificalQuery,
   Body,

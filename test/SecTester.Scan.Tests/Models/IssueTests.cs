@@ -1,3 +1,5 @@
+using Request = SecTester.Scan.Models.Request;
+
 namespace SecTester.Scan.Tests.Models;
 
 public class IssueTests
@@ -13,15 +15,15 @@ public class IssueTests
   private const Protocol Protocol = SecTester.Scan.Models.Protocol.Http;
   private const string Remedy = "remedy";
   private const string Link = "link";
-  private readonly SecTester.Scan.Models.Request _originalRequest = new("http://example.com");
-  private readonly SecTester.Scan.Models.Request _request = new("http://example.com");
+  private readonly Request _originalRequest = new("http://example.com");
+  private readonly Request _request = new("http://example.com");
   private readonly DateTime _time = DateTime.Now;
 
   [Fact]
   public void Constructor_WithRequiredParameters_ConstructInstance()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
@@ -83,74 +85,74 @@ public class IssueTests
   public void Constructor_GivenNullId_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(null!, Details, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*Id*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*Id*");
   }
 
   [Fact]
   public void Constructor_GivenNullDetails_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, null!, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*Details*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*Details*");
   }
 
   [Fact]
   public void Constructor_GivenNullName_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, null!, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*Name*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*Name*");
   }
 
   [Fact]
   public void Constructor_GivenNullRemedy_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, Name, null!, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*Remedy*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*Remedy*");
   }
 
   [Fact]
   public void Constructor_GivenNullOriginalRequest_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, Name, Remedy, null!, _request, Link, Order, Severity, Protocol, _time);
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*OriginalRequest*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*OriginalRequest*");
   }
 
   [Fact]
   public void Constructor_GivenNullRequest_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, Name, Remedy, _originalRequest, null!, Link, Order, Severity, Protocol, _time);
 
 
     // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage($"*Request*");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*Request*");
   }
 
   [Fact]
   public void Constructor_GivenNullLink_ThrowError()
   {
     // act
-    Action act = () =>
+    var act = () =>
       new Issue(Id, Details, Name, Remedy, _originalRequest, _request, null!, Order, Severity, Protocol, _time);
 
 

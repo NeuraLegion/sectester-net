@@ -19,12 +19,10 @@ public class RmqEventBusTests : IDisposable
   private readonly RmqEventBusOptions _options;
   private readonly AsyncEventingBasicConsumer _replyConsumer;
   private readonly IServiceScopeFactory _scopeFactory;
-  private readonly MessageSerializer _messageSerializer;
 
   public RmqEventBusTests()
   {
     _connectionManager = Substitute.For<RmqConnectionManager>();
-    _messageSerializer = Substitute.For<DefaultMessageSerializer>();
     _logger = Substitute.For<ILogger>();
     _scopeFactory = Substitute.For<IServiceScopeFactory>();
     _channel = Substitute.For<IModel>();
@@ -36,12 +34,11 @@ public class RmqEventBusTests : IDisposable
     _connectionManager.CreateConsumer(_channel).Returns(_basicConsumer, _replyConsumer);
 
     _options = new RmqEventBusOptions("amqp://localhost:5672", Exchange: "event-bus", ClientQueue: "Agent", AppQueue: "App");
-    _bus = new RmqEventBus(_options, _connectionManager, _logger, _scopeFactory, _messageSerializer);
+    _bus = new RmqEventBus(_options, _connectionManager, _logger, _scopeFactory);
   }
 
   public void Dispose()
   {
-    _messageSerializer.ClearSubstitute();
     _connectionManager.ClearSubstitute();
     _channel.ClearSubstitute();
     _logger.ClearSubstitute();

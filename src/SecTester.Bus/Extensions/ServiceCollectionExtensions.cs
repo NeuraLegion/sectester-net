@@ -16,7 +16,6 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddSecTesterBus(this IServiceCollection collection)
   {
     collection
-      .AddSingleton<MessageSerializer, DefaultMessageSerializer>()
       .AddTransient(CreateHttpCommandDispatcherConfig)
       .AddTransient(_ => new ExponentialBackoffOptions())
       .AddSingleton<CommandDispatcher, HttpCommandDispatcher>()
@@ -78,9 +77,8 @@ public static class ServiceCollectionExtensions
     var connectionManager = sp.GetRequiredService<RmqConnectionManager>();
     var iLifetimeScope = sp.GetRequiredService<IServiceScopeFactory>();
     var logger = sp.GetRequiredService<ILogger<RmqEventBus>>();
-    var messageSerializer = sp.GetRequiredService<MessageSerializer>();
 
-    return new RmqEventBus(configuration, connectionManager, logger, iLifetimeScope, messageSerializer);
+    return new RmqEventBus(configuration, connectionManager, logger, iLifetimeScope);
   }
 
   [ExcludeFromCodeCoverage]

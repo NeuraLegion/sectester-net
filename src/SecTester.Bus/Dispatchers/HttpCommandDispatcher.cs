@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Bus.Commands;
+using SecTester.Bus.Extensions;
 using SecTester.Core.Bus;
 using SecTester.Core.Utils;
 
@@ -62,7 +63,7 @@ public class HttpCommandDispatcher : CommandDispatcher
       request.ExpectReply ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead,
       cancellationToken).ConfigureAwait(false);
 
-    response.EnsureSuccessStatusCode();
+    response.VerifySuccessStatusCode();
 
     return response;
   }

@@ -18,7 +18,6 @@ public class HttpCommandDispatcher : CommandDispatcher
   private readonly HttpCommandDispatcherConfig _config;
 
   private readonly IHttpClientFactory _httpClientFactory;
-  private readonly MessageSerializer _messageSerializer;
 
   private readonly IReadOnlyCollection<HttpMethod> _methodsForbidBody =
     new List<HttpMethod>
@@ -28,12 +27,10 @@ public class HttpCommandDispatcher : CommandDispatcher
 
   private readonly RetryStrategy _retryStrategy;
 
-  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config,
-    MessageSerializer messageSerializer, RetryStrategy retryStrategy)
+  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config, RetryStrategy retryStrategy)
   {
     _config = config ?? throw new ArgumentNullException(nameof(config));
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-    _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
     _retryStrategy = retryStrategy ?? throw new ArgumentNullException(nameof(retryStrategy));
   }
 
@@ -51,10 +48,10 @@ public class HttpCommandDispatcher : CommandDispatcher
     return default;
   }
 
-  private async Task<TResult?> ParserResponse<TResult>(HttpResponseMessage res)
+  private static async Task<TResult?> ParserResponse<TResult>(HttpResponseMessage res)
   {
     var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
-    return _messageSerializer.Deserialize<TResult>(responseBody);
+    return MessageSerializer.Deserialize<TResult>(responseBody);
   }
 
   private async Task<HttpResponseMessage> PerformHttpRequest<TResult>(HttpRequest<TResult> request, CancellationToken cancellationToken)

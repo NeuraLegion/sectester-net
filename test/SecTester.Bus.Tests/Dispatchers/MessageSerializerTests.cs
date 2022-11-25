@@ -3,15 +3,8 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Bus.Tests.Dispatchers;
 
-public class DefaultMessageSerializerTests
+public class MessageSerializerTests
 {
-  private readonly DefaultMessageSerializer _sut;
-
-  public DefaultMessageSerializerTests()
-  {
-    _sut = new DefaultMessageSerializer();
-  }
-
   public static IEnumerable<object[]> Objects => new List<object[]>
   {
     new object[] { new { foo = "bar" }, @"{""foo"":""bar""}" },
@@ -164,7 +157,7 @@ public class DefaultMessageSerializerTests
   public void Serialize_GivenInput_ReturnsString(object input, string expected)
   {
     // act
-    var result = _sut.Serialize(input);
+    var result = MessageSerializer.Serialize(input);
 
     // assert
     result.Should().Be(expected);
@@ -175,7 +168,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenType_ReturnsObject(string input)
   {
     // act
-    var result = _sut.Deserialize(input, typeof(FooBar));
+    var result = MessageSerializer.Deserialize(input, typeof(FooBar));
 
     // assert
     result.Should().BeOfType<FooBar>();
@@ -190,7 +183,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GenericReturnType_ReturnsObject(string input)
   {
     // act
-    var result = _sut.Deserialize<FooBar>(input);
+    var result = MessageSerializer.Deserialize<FooBar>(input);
 
     // assert
     result.Should().BeOfType<FooBar>();
@@ -214,7 +207,7 @@ public class DefaultMessageSerializerTests
   public void Serialize_GivenEnumValue_ReturnString(object input, string expected)
   {
     // act
-    var data = _sut.Serialize(input);
+    var data = MessageSerializer.Serialize(input);
 
     // assert
     data.Should().Be(expected);
@@ -234,7 +227,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenString_ReturnEnumValue(object expected, string input)
   {
     // act
-    var result = _sut.Deserialize(input, expected.GetType());
+    var result = MessageSerializer.Deserialize(input, expected.GetType());
 
     // assert
     result.Should().Be(expected);
@@ -244,7 +237,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenMissingFieldInput_ReturnObject()
   {
     // act
-    var result = _sut.Deserialize<Tuple<FooEnum?>>("{}");
+    var result = MessageSerializer.Deserialize<Tuple<FooEnum?>>("{}");
 
     // assert
     result.Should().BeOfType<Tuple<FooEnum?>>();
@@ -255,7 +248,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenNullFieldInput_ReturnObject()
   {
     // act
-    var result = _sut.Deserialize<Tuple<FooEnum?>>(@"{""item1"":null}");
+    var result = MessageSerializer.Deserialize<Tuple<FooEnum?>>(@"{""item1"":null}");
 
     // assert
     result.Should().BeOfType<Tuple<FooEnum?>>();
@@ -266,7 +259,7 @@ public class DefaultMessageSerializerTests
   public void Deserialize_GivenMissingMember_ThrowError()
   {
     // act
-    var act = () => _sut.Deserialize(@"""FOO""", typeof(HttpMethod));
+    var act = () => MessageSerializer.Deserialize(@"""FOO""", typeof(HttpMethod));
 
     // assert
     act.Should().Throw<JsonException>().WithMessage("*FOO*");
@@ -276,7 +269,7 @@ public class DefaultMessageSerializerTests
   public void Serialize_GivenMissingMember_ThrowError()
   {
     // act
-    var act = () => _sut.Serialize(new HttpMethod("FOO"));
+    var act = () => MessageSerializer.Serialize(new HttpMethod("FOO"));
 
     // assert
     act.Should().Throw<JsonException>().WithMessage("*FOO*");

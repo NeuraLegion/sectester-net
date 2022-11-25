@@ -28,15 +28,13 @@ public class RmqEventBus : EventBus, IDisposable
   private readonly RmqEventBusOptions _options;
   private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingMessages = new();
   private readonly IServiceScopeFactory _scopeFactory;
-  private readonly MessageSerializer _messageSerializer;
   private IModel _channel;
 
   public RmqEventBus(RmqEventBusOptions options, RmqConnectionManager connectionManager, ILogger logger,
-    IServiceScopeFactory scopeFactory, MessageSerializer messageSerializer)
+    IServiceScopeFactory scopeFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _connectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
-    _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     _channel = CreateConsumerChannel();
@@ -83,7 +81,7 @@ public class RmqEventBus : EventBus, IDisposable
 
     var result = await tcs.Task.ConfigureAwait(false);
 
-    return _messageSerializer.Deserialize<TResult>(result);
+    return MessageSerializer.Deserialize<TResult>(result);
   }
 
   public void Register<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
@@ -252,7 +250,7 @@ public class RmqEventBus : EventBus, IDisposable
       }
 
       var concreteType = eventHandler.GetConcreteEventListenerType();
-      var payload = _messageSerializer.Deserialize(consumedMessage.Payload, eventType);
+      var payload = MessageSerializer.Deserialize(consumedMessage.Payload, eventType);
       var method = concreteType.GetMethod("Handle");
       var task = (Task)method!.Invoke(instance, new[]
       {
@@ -292,7 +290,7 @@ public class RmqEventBus : EventBus, IDisposable
   private void SendMessage<T>(MessageParams<T> messageParams)
   {
     using var channel = _connectionManager.CreateChannel();
-    var json = _messageSerializer.Serialize(messageParams.Payload);
+    var json = MessageSerializer.Serialize(messageParams.Payload);
     var body = Encoding.UTF8.GetBytes(json);
     var properties = channel.CreateBasicProperties();
     var timestamp = new DateTimeOffset(messageParams.CreatedAt ?? DateTime.UtcNow).ToUnixTimeMilliseconds();

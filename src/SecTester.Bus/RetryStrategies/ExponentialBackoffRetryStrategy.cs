@@ -44,7 +44,7 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
     }
   }
 
-  private bool ShouldRetry(Exception err)
+  private static bool ShouldRetry(Exception err)
   {
     return err is SocketException or BrokerUnreachableException or TaskCanceledException or HttpRequestException;
   }

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecTester.Bus.Extensions;
 using SecTester.Core;
 using SecTester.Scan.CI;
+using SecTester.Scan.Content;
 using SecTester.Scan.Extensions;
 
 namespace SecTester.Scan.Tests.Extensions;
@@ -48,5 +49,21 @@ public class ServiceCollectionExtensionsTests
     using var provider = _services.BuildServiceProvider();
     var result = provider.GetRequiredService<CiDiscovery>();
     result.Should().BeOfType<DefaultCiDiscovery>();
+  }
+
+  [Fact]
+  public void AddSecTesterScan_ReturnsHttpContentFactory()
+  {
+    // arrange
+    _services.AddSingleton(_config);
+    _services.AddSecTesterBus();
+
+    // act
+    _services.AddSecTesterScan();
+
+    // assert
+    using var provider = _services.BuildServiceProvider();
+    var result = provider.GetRequiredService<HttpContentFactory>();
+    result.Should().BeOfType<DefaultHttpContentFactory>();
   }
 }

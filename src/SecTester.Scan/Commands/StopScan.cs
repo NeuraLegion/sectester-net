@@ -3,10 +3,10 @@ using SecTester.Core;
 
 namespace SecTester.Scan.Commands;
 
-public record StopScan : HttpRequest<Unit>
+internal record StopScan : HttpRequest<Unit>
 {
-  public StopScan(string id, int? ttl = default)
-    : base($"/api/v1/scans/{id}/stop", ttl: ttl)
+  public StopScan(string id)
+    : base($"/api/v1/scans/{id}/stop", expectReply: false)
   {
   }
 }

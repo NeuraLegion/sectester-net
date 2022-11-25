@@ -108,6 +108,8 @@ csharp_preserve_single_line_blocks = true
 dotnet_diagnostic.CA1715.severity = none
 dotnet_diagnostic.CA1716.severity = none
 dotnet_diagnostic.CA1848.severity = none
+# ReSharper: Configure await
+configure_await_analysis_mode = library
 
 [*.md]
 max_line_length = off

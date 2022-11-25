@@ -3,9 +3,8 @@ namespace SecTester.Scan.CI;
 // TODO (dmitry.osrikov@brightsec.com): rework using 'ci-info' compatible implementation
 internal class DefaultCiDiscovery : CiDiscovery
 {
-  public CiServer Server { get; } = CiServer.Unknown;
+  public CiServer? Server { get; }
 
-  public bool IsCi => Server != CiServer.Unknown;
+  public bool IsCi => Server != null;
 
-  public bool IsPr { get; }
 }

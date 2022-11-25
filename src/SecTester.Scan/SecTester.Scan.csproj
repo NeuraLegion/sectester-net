@@ -15,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="CI" />
+    <Folder Include="Commands" />
+    <Folder Include="Extensions" />
     <Folder Include="Internal" />
     <Folder Include="Models" />
     <Folder Include="Target" />

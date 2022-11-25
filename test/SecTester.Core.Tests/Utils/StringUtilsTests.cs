@@ -6,9 +6,9 @@ public class StringUtilsTests
   {
     new object[] { null!, null! },
     new object[] { "", "" },
-    new object[] { "lowercase", "lowercase" }, 
-    new object[] { "UPPERCASE", "uppercase" }, 
-    new object[] { "camelCase", "camel_case" }, 
+    new object[] { "lowercase", "lowercase" },
+    new object[] { "UPPERCASE", "uppercase" },
+    new object[] { "camelCase", "camel_case" },
     new object[] { "snake_case", "snake_case" },
     new object[] { "kebab-case", "kebab-case" },
     new object[] { "PascalCase", "pascal_case" },

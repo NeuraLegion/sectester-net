@@ -1,13 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SecTester.Bus.Dispatchers;
-using SecTester.Bus.Extensions;
 using SecTester.Core;
 using SecTester.Core.Bus;
 using SecTester.Core.Exceptions;
 using SecTester.Scan.CI;
 using SecTester.Scan.Commands;
-using SecTester.Scan.Content;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
@@ -16,21 +13,18 @@ public class DefaultScans : Scans
 {
   private readonly Configuration _configuration;
   private readonly CommandDispatcher _commandDispatcher;
-  private readonly HttpContentFactory _httpContentFactory;
   private readonly CiDiscovery _ciDiscovery;
 
-  public DefaultScans(Configuration configuration, CommandDispatcher commandDispatcher,
-    HttpContentFactory httpContentFactory, CiDiscovery ciDiscovery)
+  public DefaultScans(Configuration configuration, CommandDispatcher commandDispatcher, CiDiscovery ciDiscovery)
   {
     _configuration = configuration;
     _commandDispatcher = commandDispatcher;
-    _httpContentFactory = httpContentFactory;
     _ciDiscovery = ciDiscovery;
   }
 
   public async Task<string> CreateScan(ScanConfig config)
   {
-    var command = new CreateScan(config, _httpContentFactory, _ciDiscovery, _configuration);
+    var command = new CreateScan(config, _configuration.Name, _configuration.Version, _ciDiscovery.Server?.ServerName);
 
     var result = await SendCommand(command).ConfigureAwait(false);
 
@@ -59,7 +53,7 @@ public class DefaultScans : Scans
 
   public async Task<string> UploadHar(UploadHarOptions options)
   {
-    var result = await SendCommand(new UploadHar(options, _httpContentFactory)).ConfigureAwait(false);
+    var result = await SendCommand(new UploadHar(options)).ConfigureAwait(false);
 
     return result.Id;
   }

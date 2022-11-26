@@ -2,7 +2,6 @@ using NSubstitute.ClearExtensions;
 using SecTester.Core;
 using SecTester.Core.Bus;
 using SecTester.Scan.CI;
-using SecTester.Scan.Content;
 
 namespace SecTester.Scan.Tests.Fixtures;
 
@@ -37,14 +36,19 @@ public class ScanFixture : IDisposable
   protected readonly Configuration Configuration = new("app.neuralegion.com");
   protected readonly CommandDispatcher CommandDispatcher = Substitute.For<CommandDispatcher>();
   protected readonly CiDiscovery CiDiscovery = Substitute.For<CiDiscovery>();
-  protected readonly HttpContentFactory HttpContentFactory = Substitute.For<HttpContentFactory>();
 
   public void Dispose()
   {
     CiDiscovery.ClearSubstitute();
     CommandDispatcher.ClearSubstitute();
-    HttpContentFactory.ClearSubstitute();
 
     GC.SuppressFinalize(this);
+  }
+  
+  protected string? ReadHttpContentAsString(HttpContent? content)
+  {
+    return content is null
+      ? default
+      : Task.Run(content.ReadAsStringAsync).ConfigureAwait(false).GetAwaiter().GetResult();
   }
 }

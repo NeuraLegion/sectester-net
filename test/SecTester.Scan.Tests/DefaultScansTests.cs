@@ -7,13 +7,12 @@ namespace SecTester.Scan.Tests;
 public class DefaultScansTests : ScanFixture
 {
   private const string NullResultMessage = "Something went wrong. Please try again later.";
-  private static readonly StringContent _content = new("");
 
   private readonly Scans _sut;
 
   public DefaultScansTests()
   {
-    _sut = new DefaultScans(Configuration, CommandDispatcher, HttpContentFactory, CiDiscovery);
+    _sut = new DefaultScans(Configuration, CommandDispatcher, CiDiscovery);
   }
 
   [Fact]
@@ -23,15 +22,13 @@ public class DefaultScansTests : ScanFixture
     CommandDispatcher.Execute(Arg.Any<CreateScan>())
       .Returns(Task.FromResult<Identifiable<string>?>(new Identifiable<string>(ScanId)));
 
-    HttpContentFactory.CreateJsonContent(Arg.Any<object>()).Returns(_content);
-
     // act 
     var result = await _sut.CreateScan(ScanConfig).ConfigureAwait(false);
 
     // assert
     result.Should().Be(ScanId);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<CreateScan>(x => x.Body == _content)).ConfigureAwait(false);
+      .Execute(Arg.Any<CreateScan>()).ConfigureAwait(false);
   }
 
   [Fact]
@@ -76,8 +73,7 @@ public class DefaultScansTests : ScanFixture
     // assert
     result.Should().BeEquivalentTo(issues);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<ListIssues>(x =>
-        x.Url.Contains(ScanId))).ConfigureAwait(false);
+      .Execute(Arg.Any<ListIssues>()).ConfigureAwait(false);
   }
 
   [Fact]
@@ -102,8 +98,7 @@ public class DefaultScansTests : ScanFixture
 
     // assert
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<StopScan>(x =>
-        x.Url.Contains(ScanId))).ConfigureAwait(false);
+      .Execute(Arg.Any<StopScan>()).ConfigureAwait(false);
   }
 
   [Fact]
@@ -114,8 +109,7 @@ public class DefaultScansTests : ScanFixture
 
     // assert
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<DeleteScan>(x =>
-        x.Url.Contains(ScanId))).ConfigureAwait(false);
+      .Execute(Arg.Any<DeleteScan>()).ConfigureAwait(false);
   }
 
   [Fact]
@@ -133,8 +127,7 @@ public class DefaultScansTests : ScanFixture
     // assert
     result.Should().Be(scanState);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<GetScan>(x =>
-        x.Url.Contains(ScanId))).ConfigureAwait(false);
+      .Execute(Arg.Any<GetScan>()).ConfigureAwait(false);
   }
 
   [Fact]
@@ -160,15 +153,13 @@ public class DefaultScansTests : ScanFixture
     CommandDispatcher.Execute(Arg.Any<UploadHar>())
       .Returns(Task.FromResult<Identifiable<string>?>(new Identifiable<string>(HarId)));
 
-    HttpContentFactory.CreateHarContent(options).Returns(_content);
-
     // act
     var result = await _sut.UploadHar(options).ConfigureAwait(false);
 
     // assert
     result.Should().Be(HarId);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Is<UploadHar>(x => x.Body == _content)).ConfigureAwait(false);
+      .Execute(Arg.Any<UploadHar>()).ConfigureAwait(false);
   }
 
   [Fact]

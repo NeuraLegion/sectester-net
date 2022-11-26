@@ -1,3 +1,5 @@
+using System.Text;
+using SecTester.Bus.Dispatchers;
 using SecTester.Scan.Commands;
 using SecTester.Scan.Tests.Fixtures;
 
@@ -10,19 +12,35 @@ public class UploadHarTests : ScanFixture
   {
     // arrange
     var options = new UploadHarOptions(new Har(), "filename.har");
-    var content = new MultipartFormDataContent();
 
-    HttpContentFactory.CreateHarContent(options).Returns(content);
+    var expectedContent = new MultipartFormDataContent();
+    expectedContent.Add(
+      new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
+      "file", "filename.har");
 
     // act 
-    var command = new UploadHar(options, HttpContentFactory);
+    var command = new UploadHar(options);
 
-    // assert
-    command.Body.Should().Be(content);
-    command.Url.Should().Be("/api/v1/files");
-    command.Method.Should().Be(HttpMethod.Post);
-    command.ExpectReply.Should().BeTrue();
-    command.Params.Should().BeNull();
+    command.Should()
+      .BeEquivalentTo(
+        new
+        {
+          Url = "/api/v1/files",
+          Method = HttpMethod.Post,
+          Params = default(IEnumerable<KeyValuePair<string, string>>?),
+          ExpectReply = true,
+          Body = expectedContent
+        }, config => config.IncludingNestedObjects()
+          .Using<MultipartFormDataContent>(ctx =>
+          {
+            ReadHttpContentAsString(ctx.Subject.First()).Should()
+              .BeEquivalentTo(ReadHttpContentAsString(ctx.Expectation.First()));
+            ctx.Subject.First().Headers.ContentType.Should()
+              .BeEquivalentTo(ctx.Expectation.First().Headers.ContentType);
+            ctx.Subject.Headers.ContentDisposition.Should().BeEquivalentTo(ctx.Expectation.Headers.ContentDisposition);
+          })
+          .When(info => info.Path.EndsWith(nameof(UploadHar.Body)))
+      );
   }
 
   [Fact]
@@ -32,9 +50,10 @@ public class UploadHarTests : ScanFixture
     var options = new UploadHarOptions(new Har(), "filename.har", true);
 
     // act 
-    var command = new UploadHar(options, HttpContentFactory);
+    var command = new UploadHar(options);
 
     // assert
-    command.Params.Should().Contain(x => x.Key == "discard" && x.Value == "true");
+    command.Should()
+      .BeEquivalentTo(new { Params = new List<KeyValuePair<string, string>> { new("discard", "true") } });
   }
 }

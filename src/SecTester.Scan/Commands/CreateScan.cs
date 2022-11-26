@@ -1,16 +1,14 @@
 using System.Net.Http;
+using System.Text;
 using SecTester.Bus.Commands;
-using SecTester.Core;
-using SecTester.Scan.CI;
-using SecTester.Scan.Content;
+using SecTester.Bus.Dispatchers;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan.Commands;
 
 internal record CreateScan : HttpRequest<Identifiable<string>>
 {
-  public CreateScan(ScanConfig config, HttpContentFactory httpContentFactory, CiDiscovery ciDiscovery,
-    Configuration configuration)
+  public CreateScan(ScanConfig config, string configurationName, string configurationVersion, string? ciProvider)
     : base("/api/v1/scans", HttpMethod.Post)
   {
     var payload = new
@@ -29,14 +27,9 @@ internal record CreateScan : HttpRequest<Identifiable<string>>
       config.ProjectId,
       config.SlowEpTimeout,
       config.TargetTimeout,
-      Info = new
-      {
-        Source = "utlib",
-        client = new { configuration.Name, configuration.Version },
-        Provider = ciDiscovery.Server?.ServerName
-      }
+      Info = new { Source = "utlib", client = new { Name = configurationName, Version = configurationVersion }, Provider = ciProvider }
     };
 
-    Body = httpContentFactory.CreateJsonContent(payload);
+    Body = new StringContent(MessageSerializer.Serialize(payload), Encoding.UTF8, "application/json");
   }
 }

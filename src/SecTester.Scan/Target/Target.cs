@@ -257,13 +257,10 @@ public sealed class Target : TargetOptions
     return new Request
     {
       Url = url,
-      BodySize = -1,
-      HeadersSize = -1,
       Headers = headers,
       PostData = postData,
       HttpVersion = HttpVersion,
       QueryString = queryParameters,
-      Cookies = Array.Empty<Cookie>(),
       Method = Method.ToString()
     };
   }

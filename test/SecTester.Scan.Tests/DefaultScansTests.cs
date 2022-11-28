@@ -1,5 +1,4 @@
 using SecTester.Scan.Tests.Fixtures;
-using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests;
 
@@ -48,29 +47,14 @@ public class DefaultScansTests : ScanFixture
   public async Task ListIssues_ReturnListOfIssues()
   {
     // arrange
-    var issues = new List<Issue>
-    {
-      new(IssueId,
-        "Cross-site request forgery is a type of malicious website exploit.",
-        "Database connection crashed",
-        "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
-        new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
-        new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
-        $"{Configuration.Api}/scans/{ScanId}/issues/{IssueId}",
-        1,
-        Severity.Medium,
-        Protocol.Http,
-        DateTime.UtcNow) { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" }
-    };
-
     CommandDispatcher.Execute(Arg.Any<ListIssues>())
-      .Returns(Task.FromResult<IEnumerable<Issue>?>(issues));
+      .Returns(Task.FromResult<IEnumerable<Issue>?>(Issues));
 
     // act
     var result = await _sut.ListIssues(ScanId);
 
     // assert
-    result.Should().BeEquivalentTo(issues);
+    result.Should().BeEquivalentTo(Issues);
     await CommandDispatcher.Received(1)
       .Execute(Arg.Any<ListIssues>());
   }

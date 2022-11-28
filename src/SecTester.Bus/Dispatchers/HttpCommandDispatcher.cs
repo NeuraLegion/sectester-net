@@ -51,8 +51,14 @@ public class HttpCommandDispatcher : CommandDispatcher
 
   private static async Task<TResult?> ParserResponse<TResult>(HttpResponseMessage res)
   {
+    if (res.Content == null)
+    {
+      return default;
+    }
+
     var responseBody = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
     return MessageSerializer.Deserialize<TResult>(responseBody);
+
   }
 
   private async Task<HttpResponseMessage> PerformHttpRequest<TResult>(HttpRequest<TResult> request, CancellationToken cancellationToken)
@@ -63,7 +69,7 @@ public class HttpCommandDispatcher : CommandDispatcher
       request.ExpectReply ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead,
       cancellationToken).ConfigureAwait(false);
 
-    response.VerifySuccessStatusCode();
+    await response.ThrowIfUnsuccessful();
 
     return response;
   }

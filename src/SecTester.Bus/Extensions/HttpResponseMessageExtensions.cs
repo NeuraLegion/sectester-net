@@ -1,51 +1,51 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SecTester.Bus.Exceptions;
 
 namespace SecTester.Bus.Extensions;
 
 internal static class HttpResponseMessageExtensions
 {
-  private const int ContentLengthThreshold = 4096;
-  private const string DetailsContentType = "text/html";
-  private const string StripHtmlTagsRegex = "<[^>]*>";
+  private const string DefaultErrorMessageTemplate = "Request failed with status code {0}";
 
-  public static HttpResponseMessage VerifySuccessStatusCode(this HttpResponseMessage httpResponseMessage)
+  private static readonly IEnumerable<string> AllowedContentTypes = new List<string>
   {
-    if (httpResponseMessage.CanHandle())
+    "text/html", "text/plain"
+  };
+
+  public static async Task ThrowIfUnsuccessful(this HttpResponseMessage httpResponseMessage)
+  {
+    if (!httpResponseMessage.IsSuccessStatusCode)
     {
-      var message = httpResponseMessage.TryExtractMessage();
+      var ex = await CreateHttpException(httpResponseMessage);
 
-      if (message is not null)
-      {
-        throw new HttpRequestException(
-          $"{message}: {(int)httpResponseMessage.StatusCode} ({httpResponseMessage.ReasonPhrase}).");
-      }
+      throw ex;
     }
-
-    return httpResponseMessage.EnsureSuccessStatusCode();
   }
 
-  private static bool CanHandle(this HttpResponseMessage httpResponseMessage)
+  private static async Task<HttpRequestException> CreateHttpException(HttpResponseMessage httpResponseMessage)
   {
-    return (int)httpResponseMessage.StatusCode >= 400 &&
-           httpResponseMessage.Content.Headers.ContentType is not null &&
-           httpResponseMessage.Content.Headers.ContentLength is > 0 and < ContentLengthThreshold &&
-           DetailsContentType.Equals(httpResponseMessage.Content.Headers.ContentType.MediaType,
-             StringComparison.OrdinalIgnoreCase);
+    var message = await ReadMessage(httpResponseMessage);
+
+    return new HttpStatusException(message, httpResponseMessage.StatusCode);
   }
 
-  private static string? TryExtractMessage(this HttpResponseMessage httpResponseMessage)
+  private static async Task<string> ReadMessage(HttpResponseMessage httpResponseMessage)
   {
-    var content = Task.Run(() => httpResponseMessage.Content.ReadAsStringAsync())
-      .ConfigureAwait(false).GetAwaiter().GetResult();
+    var message = CanObtainErrorMessage(httpResponseMessage) ? await httpResponseMessage.Content.ReadAsStringAsync() : "";
 
-    if (!string.IsNullOrWhiteSpace(content))
-    {
-      return Regex.Replace(content, StripHtmlTagsRegex, string.Empty);
-    }
+    return string.IsNullOrEmpty(message)
+      ? string.Format(CultureInfo.InvariantCulture, DefaultErrorMessageTemplate, httpResponseMessage.StatusCode)
+      : message;
+  }
 
-    return default;
+  private static bool CanObtainErrorMessage(HttpResponseMessage httpResponseMessage)
+  {
+    var contentType = httpResponseMessage.Content.Headers.ContentType;
+    return contentType != null && AllowedContentTypes.Contains(contentType.MediaType, StringComparer.OrdinalIgnoreCase);
   }
 }

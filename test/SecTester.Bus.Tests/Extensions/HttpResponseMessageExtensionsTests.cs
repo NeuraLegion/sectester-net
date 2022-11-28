@@ -3,67 +3,95 @@ namespace SecTester.Bus.Tests.Extensions;
 public class HttpResponseMessageExtensionsTests
 {
   private const string CustomErrorMessage = "Custom Error Message";
+  private const string DefaultErrorMessagePattern = "Request failed with status code *";
 
   public static readonly IEnumerable<object[]> SucceededStatusCodes = new List<object[]>
   {
-    new object[] { HttpStatusCode.OK },
-    new object[] { HttpStatusCode.Created },
-    new object[] { HttpStatusCode.Accepted }
+    new object[]
+    {
+      HttpStatusCode.OK
+    },
+    new object[]
+    {
+      HttpStatusCode.Created
+    },
+    new object[]
+    {
+      HttpStatusCode.Accepted
+    }
   };
 
   public static readonly IEnumerable<object[]> UnsuccessfulStatusCodes = new List<object[]>
   {
-    new object[] { HttpStatusCode.Redirect },
-    new object[] { HttpStatusCode.BadRequest },
-    new object[] { HttpStatusCode.BadGateway }
+    new object[]
+    {
+      HttpStatusCode.Redirect
+    },
+    new object[]
+    {
+      HttpStatusCode.BadRequest
+    },
+    new object[]
+    {
+      HttpStatusCode.BadGateway
+    }
   };
 
-  public static readonly IEnumerable<object[]> CustomErrorMessageConditions = new List<object[]>
+  public static readonly IEnumerable<object[]> ExpectedConditions = new List<object[]>
   {
-    new object[] { "text/html", CustomErrorMessage },
-    new object[] { "text/html", $"<html><head></head><body>{CustomErrorMessage}</body></html>" }
+    new object[]
+    {
+      "text/html", CustomErrorMessage
+    },
+    new object[]
+    {
+      "text/plain", CustomErrorMessage
+    }
   };
 
-  public static readonly IEnumerable<object[]> DefaultErrorMessageConditions = new List<object[]>
+  public static readonly IEnumerable<object[]> NonExpectedConditions = new List<object[]>
   {
-    new object[] { "application/json", CustomErrorMessage },
-    new object[] { "text/html", CustomErrorMessage + new string('.', 8192) },
-    new object[] { "text/html", "" },
-    new object[] { "text/html", new string(' ', 4) }
+    new object[]
+    {
+      "application/json", @"{""foo"":""bar""}"
+    },
+    new object[]
+    {
+      "text/plain", ""
+    }
   };
 
   [Theory]
   [MemberData(nameof(SucceededStatusCodes))]
-  public void VerifySuccessStatusCode_GivenStatusCode_Returns(HttpStatusCode httpStatusCode)
+  public async Task ThrowIfUnsuccessful_SuccessfulStatusCode_NotThrows(HttpStatusCode httpStatusCode)
   {
     // arrange 
     var message = new HttpResponseMessage(httpStatusCode);
 
     // act
-    var result = message.VerifySuccessStatusCode();
+    var act = () => message.ThrowIfUnsuccessful();
 
     // assert
-    result.Should().Be(message);
+    await act.Should().NotThrowAsync<HttpStatusException>();
   }
 
   [Theory]
   [MemberData(nameof(UnsuccessfulStatusCodes))]
-  public void VerifySuccessStatusCode_GivenStatusCode_ThrowError(HttpStatusCode httpStatusCode)
+  public async Task ThrowIfUnsuccessful_UnsuccessfulStatusCode_ThrowsDefaultError(HttpStatusCode httpStatusCode)
   {
     // arrange 
     var message = new HttpResponseMessage(httpStatusCode);
 
     // act
-    var act = () => message.VerifySuccessStatusCode();
+    var act = () => message.ThrowIfUnsuccessful();
 
     // assert
-    act.Should().Throw<HttpRequestException>();
+    await act.Should().ThrowAsync<HttpRequestException>();
   }
 
-
   [Theory]
-  [MemberData(nameof(CustomErrorMessageConditions))]
-  public void VerifySuccessStatusCode_ThrowErrorWithCustomMessage(string contentType, string content)
+  [MemberData(nameof(ExpectedConditions))]
+  public async Task ThrowIfUnsuccessful_UnsuccessfulStatusCodeWithErrorMessage_ThrowsError(string contentType, string content)
   {
     // arrange 
     var message = new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -72,16 +100,16 @@ public class HttpResponseMessageExtensionsTests
     };
 
     // act
-    var act = () => message.VerifySuccessStatusCode();
+    var act = () => message.ThrowIfUnsuccessful();
 
     // assert
-    act.Should().Throw<HttpRequestException>().WithMessage(
-      $"{CustomErrorMessage}: 400 (Bad Request).");
+    await act.Should().ThrowAsync<HttpStatusException>().WithMessage(
+      CustomErrorMessage);
   }
 
   [Theory]
-  [MemberData(nameof(DefaultErrorMessageConditions))]
-  public void VerifySuccessStatusCode_ThrowErrorWithDefaultMessage(string contentType, string content)
+  [MemberData(nameof(NonExpectedConditions))]
+  public async Task ThrowIfUnsuccessful_UnsuccessfulStatusCodeWithErrorMessage_ThrowsDefaultError(string contentType, string content)
   {
     // arrange 
     var message = new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -90,10 +118,10 @@ public class HttpResponseMessageExtensionsTests
     };
 
     // act
-    var act = () => message.VerifySuccessStatusCode();
+    var act = () => message.ThrowIfUnsuccessful();
 
     // assert
-    act.Should().Throw<HttpRequestException>().WithMessage(
-      "*400 (Bad Request).*").And.Message.Should().NotContain(CustomErrorMessage);
+    await act.Should().ThrowAsync<HttpStatusException>().WithMessage(
+      DefaultErrorMessagePattern);
   }
 }

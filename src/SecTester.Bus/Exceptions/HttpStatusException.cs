@@ -1,0 +1,14 @@
+using System.Net;
+using System.Net.Http;
+
+namespace SecTester.Bus.Exceptions;
+
+public class HttpStatusException : HttpRequestException
+{
+  public HttpStatusCode? StatusCode { get; }
+
+  public HttpStatusException(string message, HttpStatusCode statusCode) : base(message)
+  {
+    StatusCode = statusCode;
+  }
+}

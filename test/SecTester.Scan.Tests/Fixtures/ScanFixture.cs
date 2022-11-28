@@ -45,8 +45,8 @@ public class ScanFixture : IDisposable
 
     GC.SuppressFinalize(this);
   }
-  
-  protected string? ReadHttpContentAsString(HttpContent? content)
+
+  protected static string? ReadHttpContentAsString(HttpContent? content)
   {
     return content is null
       ? default

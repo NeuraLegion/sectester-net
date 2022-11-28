@@ -1,4 +1,3 @@
-using SecTester.Scan.Models;
 using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests.Models;

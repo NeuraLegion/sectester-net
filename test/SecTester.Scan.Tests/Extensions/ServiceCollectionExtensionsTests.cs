@@ -1,9 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using SecTester.Bus.Extensions;
-using SecTester.Core;
-using SecTester.Scan.CI;
-using SecTester.Scan.Extensions;
-
 namespace SecTester.Scan.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests

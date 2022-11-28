@@ -1,5 +1,3 @@
-using SecTester.Scan.CI;
-
 namespace SecTester.Scan.Tests.CI;
 
 public class DefaultCiDiscoveryTests

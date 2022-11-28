@@ -17,9 +17,14 @@ internal record UploadHar : HttpRequest<Identifiable<string>>
       : default;
 
 
-    var content = new MultipartFormDataContent();
-    content.Add(new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-      "file", options.FileName);
+    var content = new MultipartFormDataContent
+    {
+      {
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
+        "file",
+        options.FileName
+      }
+    };
 
     Body = content;
   }

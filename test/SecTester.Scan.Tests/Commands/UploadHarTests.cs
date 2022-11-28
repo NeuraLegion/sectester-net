@@ -1,8 +1,3 @@
-using System.Text;
-using SecTester.Bus.Dispatchers;
-using SecTester.Scan.Commands;
-using SecTester.Scan.Models;
-using SecTester.Scan.Target.Har;
 using SecTester.Scan.Tests.Fixtures;
 
 namespace SecTester.Scan.Tests.Commands;
@@ -15,10 +10,14 @@ public class UploadHarTests : ScanFixture
     // arrange
     var options = new UploadHarOptions(new Har(), "filename.har");
 
-    var expectedContent = new MultipartFormDataContent();
-    expectedContent.Add(
-      new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-      "file", "filename.har");
+    var expectedContent = new MultipartFormDataContent
+    {
+      {
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
+        "file",
+        "filename.har"
+      }
+    };
 
     // act 
     var command = new UploadHar(options);

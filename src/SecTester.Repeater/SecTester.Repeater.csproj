@@ -5,8 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Include="obj\README.md" />
-      <None Remove="README.md" />
+      <ProjectReference Include="..\SecTester.Core\SecTester.Core.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Internal" />
+    <Folder Include="Runners" />
+  </ItemGroup>
 </Project>

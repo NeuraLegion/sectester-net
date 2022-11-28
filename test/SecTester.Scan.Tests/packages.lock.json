@@ -1330,7 +1330,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
           "Microsoft.Extensions.Http": "[6.0.0, )",
           "RabbitMQ.Client": "[6.4.0, )",
-          "SecTester.Core": "[0.14.0, )",
+          "SecTester.Core": "[0.15.0, )",
           "System.Text.Json": "[6.0.0, )",
           "System.Threading.RateLimiting": "[7.0.0, )"
         }
@@ -1348,7 +1348,8 @@
         "dependencies": {
           "Macross.Json.Extensions": "[3.0.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "SecTester.Core": "[0.14.0, )",
+          "SecTester.Bus": "[0.15.0, )",
+          "SecTester.Core": "[0.15.0, )",
           "System.Text.Json": "[6.0.0, )"
         }
       }

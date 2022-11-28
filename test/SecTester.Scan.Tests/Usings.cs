@@ -1,5 +1,17 @@
+global using System.Net.Http.Headers;
+global using System.Net.Http.Json;
+global using System.Text;
 global using FluentAssertions;
+global using Microsoft.Extensions.DependencyInjection;
 global using NSubstitute;
+global using SecTester.Bus.Dispatchers;
+global using SecTester.Bus.Extensions;
+global using SecTester.Core;
+global using SecTester.Core.Exceptions;
+global using SecTester.Scan.CI;
+global using SecTester.Scan.Commands;
+global using SecTester.Scan.Extensions;
 global using SecTester.Scan.Models;
+global using SecTester.Scan.Target.Har;
 global using SecTester.Scan.Target.Har;
 global using Xunit;

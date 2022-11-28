@@ -1,7 +1,3 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text;
-
 namespace SecTester.Scan.Tests.Target;
 
 public class TargetTests
@@ -89,6 +85,7 @@ public class TargetTests
     });
   }
 
+  [Fact]
   public async Task ToHarRequest_MinimalTargetOptionsIsPassed_CreatesComprehensiveRequest()
   {
     // arrange

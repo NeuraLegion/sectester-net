@@ -1,0 +1,4 @@
+[*.cs]
+# ReSharper: Configure await
+configure_await_analysis_mode = library
+

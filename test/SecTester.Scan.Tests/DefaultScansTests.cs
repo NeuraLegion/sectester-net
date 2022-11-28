@@ -1,6 +1,7 @@
 using SecTester.Core.Exceptions;
 using SecTester.Scan.Commands;
 using SecTester.Scan.Tests.Fixtures;
+using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests;
 
@@ -23,12 +24,12 @@ public class DefaultScansTests : ScanFixture
       .Returns(Task.FromResult<Identifiable<string>?>(new Identifiable<string>(ScanId)));
 
     // act 
-    var result = await _sut.CreateScan(ScanConfig).ConfigureAwait(false);
+    var result = await _sut.CreateScan(ScanConfig);
 
     // assert
     result.Should().Be(ScanId);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<CreateScan>()).ConfigureAwait(false);
+      .Execute(Arg.Any<CreateScan>());
   }
 
   [Fact]
@@ -42,7 +43,7 @@ public class DefaultScansTests : ScanFixture
     var act = () => _sut.CreateScan(ScanConfig);
 
     // assert
-    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage).ConfigureAwait(false);
+    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
   }
 
   [Fact]
@@ -68,12 +69,12 @@ public class DefaultScansTests : ScanFixture
       .Returns(Task.FromResult<IEnumerable<Issue>?>(issues));
 
     // act
-    var result = await _sut.ListIssues(ScanId).ConfigureAwait(false);
+    var result = await _sut.ListIssues(ScanId);
 
     // assert
     result.Should().BeEquivalentTo(issues);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<ListIssues>()).ConfigureAwait(false);
+      .Execute(Arg.Any<ListIssues>());
   }
 
   [Fact]
@@ -87,29 +88,29 @@ public class DefaultScansTests : ScanFixture
     var act = () => _sut.ListIssues(ScanId);
 
     // assert
-    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage).ConfigureAwait(false);
+    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
   }
 
   [Fact]
   public async Task StopScan_StopsScan()
   {
     // act
-    await _sut.StopScan(ScanId).ConfigureAwait(false);
+    await _sut.StopScan(ScanId);
 
     // assert
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<StopScan>()).ConfigureAwait(false);
+      .Execute(Arg.Any<StopScan>());
   }
 
   [Fact]
   public async Task DeleteScan_DeletesScan()
   {
     // act
-    await _sut.DeleteScan(ScanId).ConfigureAwait(false);
+    await _sut.DeleteScan(ScanId);
 
     // assert
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<DeleteScan>()).ConfigureAwait(false);
+      .Execute(Arg.Any<DeleteScan>());
   }
 
   [Fact]
@@ -122,12 +123,12 @@ public class DefaultScansTests : ScanFixture
       .Returns(Task.FromResult<ScanState?>(scanState));
 
     // act
-    var result = await _sut.GetScan(ScanId).ConfigureAwait(false);
+    var result = await _sut.GetScan(ScanId);
 
     // assert
     result.Should().Be(scanState);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<GetScan>()).ConfigureAwait(false);
+      .Execute(Arg.Any<GetScan>());
   }
 
   [Fact]
@@ -141,7 +142,7 @@ public class DefaultScansTests : ScanFixture
     var act = () => _sut.GetScan(ScanId);
 
     // assert
-    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage).ConfigureAwait(false);
+    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
   }
 
   [Fact]
@@ -154,12 +155,12 @@ public class DefaultScansTests : ScanFixture
       .Returns(Task.FromResult<Identifiable<string>?>(new Identifiable<string>(HarId)));
 
     // act
-    var result = await _sut.UploadHar(options).ConfigureAwait(false);
+    var result = await _sut.UploadHar(options);
 
     // assert
     result.Should().Be(HarId);
     await CommandDispatcher.Received(1)
-      .Execute(Arg.Any<UploadHar>()).ConfigureAwait(false);
+      .Execute(Arg.Any<UploadHar>());
   }
 
   [Fact]
@@ -175,6 +176,6 @@ public class DefaultScansTests : ScanFixture
     var act = () => _sut.UploadHar(options);
 
     // assert
-    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage).ConfigureAwait(false);
+    await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
   }
 }

@@ -49,6 +49,6 @@ public class ScanFixture : IDisposable
   {
     return content is null
       ? default
-      : Task.Run(content.ReadAsStringAsync).ConfigureAwait(false).GetAwaiter().GetResult();
+      : Task.Run(content.ReadAsStringAsync).GetAwaiter().GetResult();
   }
 }

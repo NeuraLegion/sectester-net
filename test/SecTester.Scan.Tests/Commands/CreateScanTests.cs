@@ -8,7 +8,7 @@ namespace SecTester.Scan.Tests.Commands;
 public class CreateScanTests : ScanFixture
 {
   [Fact]
-  public async Task Constructor_ConstructsInstance()
+  public void Constructor_ConstructsInstance()
   {
     // arrange
     var expectedPayload = new

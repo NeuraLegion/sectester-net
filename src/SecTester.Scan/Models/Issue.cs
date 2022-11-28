@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace SecTester.Scan.Models;
 
-public record Issue(string Id, string Details, string Name, string Remedy, Request OriginalRequest, Request Request, string Link, int Order, Severity Severity, Protocol Protocol, DateTime Time)
+public record Issue(string Id, string Details, string Name, string Remedy, Request OriginalRequest, Request Request, string Link,
+  int Order, Severity Severity, Protocol Protocol, DateTime Time)
 {
   public string Id { get; init; } = Id ?? throw new ArgumentNullException(nameof(Id));
   public string Details { get; init; } = Details ?? throw new ArgumentNullException(nameof(Details));

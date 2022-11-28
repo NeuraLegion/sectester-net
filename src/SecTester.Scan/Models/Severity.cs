@@ -4,12 +4,9 @@ namespace SecTester.Scan.Models;
 
 public enum Severity
 {
-  [EnumMember(Value = "Medium")]
-  Medium,
+  [EnumMember(Value = "Medium")] Medium,
 
-  [EnumMember(Value = "High")]
-  High,
+  [EnumMember(Value = "High")] High,
 
-  [EnumMember(Value = "Low")]
-  Low
+  [EnumMember(Value = "Low")] Low
 }

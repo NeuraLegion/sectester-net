@@ -6,7 +6,7 @@ public class ScanTests
   public void Constructor_GivenNullScans_ThrowError()
   {
     // act
-    Action act = () => new Scan(null!, new ScanOptions());
+    var act = () => new Scan(null!, new ScanOptions());
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*scans*");
@@ -19,7 +19,7 @@ public class ScanTests
     var scans = Substitute.For<Scans>();
 
     // act
-    Action act = () => new Scan(scans, null!);
+    var act = () => new Scan(scans, null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*options*");

@@ -24,7 +24,7 @@ public class UploadHarContentOptionsTests
   public void Constructor_GivenNullHarContent_ThrowError()
   {
     // act
-    Action act = () => new UploadHarOptions(null!, FileName);
+    var act = () => new UploadHarOptions(null!, FileName);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Har*");
@@ -34,7 +34,7 @@ public class UploadHarContentOptionsTests
   public void Constructor_GivenNullFileName_ThrowError()
   {
     // act
-    Action act = () => new UploadHarOptions(_har, null!);
+    var act = () => new UploadHarOptions(_har, null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Filename*");

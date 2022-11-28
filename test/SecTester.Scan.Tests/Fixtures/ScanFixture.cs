@@ -2,6 +2,7 @@ using NSubstitute.ClearExtensions;
 using SecTester.Core;
 using SecTester.Core.Bus;
 using SecTester.Scan.CI;
+using SecTester.Scan.Models;
 
 namespace SecTester.Scan.Tests.Fixtures;
 

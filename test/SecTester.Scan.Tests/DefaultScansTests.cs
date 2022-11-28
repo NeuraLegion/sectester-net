@@ -1,5 +1,7 @@
 using SecTester.Core.Exceptions;
 using SecTester.Scan.Commands;
+using SecTester.Scan.Models;
+using SecTester.Scan.Target.Har;
 using SecTester.Scan.Tests.Fixtures;
 using Request = SecTester.Scan.Models.Request;
 

@@ -19,11 +19,11 @@ public class Repeater : IAsyncDisposable
 
   public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger logger, TimerProvider heartbeat)
   {
-    RepeaterId = repeaterId;
-    _logger = logger;
-    _version = version;
-    _eventBus = eventBus;
-    _heartbeat = heartbeat;
+    RepeaterId = repeaterId ?? throw new ArgumentNullException(nameof(repeaterId));
+    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _version = version ?? throw new ArgumentNullException(nameof(version));
+    _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+    _heartbeat = heartbeat ?? throw new ArgumentNullException(nameof(heartbeat));
   }
 
   public RunningStatus Status { get; private set; } = RunningStatus.Off;

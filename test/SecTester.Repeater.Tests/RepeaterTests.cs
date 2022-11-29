@@ -1,118 +1,17 @@
 using System.Text.RegularExpressions;
 using System.Timers;
 using Microsoft.Extensions.Logging;
+using NSubstitute.ReturnsExtensions;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Bus;
 using SecTester.Repeater.Tests.Mocks;
 
 namespace SecTester.Repeater.Tests;
 
-public class RepeaterTests : IDisposable
+public class RepeaterTests : IDisposable, IAsyncDisposable
 {
   private const string Version = "42.0.1";
   private const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
-
-  private readonly EventBus _eventBus;
-  private readonly MockLogger _logger;
-  private readonly TimerProvider _timerProvider;
-  private readonly Repeater _sut;
-
-  public RepeaterTests()
-  {
-    _eventBus = Substitute.For<EventBus>();
-    _logger = Substitute.For<MockLogger>();
-    _timerProvider = Substitute.For<TimerProvider>();
-    var version = new Version(Version);
-    _sut = new Repeater(Id, _eventBus, version, _logger, _timerProvider);
-  }
-
-  public void Dispose()
-  {
-    _logger.ClearSubstitute();
-    _eventBus.ClearSubstitute();
-    _timerProvider.ClearSubstitute();
-    GC.SuppressFinalize(this);
-  }
-
-  [Fact]
-  public async Task Start_RegistersInApp()
-  {
-    // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
-
-    // act
-    await _sut.Start();
-
-    // assert
-    await _eventBus.Received().Execute(Arg.Any<RegisterRepeaterCommand>());
-    await _eventBus.Received().Publish(Arg.Is<RepeaterStatusEvent>(x => x.Status == RepeaterStatus.Connected && x.RepeaterId == Id));
-  }
-
-  [Fact]
-  public async Task Start_RegistrationFailed_RegistersInApp()
-  {
-    // act
-    var act = () => _sut.Start();
-
-    // assert
-    await act.Should().ThrowAsync<SecTesterException>().WithMessage("Error registering repeater.");
-  }
-
-  [Fact]
-  public async Task Start_SendsPingPeriodically()
-  {
-    // arrange
-    var elapsedEventArgs = EventArgs.Empty as ElapsedEventArgs;
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
-
-    // act
-    await _sut.Start();
-
-    // assert
-    _timerProvider.Elapsed += Raise.Event<ElapsedEventHandler>(new object(), elapsedEventArgs);
-    await _eventBus.Received(2).Publish(Arg.Is<RepeaterStatusEvent>(x => x.Status == RepeaterStatus.Connected && x.RepeaterId == Id));
-  }
-
-  [Fact]
-  public async Task Start_SetsStatusToRunningJustAfterCall()
-  {
-    // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
-
-    // act
-    await _sut.Start();
-
-    // assert
-    _sut.Status.Should().Be(RunningStatus.Running);
-  }
-
-  [Fact]
-  public async Task Start_RepeaterIsStarting_ThrowsError()
-  {
-    // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
-    await _sut.Start();
-
-    // act
-    var act = () => _sut.Start();
-
-    // assert
-    await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("Repeater is already active.");
-  }
-
-  [Fact]
-  public async Task Start_AbortedByError_Restarts()
-  {
-    // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(null, new RegisterRepeaterResult(Version));
-
-    // act
-    var act = () => _sut.Start();
-
-    // assert
-    await act.Should().ThrowAsync<Exception>();
-    await act.Should().NotThrowAsync<Exception>();
-  }
 
   public static readonly IEnumerable<object[]> RegistrationErrors = new List<object[]>
   {
@@ -135,10 +34,125 @@ public class RepeaterTests : IDisposable
     },
     new object[]
     {
-      new RegisterRepeaterResult(Error: (RepeaterRegisteringError)(-100)),
-      "Something went wrong. Unknown error."
+      new RegisterRepeaterResult(Error: (RepeaterRegisteringError)(-100)), "Something went wrong. Unknown error."
     }
   };
+
+  private readonly EventBus _eventBus = Substitute.For<EventBus>();
+  private readonly MockLogger _logger = Substitute.For<MockLogger>();
+  private readonly Repeater _sut;
+  private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
+
+  public RepeaterTests()
+  {
+    var version = new Version(Version);
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
+    _sut = new Repeater(Id, _eventBus, version, _logger, _timerProvider);
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    Dispose();
+    await _sut.DisposeAsync();
+    GC.SuppressFinalize(this);
+  }
+
+  public void Dispose()
+  {
+    _logger.ClearSubstitute();
+    _eventBus.ClearSubstitute();
+    _timerProvider.ClearSubstitute();
+    GC.SuppressFinalize(this);
+  }
+
+  [Fact]
+  public async Task Start_RegistersInApp()
+  {
+    // act
+    await _sut.Start();
+
+    // assert
+    await _eventBus.Received().Execute(Arg.Any<RegisterRepeaterCommand>());
+    await _eventBus.Received().Publish(Arg.Is<RepeaterStatusEvent>(x => x.Status == RepeaterStatus.Connected && x.RepeaterId == Id));
+  }
+
+  [Fact]
+  public async Task Start_OperationCancelled_ReThrowsError()
+  {
+    // arrange
+    using var cancellationTokenSource = new CancellationTokenSource();
+    cancellationTokenSource.Cancel();
+
+    // act
+    var act = () => _sut.Start(cancellationTokenSource.Token);
+
+    // assert
+    await act.Should().ThrowAsync<OperationCanceledException>();
+  }
+
+  [Fact]
+  public async Task Start_RegistrationFailed_RegistersInApp()
+  {
+    // arrange
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).ReturnsNull();
+
+    // act
+    var act = () => _sut.Start();
+
+    // assert
+    await act.Should().ThrowAsync<SecTesterException>().WithMessage("Error registering repeater.");
+  }
+
+  [Fact]
+  public async Task Start_SendsPingPeriodically()
+  {
+    // arrange
+    var elapsedEventArgs = EventArgs.Empty as ElapsedEventArgs;
+
+    // act
+    await _sut.Start();
+
+    // assert
+    _timerProvider.Elapsed += Raise.Event<ElapsedEventHandler>(new object(), elapsedEventArgs);
+    await _eventBus.Received(2).Publish(Arg.Is<RepeaterStatusEvent>(x => x.Status == RepeaterStatus.Connected && x.RepeaterId == Id));
+  }
+
+  [Fact]
+  public async Task Start_SetsStatusToRunningJustAfterCall()
+  {
+    // act
+    await _sut.Start();
+
+    // assert
+    _sut.Status.Should().Be(RunningStatus.Running);
+  }
+
+  [Fact]
+  public async Task Start_RepeaterIsStarting_ThrowsError()
+  {
+    // arrange
+    await _sut.Start();
+
+    // act
+    var act = () => _sut.Start();
+
+    // assert
+    await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("Repeater is already active.");
+  }
+
+  [Fact]
+  public async Task Start_AbortedByError_Restarts()
+  {
+    // arrange
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(null, new RegisterRepeaterResult(Version));
+
+    // act
+    var act = () => _sut.Start();
+
+    // assert
+    await act.Should().ThrowAsync<Exception>();
+    await act.Should().NotThrowAsync<Exception>();
+  }
 
   [Theory]
   [MemberData(nameof(RegistrationErrors))]
@@ -172,7 +186,6 @@ public class RepeaterTests : IDisposable
   public async Task Stop_RunningRepeater_Stops()
   {
     // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
     await _sut.Start();
 
     // act
@@ -186,7 +199,6 @@ public class RepeaterTests : IDisposable
   public async Task Stop_RunningRepeater_EntersIntoOff()
   {
     // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
     await _sut.Start();
 
     // act
@@ -199,6 +211,9 @@ public class RepeaterTests : IDisposable
   [Fact]
   public async Task Stop_RepeaterIsOff_DoesNothing()
   {
+    // arrange
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).ReturnsNull();
+
     // act
     await _sut.Stop();
 
@@ -210,7 +225,6 @@ public class RepeaterTests : IDisposable
   public async Task Stop_RepeaterIsOff_IgnoresSecondCall()
   {
     // assert
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
     await _sut.Start();
     await _sut.Stop();
 
@@ -225,7 +239,6 @@ public class RepeaterTests : IDisposable
   public async Task Stop_StopsSendingPing()
   {
     // assert
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
     await _sut.Start();
 
     // act
@@ -236,10 +249,23 @@ public class RepeaterTests : IDisposable
   }
 
   [Fact]
+  public async Task Stop_OperationCancelled_ReThrowsError()
+  {
+    // arrange
+    using var cancellationTokenSource = new CancellationTokenSource();
+    cancellationTokenSource.Cancel();
+
+    // act
+    var act = () => _sut.Stop(cancellationTokenSource.Token);
+
+    // assert
+    await act.Should().ThrowAsync<OperationCanceledException>();
+  }
+
+  [Fact]
   public async Task DisposeAsync_StopsRepeater()
   {
     // assert
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
     await _sut.Start();
 
     // act

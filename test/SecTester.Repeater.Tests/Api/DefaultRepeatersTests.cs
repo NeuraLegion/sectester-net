@@ -2,6 +2,9 @@ namespace SecTester.Repeater.Tests.Api;
 
 public class DefaultRepeatersTests : IDisposable
 {
+  const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
+  const string AnotherId = "220baaac-b7ec-46a7-ab5e-ff1e96b0785e";
+
   private readonly CommandDispatcher _commandDispatcher;
   private readonly DefaultRepeaters _sut;
 
@@ -23,14 +26,14 @@ public class DefaultRepeatersTests : IDisposable
     // arrange
     _commandDispatcher.Execute(Arg.Any<ListRepeatersRequest>()).Returns(new List<RepeaterIdentity>
     {
-      new("142", "bar"), new("42", "foo")
+      new(AnotherId, "bar"), new(Id, "foo")
     });
 
     // act
     var result = await _sut.CreateRepeater("foo");
 
     //
-    result.Should().Be("42");
+    result.Should().Be(Id);
   }
 
   [Fact]
@@ -39,7 +42,7 @@ public class DefaultRepeatersTests : IDisposable
     // arrange
     _commandDispatcher.Execute(Arg.Any<ListRepeatersRequest>()).Returns(new List<RepeaterIdentity>
     {
-      new("142", "bar")
+      new(AnotherId, "bar")
     });
 
     // act

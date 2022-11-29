@@ -11,11 +11,11 @@ namespace SecTester.Repeater;
 
 public class Repeater : IAsyncDisposable
 {
-  private readonly Version _version;
   private readonly EventBus _eventBus;
+  private readonly TimerProvider _heartbeat;
   private readonly ILogger _logger;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
-  private readonly TimerProvider _heartbeat;
+  private readonly Version _version;
 
   public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger logger, TimerProvider heartbeat)
   {
@@ -32,6 +32,9 @@ public class Repeater : IAsyncDisposable
   public async ValueTask DisposeAsync()
   {
     await Stop().ConfigureAwait(false);
+
+    _semaphore.Dispose();
+
     GC.SuppressFinalize(this);
   }
 

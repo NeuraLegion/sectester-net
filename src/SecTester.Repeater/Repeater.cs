@@ -2,29 +2,28 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SecTester.Core;
 using SecTester.Core.Bus;
 using SecTester.Core.Exceptions;
+using SecTester.Core.Utils;
 using SecTester.Repeater.Bus;
-using Timer = System.Timers.Timer;
 
 namespace SecTester.Repeater;
 
 public class Repeater : IAsyncDisposable
 {
-  private static readonly TimeSpan DefaultPollingInterval = TimeSpan.FromSeconds(10);
-  private readonly Configuration _configuration;
+  private readonly Version _version;
   private readonly EventBus _eventBus;
   private readonly ILogger _logger;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
-  private Timer? _heartbeat;
+  private readonly TimerProvider _heartbeat;
 
-  public Repeater(string repeaterId, EventBus eventBus, Configuration configuration, ILogger logger)
+  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger logger, TimerProvider heartbeat)
   {
     RepeaterId = repeaterId;
     _logger = logger;
-    _configuration = configuration;
+    _version = version;
     _eventBus = eventBus;
+    _heartbeat = heartbeat;
   }
 
   public RunningStatus Status { get; private set; } = RunningStatus.Off;
@@ -50,7 +49,6 @@ public class Repeater : IAsyncDisposable
       Status = RunningStatus.Starting;
 
       await Register().ConfigureAwait(false);
-      SubscribeToEvents();
       await SchedulePing().ConfigureAwait(false);
 
       Status = RunningStatus.Running;
@@ -69,12 +67,8 @@ public class Repeater : IAsyncDisposable
   private async Task SchedulePing()
   {
     await SendStatus(RepeaterStatus.Connected).ConfigureAwait(false);
-    _heartbeat = new Timer
-    {
-      Enabled = true,
-      Interval = DefaultPollingInterval.TotalMilliseconds
-    };
     _heartbeat.Elapsed += async (_, _) => await SendStatus(RepeaterStatus.Connected).ConfigureAwait(false);
+    _heartbeat.Start();
   }
 
   private async Task SendStatus(RepeaterStatus status)
@@ -83,14 +77,9 @@ public class Repeater : IAsyncDisposable
     await _eventBus.Publish(@event).ConfigureAwait(false);
   }
 
-  private void SubscribeToEvents()
-  {
-    throw new NotImplementedException();
-  }
-
   private async Task Register()
   {
-    var command = new RegisterRepeaterCommand(_configuration.RepeaterVersion, RepeaterId);
+    var command = new RegisterRepeaterCommand(_version.ToString(), RepeaterId);
     var res = await _eventBus.Execute(command).ConfigureAwait(false);
 
     if (res == null)
@@ -112,7 +101,7 @@ public class Repeater : IAsyncDisposable
       }
 
       Status = RunningStatus.Off;
-      _heartbeat?.Dispose();
+      _heartbeat.Stop();
       await SendStatus(RepeaterStatus.Disconnected).ConfigureAwait(false);
       // TODO: dispose an event bus
     }
@@ -130,7 +119,7 @@ public class Repeater : IAsyncDisposable
     }
     else
     {
-      if (new Version(result.Version!).CompareTo(new Version(_configuration.RepeaterVersion)) != 0)
+      if (new Version(result.Version!).CompareTo(_version) != 0)
       {
         // TODO: colorize an output in the same manner like sectester-js does
         _logger.LogWarning(

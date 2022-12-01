@@ -224,7 +224,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   [Fact]
   public async Task Stop_RepeaterIsOff_IgnoresSecondCall()
   {
-    // assert
+    // arrange
     await _sut.Start();
     await _sut.Stop();
 
@@ -238,7 +238,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   [Fact]
   public async Task Stop_StopsSendingPing()
   {
-    // assert
+    // arrange
     await _sut.Start();
 
     // act
@@ -265,7 +265,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   [Fact]
   public async Task DisposeAsync_StopsRepeater()
   {
-    // assert
+    // arrange
     await _sut.Start();
 
     // act

@@ -1,5 +1,3 @@
-using SecTester.Repeater.Extensions;
-
 namespace SecTester.Repeater.Tests.Extensions;
 
 public class SemaphoreSlimExtensionsTests

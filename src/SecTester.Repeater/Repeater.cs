@@ -6,6 +6,7 @@ using SecTester.Core.Bus;
 using SecTester.Core.Exceptions;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Bus;
+using SecTester.Repeater.Extensions;
 
 namespace SecTester.Repeater;
 
@@ -40,10 +41,9 @@ public class Repeater : IAsyncDisposable
 
   public async Task Start(CancellationToken cancellationToken = default)
   {
+    using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
     try
     {
-      await _semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-
       if (Status != RunningStatus.Off)
       {
         throw new InvalidOperationException("Repeater is already active.");
@@ -60,10 +60,6 @@ public class Repeater : IAsyncDisposable
     {
       Status = RunningStatus.Off;
       throw;
-    }
-    finally
-    {
-      ReleaseLock();
     }
   }
 
@@ -95,10 +91,9 @@ public class Repeater : IAsyncDisposable
 
   public async Task Stop(CancellationToken cancellationToken = default)
   {
+    using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
     try
     {
-      await _semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-
       if (Status != RunningStatus.Running)
       {
         return;
@@ -110,9 +105,9 @@ public class Repeater : IAsyncDisposable
       await SendStatus(RepeaterStatus.Disconnected).ConfigureAwait(false);
       // TODO: dispose an event bus
     }
-    finally
+    catch
     {
-      ReleaseLock();
+      // noop
     }
   }
 
@@ -147,17 +142,5 @@ public class Repeater : IAsyncDisposable
         "(!) CRITICAL: The current running version is no longer supported, please update SecTester."),
       _ => new ArgumentOutOfRangeException(nameof(error), error, "Something went wrong. Unknown error.")
     };
-  }
-
-  private void ReleaseLock()
-  {
-    try
-    {
-      _semaphore.Release();
-    }
-    catch
-    {
-      // ignored
-    }
   }
 }

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SecTester.Scan.Internal;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
@@ -22,9 +23,31 @@ public class Scan : IAsyncDisposable
   private readonly ScanOptions _options;
   private readonly ILogger _logger;
   private readonly Scans _scans;
-  private volatile ScanState _scanState = new(ScanStatus.Pending);
+  private ScanState _scanState = new(ScanStatus.Pending);
+  private readonly SemaphoreSlim _scanStateSemaphore = new(1, 1);
 
-  public string Id { get; init; }
+  public string Id { get; }
+
+  private bool InternalDone => DoneStatuses.Contains(_scanState.Status);
+  private bool InternalActive => ActiveStatuses.Contains(_scanState.Status);
+
+  public bool Active
+  {
+    get
+    {
+      using var _ = SemaphoreLock.Lock(_scanStateSemaphore);
+      return InternalActive;
+    }
+  }
+
+  public bool Done
+  {
+    get
+    {
+      using var _ = SemaphoreLock.Lock(_scanStateSemaphore);
+      return InternalDone;
+    }
+  }
 
   public Scan(string id, Scans scans, ILogger logger, ScanOptions options)
   {
@@ -33,10 +56,6 @@ public class Scan : IAsyncDisposable
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
-
-  public bool Active => ActiveStatuses.Contains(_scanState.Status);
-
-  public bool Done => DoneStatuses.Contains(_scanState.Status);
 
   public async ValueTask DisposeAsync()
   {
@@ -51,21 +70,34 @@ public class Scan : IAsyncDisposable
     }
     catch
     {
-      // noop
+      // ignore
     }
+
+    _scanStateSemaphore.Dispose();
 
     GC.SuppressFinalize(this);
   }
-
 
   public Task<IEnumerable<Issue>> Issues()
   {
     return _scans.ListIssues(Id);
   }
 
-  public Task Stop()
+  public async Task Stop()
   {
-    return _scans.StopScan(Id);
+    try
+    {
+      await RefreshState().ConfigureAwait(false);
+
+      if (Active)
+      {
+        await _scans.StopScan(Id).ConfigureAwait(false);
+      }
+    }
+    catch
+    {
+      // ignore
+    }
   }
 
   public async IAsyncEnumerable<ScanState> Status(
@@ -75,24 +107,41 @@ public class Scan : IAsyncDisposable
     {
       await Task.Delay(_options.PollingInterval ?? DefaultPollingInterval, cancellationToken).ConfigureAwait(false);
 
-      yield return await RefreshState().ConfigureAwait(false);
+      yield return await RefreshState(cancellationToken).ConfigureAwait(false);
     }
   }
 
-  private async Task<ScanState> RefreshState()
+  private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
-    if (this.Done)
+    ScanState newState;
+
+    if (_scanStateSemaphore.CurrentCount == 0)
     {
-      return _scanState;
+      using var _ = await SemaphoreLock.LockAsync(_scanStateSemaphore, cancellationToken).ConfigureAwait(false);
+      newState = _scanState;
+    }
+    else
+    {
+      ScanState lastState;
+
+      using (await SemaphoreLock.LockAsync(_scanStateSemaphore, cancellationToken).ConfigureAwait(false))
+      {
+        if (InternalDone)
+        {
+          return _scanState;
+        }
+
+        lastState = _scanState;
+
+        newState = await _scans.GetScan(Id).ConfigureAwait(false);
+
+        _scanState = newState;
+      }
+
+      ChangingStatus(lastState.Status, newState.Status);
     }
 
-    var lastState = _scanState;
-
-    _scanState = await _scans.GetScan(Id).ConfigureAwait(false);
-
-    ChangingStatus(lastState.Status, _scanState.Status);
-
-    return _scanState;
+    return newState;
   }
 
   private void ChangingStatus(ScanStatus from, ScanStatus to)

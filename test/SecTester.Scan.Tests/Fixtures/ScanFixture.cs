@@ -1,22 +1,36 @@
-using NSubstitute.ClearExtensions;
-using SecTester.Core.Bus;
 using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests.Fixtures;
 
-public class ScanFixture : IDisposable
+internal class ScanFixture
 {
-  private const string BaseUrl = "https://example.com";
-  private const string ScanName = "Scan Name";
-  private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
-  private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
-  private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
-  private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
+  public const string BaseUrl = "https://example.com";
+  public const string ScanName = "Scan Name";
+  public const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
+  public const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
+  public const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
+  public const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
+  public const string ScanId = "roMq1UVuhPKkndLERNKnA8";
+  public const string HarId = "gwycPnxzQihoeGP141pvDe";
 
-  protected const string ScanId = "roMq1UVuhPKkndLERNKnA8";
-  protected const string HarId = "gwycPnxzQihoeGP141pvDe";
+  public static IEnumerable<object[]> DoneStatuses =>
+    new List<object[]>
+    {
+      new object[] { ScanStatus.Disrupted },
+      new object[] { ScanStatus.Done },
+      new object[] { ScanStatus.Failed },
+      new object[] { ScanStatus.Stopped }
+    };
 
-  protected readonly ScanConfig ScanConfig = new(ScanName)
+  public static IEnumerable<object[]> ActiveStatuses =>
+    new List<object[]>
+    {
+      new object[] { ScanStatus.Pending },
+      new object[] { ScanStatus.Running },
+      new object[] { ScanStatus.Queued }
+    };
+
+  public static readonly ScanConfig ScanConfig = new(ScanName)
   {
     Module = Module.Dast,
     Repeaters = new[] { RepeaterId },
@@ -33,7 +47,7 @@ public class ScanFixture : IDisposable
     SlowEpTimeout = 20
   };
 
-  protected static readonly IEnumerable<Issue> Issues = new List<Issue>
+  public static readonly IEnumerable<Issue> Issues = new List<Issue>
   {
     new(IssueId,
       "Cross-site request forgery is a type of malicious website exploit.",
@@ -48,22 +62,5 @@ public class ScanFixture : IDisposable
       DateTime.UtcNow) { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" }
   };
 
-  protected readonly Configuration Configuration = new("app.neuralegion.com");
-  protected readonly CommandDispatcher CommandDispatcher = Substitute.For<CommandDispatcher>();
-  protected readonly CiDiscovery CiDiscovery = Substitute.For<CiDiscovery>();
-
-  public virtual void Dispose()
-  {
-    CiDiscovery.ClearSubstitute();
-    CommandDispatcher.ClearSubstitute();
-
-    GC.SuppressFinalize(this);
-  }
-
-  protected static string? ReadHttpContentAsString(HttpContent? content)
-  {
-    return content is null
-      ? default
-      : Task.Run(content.ReadAsStringAsync).GetAwaiter().GetResult();
-  }
+  public static readonly Configuration Configuration = new("app.neuralegion.com");
 }

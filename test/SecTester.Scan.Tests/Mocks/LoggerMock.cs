@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Logging;
-
-namespace SecTester.Scan.Tests.Fixtures;
+namespace SecTester.Scan.Tests.Mocks;
 
 public abstract class LoggerMock : ILogger
 {
@@ -9,11 +7,14 @@ public abstract class LoggerMock : ILogger
     EventId eventId,
     TState state,
     Exception? exception,
-    Func<TState, Exception?, string> formatter) => Log(logLevel, formatter(state, exception));
-
-  public abstract void Log(LogLevel logLevel, string message);
+    Func<TState, Exception?, string> formatter)
+  {
+    Log(logLevel, formatter(state, exception));
+  }
 
   public virtual bool IsEnabled(LogLevel logLevel) => true;
 
   public abstract IDisposable BeginScope<TState>(TState state);
+
+  public abstract void Log(LogLevel logLevel, string message);
 }

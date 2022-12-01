@@ -1,8 +1,6 @@
-using SecTester.Scan.Tests.Fixtures;
-
 namespace SecTester.Scan.Tests.Commands;
 
-public class UploadHarTests : ScanFixture
+public class UploadHarTests
 {
   [Fact]
   public void Constructor_ConstructsInstance()
@@ -13,8 +11,7 @@ public class UploadHarTests : ScanFixture
     var expectedContent = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-        "file",
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file",
         "filename.har"
       }
     };
@@ -34,11 +31,11 @@ public class UploadHarTests : ScanFixture
         }, config => config.IncludingNestedObjects()
           .Using<MultipartFormDataContent>(ctx =>
           {
-            ReadHttpContentAsString(ctx.Subject.First()).Should()
-              .BeEquivalentTo(ReadHttpContentAsString(ctx.Expectation.First()));
+            ctx.Subject.First().ReadHttpContentAsString().Should()
+              .Be(ctx.Expectation.First().ReadHttpContentAsString());
             ctx.Subject.First().Headers.ContentType.Should()
-              .BeEquivalentTo(ctx.Expectation.First().Headers.ContentType);
-            ctx.Subject.Headers.ContentDisposition.Should().BeEquivalentTo(ctx.Expectation.Headers.ContentDisposition);
+              .Be(ctx.Expectation.First().Headers.ContentType);
+            ctx.Subject.Headers.ContentDisposition.Should().Be(ctx.Expectation.Headers.ContentDisposition);
           })
           .When(info => info.Path.EndsWith(nameof(UploadHar.Body)))
       );

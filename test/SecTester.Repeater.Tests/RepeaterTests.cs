@@ -1,9 +1,3 @@
-using System.Text.RegularExpressions;
-using System.Timers;
-using Microsoft.Extensions.Logging;
-using NSubstitute.ReturnsExtensions;
-using SecTester.Core.Utils;
-using SecTester.Repeater.Bus;
 using SecTester.Repeater.Tests.Mocks;
 
 namespace SecTester.Repeater.Tests;

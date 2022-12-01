@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SecTester.Scan.Internal;
+using SecTester.Scan.Extensions;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
@@ -23,6 +23,7 @@ public class Scan : IAsyncDisposable
   private readonly ScanOptions _options;
   private readonly ILogger _logger;
   private readonly Scans _scans;
+  private int _gettingScanState;
   private ScanState _scanState = new(ScanStatus.Pending);
   private readonly SemaphoreSlim _scanStateSemaphore = new(1, 1);
 
@@ -35,7 +36,7 @@ public class Scan : IAsyncDisposable
   {
     get
     {
-      using var _ = SemaphoreLock.Lock(_scanStateSemaphore);
+      using var _ = _scanStateSemaphore.Lock();
       return InternalActive;
     }
   }
@@ -44,7 +45,7 @@ public class Scan : IAsyncDisposable
   {
     get
     {
-      using var _ = SemaphoreLock.Lock(_scanStateSemaphore);
+      using var _ = _scanStateSemaphore.Lock();
       return InternalDone;
     }
   }
@@ -113,35 +114,35 @@ public class Scan : IAsyncDisposable
 
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
-    ScanState newState;
-
-    if (_scanStateSemaphore.CurrentCount == 0)
+    if (_gettingScanState == 1)
     {
-      using var _ = await SemaphoreLock.LockAsync(_scanStateSemaphore, cancellationToken).ConfigureAwait(false);
-      newState = _scanState;
+      using var _ = await _scanStateSemaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+      return _scanState;
     }
-    else
-    {
-      ScanState lastState;
 
-      using (await SemaphoreLock.LockAsync(_scanStateSemaphore, cancellationToken).ConfigureAwait(false))
+    using (await _scanStateSemaphore.LockAsync(cancellationToken).ConfigureAwait(false))
+    {
+      Interlocked.Increment(ref _gettingScanState);
+      try
       {
         if (InternalDone)
         {
           return _scanState;
         }
 
-        lastState = _scanState;
+        var lastState = _scanState;
 
-        newState = await _scans.GetScan(Id).ConfigureAwait(false);
+        _scanState = await _scans.GetScan(Id).ConfigureAwait(false);
 
-        _scanState = newState;
+        ChangingStatus(lastState.Status, _scanState.Status);
+        
+        return _scanState;
       }
-
-      ChangingStatus(lastState.Status, newState.Status);
+      finally
+      {
+        Interlocked.Decrement(ref _gettingScanState);
+      }
     }
-
-    return newState;
   }
 
   private void ChangingStatus(ScanStatus from, ScanStatus to)

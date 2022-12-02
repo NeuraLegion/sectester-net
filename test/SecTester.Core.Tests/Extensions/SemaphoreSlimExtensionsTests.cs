@@ -1,4 +1,4 @@
-namespace SecTester.Repeater.Tests.Extensions;
+namespace SecTester.Core.Tests.Extensions;
 
 public class SemaphoreSlimExtensionsTests
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace SecTester.Repeater.Internal;
+namespace SecTester.Core.Internal;
 
 internal class AutoReleasableSemaphore : IDisposable
 {

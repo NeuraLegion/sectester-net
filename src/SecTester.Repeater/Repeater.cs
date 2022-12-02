@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SecTester.Core.Bus;
 using SecTester.Core.Exceptions;
+using SecTester.Core.Extensions;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Bus;
-using SecTester.Repeater.Extensions;
 
 namespace SecTester.Repeater;
 

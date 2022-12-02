@@ -1,11 +1,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SecTester.Repeater.Internal;
+using SecTester.Core.Internal;
 
-namespace SecTester.Repeater.Extensions;
+namespace SecTester.Core.Extensions;
 
-internal static class SemaphoreSlimExtensions
+public static class SemaphoreSlimExtensions
 {
   public static async Task<IDisposable> LockAsync(this SemaphoreSlim semaphore, CancellationToken cancellationToken = default)
   {

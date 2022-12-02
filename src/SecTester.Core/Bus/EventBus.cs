@@ -1,6 +1,8 @@
+using System;
+
 namespace SecTester.Core.Bus;
 
-public interface EventBus : EventDispatcher, CommandDispatcher
+public interface EventBus : EventDispatcher, CommandDispatcher, IDisposable
 {
   void Register<THandler, TEvent>()
     where THandler : EventListener<TEvent>

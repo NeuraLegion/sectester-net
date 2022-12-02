@@ -9,7 +9,7 @@ public class DefaultRepeaterFactoryTests : IDisposable
   private const string Hostname = "app.neuralegion.com";
 
   private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-  private readonly EventBusFactory _eventBusFactory = Substitute.For<EventBusFactory>();
+  private readonly RepeaterEventBusFactory _eventBusFactory = Substitute.For<RepeaterEventBusFactory>();
   private readonly Configuration _configuration = new(Hostname);
 
   private readonly Repeaters _repeaters = Substitute.For<Repeaters>();

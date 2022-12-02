@@ -12,12 +12,12 @@ namespace SecTester.Repeater;
 public class DefaultRepeaterFactory : RepeaterFactory
 {
   private readonly Configuration _configuration;
-  private readonly EventBusFactory _eventBusFactory;
+  private readonly RepeaterEventBusFactory _eventBusFactory;
   private readonly ILogger _logger;
   private readonly Repeaters _repeaters;
   private readonly IServiceScopeFactory _serviceScopeFactory;
 
-  public DefaultRepeaterFactory(IServiceScopeFactory serviceScopeFactory, Repeaters repeaters, EventBusFactory eventBusFactory, Configuration configuration, ILogger logger)
+  public DefaultRepeaterFactory(IServiceScopeFactory serviceScopeFactory, Repeaters repeaters, RepeaterEventBusFactory eventBusFactory, Configuration configuration, ILogger logger)
   {
     _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
     _repeaters = repeaters ?? throw new ArgumentNullException(nameof(repeaters));
@@ -36,7 +36,7 @@ public class DefaultRepeaterFactory : RepeaterFactory
     Version version = new(_configuration.Version);
 
     string repeaterId = await _repeaters.CreateRepeater($"{options.NamePrefix}-{Guid.NewGuid()}", options.Description).ConfigureAwait(false);
-    var eventBus = await _eventBusFactory.Create(repeaterId).ConfigureAwait(false);
+    var eventBus = _eventBusFactory.Create(repeaterId);
 
     var scope = _serviceScopeFactory.CreateAsyncScope();
     await using var _ = scope.ConfigureAwait(false);

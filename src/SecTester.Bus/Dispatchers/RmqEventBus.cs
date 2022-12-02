@@ -17,7 +17,7 @@ using SecTester.Core.Utils;
 
 namespace SecTester.Bus.Dispatchers;
 
-public class RmqEventBus : EventBus, IDisposable
+public class RmqEventBus : EventBus
 {
   private const string ReplyQueueName = "amq.rabbitmq.reply-to";
 
@@ -240,7 +240,8 @@ public class RmqEventBus : EventBus, IDisposable
   {
     try
     {
-      await using var scope = _scopeFactory.CreateAsyncScope();
+      var scope = _scopeFactory.CreateAsyncScope();
+      await using var _ = scope.ConfigureAwait(false);
       var instance = scope.ServiceProvider.GetService(eventHandler);
       var eventType = GetEventType(consumedMessage.Name);
 

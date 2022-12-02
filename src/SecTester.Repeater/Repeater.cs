@@ -103,7 +103,7 @@ public class Repeater : IAsyncDisposable
 
       _heartbeat.Stop();
       await SendStatus(RepeaterStatus.Disconnected).ConfigureAwait(false);
-      // TODO: dispose an event bus
+      _eventBus.Dispose();
     }
     catch
     {

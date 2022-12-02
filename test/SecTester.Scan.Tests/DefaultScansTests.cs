@@ -1,9 +1,61 @@
+using SecTester.Core;
+using SecTester.Core.Bus;
+using SecTester.Core.Exceptions;
+using SecTester.Scan.CI;
+using SecTester.Scan.Commands;
+using SecTester.Scan.Models;
+using SecTester.Scan.Target.Har;
+using Request = SecTester.Scan.Models.Request;
+
 namespace SecTester.Scan.Tests;
 
 public class DefaultScansTests : IDisposable
 {
   private const string NullResultMessage = "Something went wrong. Please try again later.";
+  private const string BaseUrl = "https://example.com/api/v1";
+  private const string ScanName = "Scan Name";
+  private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
+  private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
+  private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
 
+  private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
+  private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
+  private const string HarId = "gwycPnxzQihoeGP141pvDe";
+  private const string HarFileName = "filename.har";
+
+  private readonly ScanConfig _scanConfig = new(ScanName)
+  {
+    Module = Module.Dast,
+    Repeaters = new[] { RepeaterId },
+    Smart = true,
+    Tests = new[] { TestType.Csrf, TestType.Jwt },
+    DiscoveryTypes = new[] { Discovery.Crawler },
+    FileId = FileId,
+    HostsFilter = new[] { "example.com" },
+    PoolSize = 2,
+    ProjectId = ProjectId,
+    TargetTimeout = 10,
+    AttackParamLocations = new[] { AttackParamLocation.Body, AttackParamLocation.Header },
+    SkipStaticParams = true,
+    SlowEpTimeout = 20
+  };
+
+  private readonly Issue _issue = new(IssueId,
+    "Cross-site request forgery is a type of malicious website exploit.",
+    "Database connection crashed",
+    "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
+    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
+    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
+    $"{BaseUrl}/scans/{ScanId}/issues/{IssueId}",
+    1,
+    Severity.Medium,
+    Protocol.Http,
+    DateTime.UtcNow)
+  { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" };
+
+  private static readonly Har Har = new();
+
+  private readonly Configuration _configuration = new("app.neuralegion.com");
   private readonly CommandDispatcher _commandDispatcher = Substitute.For<CommandDispatcher>();
   private readonly CiDiscovery _ciDiscovery = Substitute.For<CiDiscovery>();
 
@@ -11,13 +63,13 @@ public class DefaultScansTests : IDisposable
 
   public DefaultScansTests()
   {
-    _sut = new DefaultScans(ScanFixture.Configuration, _commandDispatcher, _ciDiscovery);
+    _sut = new DefaultScans(_configuration, _commandDispatcher, _ciDiscovery);
   }
 
   public void Dispose()
   {
-    _commandDispatcher.ClearSubstitute();
     _ciDiscovery.ClearSubstitute();
+    _commandDispatcher.ClearSubstitute();
 
     GC.SuppressFinalize(this);
   }
@@ -27,13 +79,13 @@ public class DefaultScansTests : IDisposable
   {
     // arrange
     _commandDispatcher.Execute(Arg.Any<CreateScan>())
-      .Returns(new Identifiable<string>(ScanFixture.ScanId));
+      .Returns(new Identifiable<string>(ScanId));
 
     // act 
-    var result = await _sut.CreateScan(ScanFixture.ScanConfig);
+    var result = await _sut.CreateScan(_scanConfig);
 
     // assert
-    result.Should().Be(ScanFixture.ScanId);
+    result.Should().Be(ScanId);
     await _commandDispatcher.Received(1)
       .Execute(Arg.Any<CreateScan>());
   }
@@ -46,7 +98,7 @@ public class DefaultScansTests : IDisposable
       .Returns(null as Identifiable<string>);
 
     // act 
-    var act = () => _sut.CreateScan(ScanFixture.ScanConfig);
+    var act = () => _sut.CreateScan(_scanConfig);
 
     // assert
     await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
@@ -56,14 +108,14 @@ public class DefaultScansTests : IDisposable
   public async Task ListIssues_ReturnListOfIssues()
   {
     // arrange
-    _commandDispatcher.Execute(Arg.Any<ListIssues>())
-      .Returns(ScanFixture.Issues);
+    var issues = new List<Issue> { _issue };
+    _commandDispatcher.Execute(Arg.Any<ListIssues>()).Returns(issues);
 
     // act
-    var result = await _sut.ListIssues(ScanFixture.ScanId);
+    var result = await _sut.ListIssues(ScanId);
 
     // assert
-    result.Should().BeEquivalentTo(ScanFixture.Issues);
+    result.Should().BeEquivalentTo(issues);
     await _commandDispatcher.Received(1)
       .Execute(Arg.Any<ListIssues>());
   }
@@ -76,7 +128,7 @@ public class DefaultScansTests : IDisposable
       .Returns(Task.FromResult<IEnumerable<Issue>?>(null));
 
     // act 
-    var act = () => _sut.ListIssues(ScanFixture.ScanId);
+    var act = () => _sut.ListIssues(ScanId);
 
     // assert
     await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
@@ -86,7 +138,7 @@ public class DefaultScansTests : IDisposable
   public async Task StopScan_StopsScan()
   {
     // act
-    await _sut.StopScan(ScanFixture.ScanId);
+    await _sut.StopScan(ScanId);
 
     // assert
     await _commandDispatcher.Received(1)
@@ -97,7 +149,7 @@ public class DefaultScansTests : IDisposable
   public async Task DeleteScan_DeletesScan()
   {
     // act
-    await _sut.DeleteScan(ScanFixture.ScanId);
+    await _sut.DeleteScan(ScanId);
 
     // assert
     await _commandDispatcher.Received(1)
@@ -114,7 +166,7 @@ public class DefaultScansTests : IDisposable
       .Returns(scanState);
 
     // act
-    var result = await _sut.GetScan(ScanFixture.ScanId);
+    var result = await _sut.GetScan(ScanId);
 
     // assert
     result.Should().Be(scanState);
@@ -130,7 +182,7 @@ public class DefaultScansTests : IDisposable
       .Returns(Task.FromResult<ScanState?>(null));
 
     // act 
-    var act = () => _sut.GetScan(ScanFixture.ScanId);
+    var act = () => _sut.GetScan(ScanId);
 
     // assert
     await act.Should().ThrowAsync<SecTesterException>().WithMessage(NullResultMessage);
@@ -140,16 +192,16 @@ public class DefaultScansTests : IDisposable
   public async Task UploadHar_CreatesNewHar()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har");
+    var options = new UploadHarOptions(Har, HarFileName);
 
     _commandDispatcher.Execute(Arg.Any<UploadHar>())
-      .Returns(new Identifiable<string>(ScanFixture.HarId));
+      .Returns(new Identifiable<string>(HarId));
 
     // act
     var result = await _sut.UploadHar(options);
 
     // assert
-    result.Should().Be(ScanFixture.HarId);
+    result.Should().Be(HarId);
     await _commandDispatcher.Received(1)
       .Execute(Arg.Any<UploadHar>());
   }
@@ -158,7 +210,7 @@ public class DefaultScansTests : IDisposable
   public async Task UploadHar_ResultIsNull_ThrowError()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har");
+    var options = new UploadHarOptions(Har, HarFileName);
 
     _commandDispatcher.Execute(Arg.Any<UploadHar>())
       .Returns(null as Identifiable<string>);

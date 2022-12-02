@@ -1,17 +1,73 @@
+using SecTester.Scan.Models;
+using SecTester.Scan.Tests.Mocks;
+using Request = SecTester.Scan.Models.Request;
+
 namespace SecTester.Scan.Tests;
 
 public class ScanTests : IAsyncDisposable
 {
-  public static readonly IEnumerable<object[]> ActiveStatuses = ScanFixture.ActiveStatuses;
-  public static readonly IEnumerable<object[]> DoneStatuses = ScanFixture.DoneStatuses;
+  private const string BaseUrl = "https://example.com/api/v1";
+  private const string ScanName = "Scan Name";
+  private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
+  private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
+  private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
+  private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
+  private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
+
+  private readonly ScanConfig _scanConfig = new(ScanName)
+  {
+    Module = Module.Dast,
+    Repeaters = new[] { RepeaterId },
+    Smart = true,
+    Tests = new[] { TestType.Csrf, TestType.Jwt },
+    DiscoveryTypes = new[] { Discovery.Crawler },
+    FileId = FileId,
+    HostsFilter = new[] { "example.com" },
+    PoolSize = 2,
+    ProjectId = ProjectId,
+    TargetTimeout = 10,
+    AttackParamLocations = new[] { AttackParamLocation.Body, AttackParamLocation.Header },
+    SkipStaticParams = true,
+    SlowEpTimeout = 20
+  };
+
+  private readonly Issue _issue = new(IssueId,
+    "Cross-site request forgery is a type of malicious website exploit.",
+    "Database connection crashed",
+    "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
+    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
+    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
+    $"{BaseUrl}/scans/{ScanId}/issues/{IssueId}",
+    1,
+    Severity.Medium,
+    Protocol.Http,
+    DateTime.UtcNow)
+  { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" };
+
+  public static IEnumerable<object[]> DoneStatuses =>
+    new List<object[]>
+    {
+      new object[] { ScanStatus.Disrupted },
+      new object[] { ScanStatus.Done },
+      new object[] { ScanStatus.Failed },
+      new object[] { ScanStatus.Stopped }
+    };
+
+  public static IEnumerable<object[]> ActiveStatuses =>
+    new List<object[]>
+    {
+      new object[] { ScanStatus.Pending },
+      new object[] { ScanStatus.Running },
+      new object[] { ScanStatus.Queued }
+    };
 
   private readonly Scans _scans = Substitute.For<Scans>();
-  private readonly LoggerMock _logger = Substitute.For<LoggerMock>();
+  private readonly MockLogger _logger = Substitute.For<MockLogger>();
   private readonly Scan _sut;
 
   public ScanTests()
   {
-    _sut = new Scan(ScanFixture.ScanId, _scans, _logger, new ScanOptions(
+    _sut = new Scan(ScanId, _scans, _logger, new ScanOptions(
       TimeSpan.Zero, TimeSpan.Zero));
   }
 
@@ -39,7 +95,7 @@ public class ScanTests : IAsyncDisposable
   public void Constructor_GivenNullScans_ThrowError()
   {
     // act
-    var act = () => new Scan(ScanFixture.ScanId, null!, _logger, new ScanOptions());
+    var act = () => new Scan(ScanId, null!, _logger, new ScanOptions());
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*scans*");
@@ -49,7 +105,7 @@ public class ScanTests : IAsyncDisposable
   public void Constructor_GivenNullLogger_ThrowError()
   {
     // act
-    var act = () => new Scan(ScanFixture.ScanId, _scans, null!, new ScanOptions());
+    var act = () => new Scan(ScanId, _scans, null!, new ScanOptions());
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*logger*");
@@ -59,7 +115,7 @@ public class ScanTests : IAsyncDisposable
   public void Constructor_GivenNullScanOptions_ThrowError()
   {
     // act
-    var act = () => new Scan(ScanFixture.ScanId, _scans, _logger, null!);
+    var act = () => new Scan(ScanId, _scans, _logger, null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*options*");
@@ -77,43 +133,6 @@ public class ScanTests : IAsyncDisposable
   {
     // assert
     _sut.Done.Should().BeFalse();
-  }
-
-  [Theory]
-  [MemberData(nameof(ActiveStatuses))]
-  public async Task Stop_ScanIsActiveWithConcurrency_ReducesGetScanCalls(ScanStatus scanStatus)
-  {
-    // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(
-      Task.Delay(80).ContinueWith(_ => new ScanState(scanStatus))
-    );
-
-    // act
-    await Task.WhenAll(_sut.Stop(), _sut.Stop(), _sut.Stop(), _sut.Stop());
-
-    // assert
-    await _scans.Received(1).GetScan(ScanFixture.ScanId);
-    await _scans.Received(4).StopScan(ScanFixture.ScanId);
-  }
-
-  [Theory]
-  [MemberData(nameof(DoneStatuses))]
-  public async Task Stop_ScanIsDoneWithConcurrency_DoesNothing(ScanStatus scanStatus)
-  {
-    // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(
-      Task.FromResult(new ScanState(ScanStatus.Disrupted)),
-      Task.Delay(80).ContinueWith(_ => new ScanState(scanStatus))
-    );
-
-    await _sut.Stop();
-
-    // act
-    await Task.WhenAll(_sut.Stop(), _sut.Stop(), _sut.Stop(), _sut.Stop());
-
-    // assert
-    await _scans.Received(1).GetScan(ScanFixture.ScanId);
-    await _scans.DidNotReceive().StopScan(ScanFixture.ScanId);
   }
 
   [Fact]
@@ -138,19 +157,33 @@ public class ScanTests : IAsyncDisposable
     // arrange
     var scanState = new ScanState(scanStatus);
 
-    _scans.GetScan(ScanFixture.ScanId)
-      .Returns(new ScanState(ScanStatus.Running), scanState, new ScanState(ScanStatus.Running));
-
-    // ADHOC: LastOrDefaultAsync() may hang-up when 'FinalState' condition is not satisfied   
-    using var cts = new CancellationTokenSource();
-    cts.CancelAfter(TimeSpan.FromSeconds(2));
+    _scans.GetScan(ScanId)
+      .Returns(new ScanState(ScanStatus.Running), scanState);
 
     // act
-    var result = await _sut.Status(cts.Token).LastOrDefaultAsync(cts.Token);
+    var result = await _sut.Status().LastAsync();
 
     // assert
     result.Should().BeEquivalentTo(scanState);
-    await _scans.Received(2).GetScan(ScanFixture.ScanId);
+    await _scans.Received(2).GetScan(ScanId);
+  }
+  
+  [Theory]
+  [MemberData(nameof(DoneStatuses))]
+  public async Task Status_FinalStateReached_YieldsFinalState(ScanStatus scanStatus)
+  {
+    // arrange
+    var scanState = new ScanState(scanStatus);
+
+    _scans.GetScan(ScanId)
+      .Returns(new ScanState(ScanStatus.Running), scanState);
+
+    // act
+    var result = await _sut.Status().Take(5).LastAsync();
+
+    // assert
+    result.Should().BeEquivalentTo(scanState);
+    await _scans.Received(2).GetScan(ScanId);
   }
 
   [Theory]
@@ -160,21 +193,21 @@ public class ScanTests : IAsyncDisposable
     // arrange
     var scanState = new ScanState(scanStatus);
 
-    _scans.GetScan(ScanFixture.ScanId).Returns(scanState);
+    _scans.GetScan(ScanId).Returns(scanState);
 
     // act
     var result = await _sut.Status().Take(5).LastOrDefaultAsync();
 
     // assert
     result.Should().BeEquivalentTo(scanState);
-    await _scans.Received(5).GetScan(ScanFixture.ScanId);
+    await _scans.Received(5).GetScan(ScanId);
   }
 
   [Fact]
   public async Task Status_EntersIntoQueued_LogsConcurrencyWarning()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(ScanStatus.Queued),
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Queued),
       new ScanState(ScanStatus.Queued));
 
     // act
@@ -188,7 +221,7 @@ public class ScanTests : IAsyncDisposable
   public async Task Status_Dequeued_LogsResumingExecution()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(
+    _scans.GetScan(ScanId).Returns(
       new ScanState(ScanStatus.Queued), new ScanState(ScanStatus.Running));
 
     // act
@@ -202,14 +235,15 @@ public class ScanTests : IAsyncDisposable
   public async Task Issues_ReturnsIssues()
   {
     // arrange
-    _scans.ListIssues(ScanFixture.ScanId)
-      .Returns(ScanFixture.Issues);
+    var issues = new List<Issue> { _issue };
+    _scans.ListIssues(ScanId)
+      .Returns(issues);
 
     // act
     var result = await _sut.Issues();
 
     // assert
-    result.Should().BeEquivalentTo(ScanFixture.Issues);
+    result.Should().BeEquivalentTo(issues);
   }
 
   [Theory]
@@ -217,13 +251,13 @@ public class ScanTests : IAsyncDisposable
   public async Task Stop_ScanIsActive_StopsScan(ScanStatus scanStatus)
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(scanStatus));
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
 
     // act
     await _sut.Stop();
 
     // assert
-    await _scans.Received(1).StopScan(ScanFixture.ScanId);
+    await _scans.Received(1).StopScan(ScanId);
   }
 
   [Theory]
@@ -231,20 +265,20 @@ public class ScanTests : IAsyncDisposable
   public async Task Stop_ScanIsDone_DoesNothing(ScanStatus scanStatus)
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(scanStatus));
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
 
     // act
     await _sut.Stop();
 
     // assert
-    await _scans.DidNotReceive().StopScan(ScanFixture.ScanId);
+    await _scans.DidNotReceive().StopScan(ScanId);
   }
 
   [Fact]
-  public async Task Stop_GetScanThrows_Returns()
+  public async Task Stop_GetScanThrows_DoesNothing()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Throws(new ArgumentException());
+    _scans.GetScan(ScanId).Throws(new ArgumentException());
 
     // act
     var act = () => _sut.Stop();
@@ -254,11 +288,11 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Fact]
-  public async Task Stop_StopScanThrows_Returns()
+  public async Task Stop_StopScanThrows_DoesNothing()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(ScanStatus.Done));
-    _scans.StopScan(ScanFixture.ScanId).Throws(new ArgumentException());
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Done));
+    _scans.StopScan(ScanId).Throws(new ArgumentException());
 
     // act
     var act = () => _sut.Stop();
@@ -272,13 +306,13 @@ public class ScanTests : IAsyncDisposable
   public async Task DisposeAsync_ScanIsDone_DeletesFromApp(ScanStatus scanStatus)
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(scanStatus));
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
 
     // act
     await _sut.DisposeAsync();
 
     // assert
-    await _scans.Received(1).DeleteScan(ScanFixture.ScanId);
+    await _scans.Received(1).DeleteScan(ScanId);
   }
 
   [Theory]
@@ -286,20 +320,20 @@ public class ScanTests : IAsyncDisposable
   public async Task DisposeAsync_ScanIsActive_DoesNothing(ScanStatus scanStatus)
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(scanStatus));
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
 
     // act
     await _sut.DisposeAsync();
 
     // assert
-    await _scans.DidNotReceive().DeleteScan(ScanFixture.ScanId);
+    await _scans.DidNotReceive().DeleteScan(ScanId);
   }
 
   [Fact]
-  public async Task DisposeAsync_GetScanThrows_Returns()
+  public async Task DisposeAsync_GetScanThrows_DoesNothing()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Throws(new ArgumentException());
+    _scans.GetScan(ScanId).Throws(new ArgumentException());
 
     // act
     var act = () => _sut.DisposeAsync().AsTask();
@@ -309,11 +343,11 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Fact]
-  public async Task DisposeAsync_DeleteScanThrows_Returns()
+  public async Task DisposeAsync_DeleteScanThrows_DoesNothing()
   {
     // arrange
-    _scans.GetScan(ScanFixture.ScanId).Returns(new ScanState(ScanStatus.Done));
-    _scans.DeleteScan(ScanFixture.ScanId).Throws(new ArgumentException());
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Done));
+    _scans.DeleteScan(ScanId).Throws(new ArgumentException());
 
     // act
     var act = () => _sut.DisposeAsync().AsTask();

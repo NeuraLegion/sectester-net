@@ -1,3 +1,6 @@
+using SecTester.Scan.Models;
+using SecTester.Scan.Target.Har;
+
 namespace SecTester.Scan.Tests.Models;
 
 public class UploadHarContentOptionsTests

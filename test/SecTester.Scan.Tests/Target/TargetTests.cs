@@ -1,3 +1,5 @@
+using SecTester.Scan.Target.Har;
+
 namespace SecTester.Scan.Tests.Target;
 
 public class TargetTests

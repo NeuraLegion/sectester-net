@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SecTester.Scan.Extensions;
+using SecTester.Core.Extensions;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
@@ -23,9 +23,8 @@ public class Scan : IAsyncDisposable
   private readonly ScanOptions _options;
   private readonly ILogger _logger;
   private readonly Scans _scans;
-  private int _gettingScanState;
   private ScanState _scanState = new(ScanStatus.Pending);
-  private readonly SemaphoreSlim _scanStateSemaphore = new(1, 1);
+  private readonly SemaphoreSlim _semaphore = new(1, 1);
 
   public string Id { get; }
 
@@ -36,7 +35,7 @@ public class Scan : IAsyncDisposable
   {
     get
     {
-      using var _ = _scanStateSemaphore.Lock();
+      using var _ = _semaphore.Lock();
       return InternalActive;
     }
   }
@@ -45,7 +44,7 @@ public class Scan : IAsyncDisposable
   {
     get
     {
-      using var _ = _scanStateSemaphore.Lock();
+      using var _ = _semaphore.Lock();
       return InternalDone;
     }
   }
@@ -64,19 +63,24 @@ public class Scan : IAsyncDisposable
     {
       await RefreshState().ConfigureAwait(false);
 
-      if (!Active)
-      {
-        await _scans.DeleteScan(Id).ConfigureAwait(false);
-      }
+      await DisposeAsyncCore(!Active).ConfigureAwait(false);
     }
     catch
     {
       // ignore
     }
 
-    _scanStateSemaphore.Dispose();
+    _semaphore.Dispose();
 
     GC.SuppressFinalize(this);
+  }
+
+  protected virtual async ValueTask DisposeAsyncCore(bool deleteScan)
+  {
+    if (deleteScan)
+    {
+      await _scans.DeleteScan(Id).ConfigureAwait(false);
+    }
   }
 
   public Task<IEnumerable<Issue>> Issues()
@@ -110,39 +114,27 @@ public class Scan : IAsyncDisposable
 
       yield return await RefreshState(cancellationToken).ConfigureAwait(false);
     }
+
+    using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+    yield return _scanState;
   }
 
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
-    if (_gettingScanState == 1)
+    using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+
+    if (InternalDone)
     {
-      using var _ = await _scanStateSemaphore.LockAsync(cancellationToken).ConfigureAwait(false);
       return _scanState;
     }
 
-    using (await _scanStateSemaphore.LockAsync(cancellationToken).ConfigureAwait(false))
-    {
-      Interlocked.Increment(ref _gettingScanState);
-      try
-      {
-        if (InternalDone)
-        {
-          return _scanState;
-        }
+    var lastState = _scanState;
 
-        var lastState = _scanState;
+    _scanState = await _scans.GetScan(Id).ConfigureAwait(false);
 
-        _scanState = await _scans.GetScan(Id).ConfigureAwait(false);
+    ChangingStatus(lastState.Status, _scanState.Status);
 
-        ChangingStatus(lastState.Status, _scanState.Status);
-        
-        return _scanState;
-      }
-      finally
-      {
-        Interlocked.Decrement(ref _gettingScanState);
-      }
-    }
+    return _scanState;
   }
 
   private void ChangingStatus(ScanStatus from, ScanStatus to)

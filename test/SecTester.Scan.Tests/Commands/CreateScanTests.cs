@@ -1,27 +1,54 @@
+using SecTester.Bus.Dispatchers;
+using SecTester.Scan.Commands;
+using SecTester.Scan.Models;
+using SecTester.Scan.Tests.Extensions;
+
 namespace SecTester.Scan.Tests.Commands;
 
 public class CreateScanTests
 {
+  private const string ScanName = "Scan Name";
+  private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
+  private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
+  private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
+
+  private readonly ScanConfig _scanConfig = new(ScanName)
+  {
+    Module = Module.Dast,
+    Repeaters = new[] { RepeaterId },
+    Smart = true,
+    Tests = new[] { TestType.Csrf, TestType.Jwt },
+    DiscoveryTypes = new[] { Discovery.Crawler },
+    FileId = FileId,
+    HostsFilter = new[] { "example.com" },
+    PoolSize = 2,
+    ProjectId = ProjectId,
+    TargetTimeout = 10,
+    AttackParamLocations = new[] { AttackParamLocation.Body, AttackParamLocation.Header },
+    SkipStaticParams = true,
+    SlowEpTimeout = 20
+  };
+
   [Fact]
   public void Constructor_ConstructsInstance()
   {
     // arrange
     var expectedPayload = new
     {
-      ScanFixture.ScanConfig.Name,
-      ScanFixture.ScanConfig.Module,
-      ScanFixture.ScanConfig.Tests,
-      ScanFixture.ScanConfig.DiscoveryTypes,
-      ScanFixture.ScanConfig.PoolSize,
-      ScanFixture.ScanConfig.AttackParamLocations,
-      ScanFixture.ScanConfig.FileId,
-      ScanFixture.ScanConfig.HostsFilter,
-      ScanFixture.ScanConfig.Repeaters,
-      ScanFixture.ScanConfig.Smart,
-      ScanFixture.ScanConfig.SkipStaticParams,
-      ScanFixture.ScanConfig.ProjectId,
-      ScanFixture.ScanConfig.SlowEpTimeout,
-      ScanFixture.ScanConfig.TargetTimeout,
+      _scanConfig.Name,
+      _scanConfig.Module,
+      _scanConfig.Tests,
+      _scanConfig.DiscoveryTypes,
+      _scanConfig.PoolSize,
+      _scanConfig.AttackParamLocations,
+      _scanConfig.FileId,
+      _scanConfig.HostsFilter,
+      _scanConfig.Repeaters,
+      _scanConfig.Smart,
+      _scanConfig.SkipStaticParams,
+      _scanConfig.ProjectId,
+      _scanConfig.SlowEpTimeout,
+      _scanConfig.TargetTimeout,
       Info = new
       {
         Source = "utlib",
@@ -31,7 +58,7 @@ public class CreateScanTests
     };
 
     // act 
-    var command = new CreateScan(ScanFixture.ScanConfig, "Configuration Name", "Configuration Version", "Some CI");
+    var command = new CreateScan(_scanConfig, "Configuration Name", "Configuration Version", "Some CI");
 
     // assert
     command.Should()

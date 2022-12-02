@@ -1,18 +1,29 @@
+using SecTester.Bus.Dispatchers;
+using SecTester.Scan.Commands;
+using SecTester.Scan.Models;
+using SecTester.Scan.Target.Har;
+using SecTester.Scan.Tests.Extensions;
+
 namespace SecTester.Scan.Tests.Commands;
 
 public class UploadHarTests
 {
+  private const string HarFileName = "filename.har";
+
+  private static readonly Har Har = new();
+
   [Fact]
   public void Constructor_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har");
+    var options = new UploadHarOptions(Har, HarFileName);
 
     var expectedContent = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file",
-        "filename.har"
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
+        "file",
+        HarFileName
       }
     };
 
@@ -45,7 +56,7 @@ public class UploadHarTests
   public void Constructor_DiscardIsTrue_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har", true);
+    var options = new UploadHarOptions(Har, HarFileName, true);
 
     // act 
     var command = new UploadHar(options);

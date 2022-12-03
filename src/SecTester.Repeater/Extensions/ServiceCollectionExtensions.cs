@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Api;
+using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater.Extensions;
 
@@ -16,6 +17,7 @@ public static class ServiceCollectionExtensions
   {
     collection
       .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
+      .AddScoped<RequestExecutingEventHandler>()
       .AddScoped(_ => configure())
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>();

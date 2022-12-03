@@ -52,6 +52,7 @@ public class Repeater : IAsyncDisposable
       Status = RunningStatus.Starting;
 
       await Register().ConfigureAwait(false);
+      SubscribeToEvents();
       await SchedulePing().ConfigureAwait(false);
 
       Status = RunningStatus.Running;
@@ -61,6 +62,11 @@ public class Repeater : IAsyncDisposable
       Status = RunningStatus.Off;
       throw;
     }
+  }
+
+  private void SubscribeToEvents()
+  {
+    _eventBus.Register<RequestExecutingEventHandler, RequestExecutingEvent, RequestExecutingResult>();
   }
 
   private async Task SchedulePing()

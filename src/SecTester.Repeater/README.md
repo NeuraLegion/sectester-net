@@ -129,6 +129,31 @@ public class ScanTests: IAsyncDisposable, IAsyncLifetime
 }
 ```
 
+### Implementation details
+
+Under the hood `Repeater` register `RequestExecutingEventHandler` in bus,
+which in turn uses the `RequestRunner` to proceed with request:
+
+```csharp
+public interface RequestRunner
+{
+  Protocol Protocol
+{
+  get;
+}
+
+Task<Response> Run(Request request);
+}
+```
+
+> We are going to provide `RequestRunner` implementations for both HTTP and WS protocols soon.
+
+To support other protocol new class implementation of `RequestRunner` should be registered in the IoC container:
+
+```csharp
+collection.AddScoped<RequestRunner, CustomProtocolRequestRunner>();
+```
+
 ## Limitations
 
 Custom scripts and self-signed certificates (see [NexPloit CLI](https://www.npmjs.com/package/@neuralegion/nexploit-cli)) are not supported yet.

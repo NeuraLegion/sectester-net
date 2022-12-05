@@ -56,9 +56,7 @@ public class ScanTests : IAsyncDisposable
   public static IEnumerable<object[]> ActiveStatuses =>
     new List<object[]>
     {
-      new object[] { ScanStatus.Pending },
-      new object[] { ScanStatus.Running },
-      new object[] { ScanStatus.Queued }
+      new object[] { ScanStatus.Pending }, new object[] { ScanStatus.Running }, new object[] { ScanStatus.Queued }
     };
 
   private readonly Scans _scans = Substitute.For<Scans>();
@@ -68,7 +66,7 @@ public class ScanTests : IAsyncDisposable
   public ScanTests()
   {
     _sut = new Scan(ScanId, _scans, _logger, new ScanOptions(
-      TimeSpan.Zero, TimeSpan.Zero));
+      Timeout: TimeSpan.FromSeconds(1), PollingInterval: TimeSpan.Zero, DeleteOnDispose: true));
   }
 
   public async ValueTask DisposeAsync()
@@ -167,7 +165,7 @@ public class ScanTests : IAsyncDisposable
     result.Should().BeEquivalentTo(scanState);
     await _scans.Received(2).GetScan(ScanId);
   }
-  
+
   [Theory]
   [MemberData(nameof(DoneStatuses))]
   public async Task Status_FinalStateReached_YieldsFinalState(ScanStatus scanStatus)
@@ -302,8 +300,9 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Theory]
+  [MemberData(nameof(ActiveStatuses))]
   [MemberData(nameof(DoneStatuses))]
-  public async Task DisposeAsync_ScanIsDone_DeletesFromApp(ScanStatus scanStatus)
+  public async Task DisposeAsync_DeleteOnDisposeIsTrue_DeletesFromApp(ScanStatus scanStatus)
   {
     // arrange
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
@@ -317,29 +316,21 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task DisposeAsync_ScanIsActive_DoesNothing(ScanStatus scanStatus)
+  [MemberData(nameof(DoneStatuses))]
+  public async Task DisposeAsync_DefaultDeleteOnDispose_DoesNothing(ScanStatus scanStatus)
   {
     // arrange
+    var sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions(Timeout: TimeSpan.Zero, PollingInterval: TimeSpan.Zero));
+    await using var _ = sut;
+
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
 
     // act
-    await _sut.DisposeAsync();
+    await sut.DisposeAsync();
 
     // assert
     await _scans.DidNotReceive().DeleteScan(ScanId);
-  }
-
-  [Fact]
-  public async Task DisposeAsync_GetScanThrows_DoesNothing()
-  {
-    // arrange
-    _scans.GetScan(ScanId).Throws(new ArgumentException());
-
-    // act
-    var act = () => _sut.DisposeAsync().AsTask();
-
-    // assert
-    await act.Should().NotThrowAsync();
   }
 
   [Fact]
@@ -354,5 +345,6 @@ public class ScanTests : IAsyncDisposable
 
     // assert
     await act.Should().NotThrowAsync();
+    await _scans.Received(1).DeleteScan(ScanId);
   }
 }

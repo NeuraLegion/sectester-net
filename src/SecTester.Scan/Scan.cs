@@ -28,15 +28,15 @@ public class Scan : IAsyncDisposable
 
   public string Id { get; }
 
-  private bool InternalDone => DoneStatuses.Contains(_scanState.Status);
-  private bool InternalActive => ActiveStatuses.Contains(_scanState.Status);
+  private bool DoneCore => DoneStatuses.Contains(_scanState.Status);
+  private bool ActiveCore => ActiveStatuses.Contains(_scanState.Status);
 
   public bool Active
   {
     get
     {
       using var _ = _semaphore.Lock();
-      return InternalActive;
+      return ActiveCore;
     }
   }
 
@@ -45,7 +45,7 @@ public class Scan : IAsyncDisposable
     get
     {
       using var _ = _semaphore.Lock();
-      return InternalDone;
+      return DoneCore;
     }
   }
 
@@ -61,9 +61,7 @@ public class Scan : IAsyncDisposable
   {
     try
     {
-      await RefreshState().ConfigureAwait(false);
-
-      await DisposeAsyncCore(!Active).ConfigureAwait(false);
+      await DisposeAsyncCore().ConfigureAwait(false);
     }
     catch
     {
@@ -75,9 +73,9 @@ public class Scan : IAsyncDisposable
     GC.SuppressFinalize(this);
   }
 
-  protected virtual async ValueTask DisposeAsyncCore(bool deleteScan)
+  protected virtual async ValueTask DisposeAsyncCore()
   {
-    if (deleteScan)
+    if (_options.DeleteOnDispose is true)
     {
       await _scans.DeleteScan(Id).ConfigureAwait(false);
     }
@@ -92,9 +90,11 @@ public class Scan : IAsyncDisposable
   {
     try
     {
-      await RefreshState().ConfigureAwait(false);
+      using var _ = await _semaphore.LockAsync().ConfigureAwait(false);
 
-      if (Active)
+      await RefreshStateCore().ConfigureAwait(false);
+
+      if (ActiveCore)
       {
         await _scans.StopScan(Id).ConfigureAwait(false);
       }
@@ -111,7 +111,6 @@ public class Scan : IAsyncDisposable
     while (Active)
     {
       await Task.Delay(_options.PollingInterval ?? DefaultPollingInterval, cancellationToken).ConfigureAwait(false);
-
       yield return await RefreshState(cancellationToken).ConfigureAwait(false);
     }
 
@@ -122,8 +121,12 @@ public class Scan : IAsyncDisposable
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+    return await RefreshStateCore().ConfigureAwait(false);
+  }
 
-    if (InternalDone)
+  private async Task<ScanState> RefreshStateCore()
+  {
+    if (DoneCore)
     {
       return _scanState;
     }

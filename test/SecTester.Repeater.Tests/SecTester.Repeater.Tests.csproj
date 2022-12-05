@@ -13,5 +13,10 @@
     <Folder Include="Bus" />
     <Folder Include="Extensions" />
     <Folder Include="Mocks" />
+    <Folder Include="Runners" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
   </ItemGroup>
 </Project>

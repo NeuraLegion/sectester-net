@@ -8,7 +8,7 @@ public record RequestRunnerOptions
   /// <summary>
   /// Time to wait for a server to send response headers (and start the response body) before aborting the request.
   /// </summary>
-  public TimeSpan? Timeout { get; init; } = TimeSpan.FromSeconds(30);
+  public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(30);
 
   /// <summary>
   /// SOCKS4 or SOCKS5 URL to proxy all traffic.
@@ -18,12 +18,13 @@ public record RequestRunnerOptions
   /// <summary>
   /// The headers, which is initially empty and consists of zero or more name and value pairs.
   /// </summary>
-  public IEnumerable<KeyValuePair<string, IEnumerable<string>>>? Headers { get; init; }
+  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; init; } =
+    new List<KeyValuePair<string, IEnumerable<string>>>();
 
   /// <summary>
   /// The list of allowed mimes, the HTTP response content will be truncated up <see cref="MaxContentLength"/> if its content type does not consist in the list.
   /// </summary>
-  public IEnumerable<string>? AllowedMimes { get; init; } = new List<string>
+  public IEnumerable<string> AllowedMimes { get; init; } = new List<string>
   {
     "text/html",
     "text/plain",
@@ -44,10 +45,10 @@ public record RequestRunnerOptions
   /// <summary>
   /// The max size of the HTTP response content in bytes allowed for mimes different from <see cref="AllowedMimes"/>.
   /// </summary>
-  public int? MaxContentLength { get; init; } = 1024;
+  public int MaxContentLength { get; init; } = 1024;
 
   /// <summary>
   /// Configure experimental support for TCP connections reuse.
   /// </summary>
-  public bool? ReuseConnection { get; init; } = false;
+  public bool ReuseConnection { get; init; }
 }

@@ -182,8 +182,7 @@ public class HttpRequestRunnerTests : IDisposable
     // assert
     result.Should().BeEquivalentTo(new
     {
-      Message = "Connection refused",
       ErrorCode = "ConnectionRefused"
-    });
+    }, options => options.Using<Response>(ctx => ctx.Subject.Should().BeOfType<string>()).When(info => info.Path.EndsWith("Message")));
   }
 }

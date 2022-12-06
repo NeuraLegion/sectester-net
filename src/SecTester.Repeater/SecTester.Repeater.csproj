@@ -12,7 +12,6 @@
   <ItemGroup>
     <Folder Include="Api" />
     <Folder Include="Internal" />
-    <Folder Include="Runners" />
   </ItemGroup>
 
   <ItemGroup>

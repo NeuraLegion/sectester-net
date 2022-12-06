@@ -4,9 +4,9 @@ public class UploadHarOptionsTests
 {
   private const string HarFileName = "file.har";
 
-  private static readonly Har Har = new(
+  private readonly Har _har = new(
     new Log(
-      new Tool("Configuration_Name", "Configuration_Version")
+      new Tool("name", "v1.1.1")
     )
   );
 
@@ -14,10 +14,10 @@ public class UploadHarOptionsTests
   public void Constructor_WithAllParameters_AssignProperties()
   {
     // act
-    var options = new UploadHarOptions(Har, HarFileName, true);
+    var options = new UploadHarOptions(_har, HarFileName, true);
 
     // assert
-    options.Should().BeEquivalentTo(new { FileName = HarFileName, Har, Discard = true });
+    options.Should().BeEquivalentTo(new { FileName = HarFileName, Har = _har, Discard = true });
   }
 
   [Fact]
@@ -34,7 +34,7 @@ public class UploadHarOptionsTests
   public void Constructor_GivenNullFileName_ThrowError()
   {
     // act
-    var act = () => new UploadHarOptions(Har, null!);
+    var act = () => new UploadHarOptions(_har, null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Filename*");

@@ -4,16 +4,16 @@ public class UploadHarTests
 {
   private const string HarFileName = "filename.har";
 
-  private static readonly Har Har = new(
+  private readonly Har _har = new(
     new Log(
-      new Tool("Configuration_Name", "Configuration_Version"))
+      new Tool("name", "v1.1.1"))
   );
 
   [Fact]
   public void Constructor_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName);
+    var options = new UploadHarOptions(_har, HarFileName);
 
     var expectedContent = new MultipartFormDataContent
     {
@@ -52,7 +52,7 @@ public class UploadHarTests
   public void Constructor_DiscardIsTrue_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName, true);
+    var options = new UploadHarOptions(_har, HarFileName, true);
 
     // act 
     var command = new UploadHar(options);

@@ -45,9 +45,9 @@ public class DefaultScansTests : IDisposable
     DateTime.UtcNow)
   { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" };
 
-  private static readonly Har Har = new(
+  private readonly Har _har = new(
     new Log(
-      new Tool("Configuration_Name", "Configuration_Version")
+      new Tool("name", "v1.1.1")
     )
   );
 
@@ -188,7 +188,7 @@ public class DefaultScansTests : IDisposable
   public async Task UploadHar_CreatesNewHar()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName);
+    var options = new UploadHarOptions(_har, HarFileName);
 
     _commandDispatcher.Execute(Arg.Any<UploadHar>())
       .Returns(new Identifiable<string>(HarId));
@@ -206,7 +206,7 @@ public class DefaultScansTests : IDisposable
   public async Task UploadHar_ResultIsNull_ThrowError()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName);
+    var options = new UploadHarOptions(_har, HarFileName);
 
     _commandDispatcher.Execute(Arg.Any<UploadHar>())
       .Returns(null as Identifiable<string>);

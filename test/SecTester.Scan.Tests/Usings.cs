@@ -22,4 +22,5 @@ global using SecTester.Scan.Target;
 global using SecTester.Scan.Target.Har;
 global using SecTester.Scan.Tests.Extensions;
 global using SecTester.Scan.Tests.Mocks;
+global using SecTester.Scan.Tests.Fixtures;
 global using Xunit;

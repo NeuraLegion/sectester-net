@@ -12,7 +12,7 @@ namespace SecTester.Scan;
 
 public class DefaultScanFactory : ScanFactory
 {
-  private const int MaxSlugLength = 200;
+  internal const int MaxSlugLength = 200;
 
   private static readonly IEnumerable<Discovery> DefaultDiscoveryTypes = new List<Discovery> { Discovery.Archive };
 
@@ -21,7 +21,8 @@ public class DefaultScanFactory : ScanFactory
   private readonly SystemTimeProvider _systemTimeProvider;
   private readonly ILogger _logger;
 
-  public DefaultScanFactory(Configuration configuration, Scans scans, ILogger logger, SystemTimeProvider systemTimeProvider)
+  public DefaultScanFactory(Configuration configuration, Scans scans, ILogger logger,
+    SystemTimeProvider systemTimeProvider)
   {
     _scans = scans ?? throw new ArgumentNullException(nameof(scans));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -78,24 +79,15 @@ public class DefaultScanFactory : ScanFactory
 
   private async Task<Entry> CreateHarEntry(Target.Target target)
   {
-    return new Entry(_systemTimeProvider.Now)
-    {
-      Time = 0,
-      Request = await target.ToHarRequest().ConfigureAwait(false),
-      Timings = new Timings { Send = 0, Receive = 0, Wait = 0 },
-      Cache = new Cache(),
-      Response = new Response(new Content { Size = -1, MimeType = "text/plain" })
-      {
-        HttpVersion = "HTTP/1.1",
-        Status = 200,
-        StatusText = "OK",
-        HeadersSize = -1,
-        BodySize = -1,
-        RedirectUrl = "",
-        Cookies = new List<Cookie>(),
-        Headers = new List<Header>()
-      }
-    };
+    return new Entry(_systemTimeProvider.Now,
+        await target.ToHarRequest().ConfigureAwait(false),
+        new Response(200, "OK", "", new Content(-1, "text/plain"))
+        {
+          HttpVersion = "HTTP/1.1"
+        },
+        new Timings(),
+        new Cache()
+      );
   }
 
   private async Task<Har> CreateHar(Target.Target target)
@@ -104,8 +96,7 @@ public class DefaultScanFactory : ScanFactory
 
     return new Har(
       new Log(
-        new Tool(_configuration.Name, _configuration.Version))
-      { Entries = new List<Entry> { entry } }
+        new Tool(_configuration.Name, _configuration.Version)) { Entries = new List<Entry> { entry } }
     );
   }
 }

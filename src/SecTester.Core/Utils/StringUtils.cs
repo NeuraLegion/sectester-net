@@ -22,10 +22,8 @@ public static class StringUtils
         .ToLowerInvariant();
   }
 
-  public static string? Truncate(this string? value, int n)
+  public static string Truncate(this string value, int n)
   {
-    return string.IsNullOrEmpty(value) || n < 0 || value!.Length <= n
-      ? value
-      : $"{value.Substring(0, n)}…";
+    return value.Length >  n ? Regex.Replace(value.Substring(0, n), @"\w$","…") : value;
   }
 }

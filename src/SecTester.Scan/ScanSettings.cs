@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using SecTester.Core.Utils;
 using SecTester.Scan.Models;
 using SecTester.Scan.Target;
@@ -10,7 +9,13 @@ namespace SecTester.Scan;
 
 public record ScanSettings : ScanSettingsOptions
 {
-  private const int MaxNameLength = 200;
+  internal const int MaxNameLength = 200;
+  private const int MinPoolSize = 1;
+  private const int MaxPoolSize = 50;
+
+  private static readonly TimeSpan MinSlowEpTimeout = TimeSpan.FromSeconds(100);
+  private static readonly TimeSpan MinTargetTimeout = TimeSpan.FromSeconds(1);
+  private static readonly TimeSpan MaxTargetTimeout = TimeSpan.FromSeconds(120);
 
   private readonly Target.Target _target;
   private readonly IEnumerable<TestType> _tests;
@@ -57,7 +62,7 @@ public record ScanSettings : ScanSettingsOptions
     get => _poolSize;
     init
     {
-      if (value is null or < 1 or > 50)
+      if (value is null or < MinPoolSize or > MaxPoolSize)
       {
         throw new ArgumentException("Invalid pool size.");
       }
@@ -71,7 +76,7 @@ public record ScanSettings : ScanSettingsOptions
     get => _slowEpTimeout;
     init
     {
-      if (value is null || value < TimeSpan.FromSeconds(100))
+      if (value is null || value < MinSlowEpTimeout)
       {
         throw new ArgumentException("Invalid slow entry point timeout.");
       }
@@ -85,7 +90,7 @@ public record ScanSettings : ScanSettingsOptions
     get => _targetTimeout;
     init
     {
-      if (value is null || (value < TimeSpan.FromSeconds(1) || value > TimeSpan.FromSeconds(120)))
+      if (value is null || (value < MinTargetTimeout || value > MaxTargetTimeout))
       {
         throw new ArgumentException("Invalid target connection timeout.");
       }
@@ -140,14 +145,14 @@ public record ScanSettings : ScanSettingsOptions
   {
     Target = targetOptions;
     Tests = tests;
-    Name = CreateDefaultName(_target!);
+    Name = CreateDefaultName(_target);
   }
 
   internal ScanSettings(ScanSettingsOptions scanSettingsOptions)
   {
     Target = scanSettingsOptions.Target;
     Tests = scanSettingsOptions.Tests;
-    Name = string.IsNullOrWhiteSpace(scanSettingsOptions.Name) ? CreateDefaultName(_target!) : scanSettingsOptions.Name;
+    Name = string.IsNullOrWhiteSpace(scanSettingsOptions.Name) ? CreateDefaultName(_target) : scanSettingsOptions.Name;
     RepeaterId = scanSettingsOptions.RepeaterId;
     Smart = scanSettingsOptions.Smart ?? Smart;
     SkipStaticParams = scanSettingsOptions.SkipStaticParams ?? SkipStaticParams;
@@ -161,6 +166,6 @@ public record ScanSettings : ScanSettingsOptions
   {
     var uri = new Uri(target.Url);
 
-    return $"{target.Method} {uri.Host}".Truncate(MaxNameLength - 1)!;
+    return $"{target.Method} {uri.Host}".Truncate(MaxNameLength);
   }
 }

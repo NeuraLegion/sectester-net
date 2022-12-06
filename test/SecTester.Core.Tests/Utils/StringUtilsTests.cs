@@ -17,18 +17,15 @@ public class StringUtilsTests
     new object[] { "kebab-case_with_snake", "kebab-case_with_snake" },
   };
 
-  public static readonly IEnumerable<object[]> TruncateMapping = new List<object[]>
+
+  public static readonly IEnumerable<object[]> TruncateInput = new List<object[]>
   {
-    new object[] { null!, null!, 0 },
-    new object[] { "", "", 0 },
-    new object[] { "a", "a", -1 },
-    new object[] { "a", "…", 0 },
-    new object[] { "a", "a", 1 },
-    new object[] { "a", "a", 2 },
-    new object[] { "aa", "…", 0 },
-    new object[] { "aa", "a…", 1 },
-    new object[] { "aa", "aa", 2 },
-    new object[] { "aa", "aa", 3 }
+    new object[] { "aa", 2, "aa" },
+    new object[] { "test", 2, "t…" },
+    new object[] { "", 2, "" },
+    new object[] { "test", 0, "" },
+    new object[] { "found a new issue", 6, "found " },
+    new object[] { "******", 4, "****" }
   };
 
   [Theory]
@@ -43,11 +40,11 @@ public class StringUtilsTests
   }
 
   [Theory]
-  [MemberData(nameof(TruncateMapping))]
-  public void Truncate_SatisfyConversion(string input, string expected, int length)
+  [MemberData(nameof(TruncateInput))]
+  public void Truncate_SatisfyConversion(string inputString, int inputLength, string expected)
   {
     // act
-    var result = input.Truncate(length);
+    var result = inputString.Truncate(inputLength);
 
     // assert
     result.Should().Be(expected);

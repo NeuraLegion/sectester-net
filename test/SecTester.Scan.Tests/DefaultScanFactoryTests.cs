@@ -83,7 +83,8 @@ public class DefaultScanFactoryTests : IDisposable
     // arrange
     _options.Name.ReturnsForAnyArgs(null as string);
     _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(new SecTester.Scan.Target.Target($"https://{new string('a', 201)}.example.com"));
+    _options.Target.Returns(
+      new SecTester.Scan.Target.Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"));
     _options.Tests.Returns(new List<TestType> { TestType.DomXss });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
@@ -94,7 +95,6 @@ public class DefaultScanFactoryTests : IDisposable
 
     // assert
     await _scans.Received(1).UploadHar(Arg.Is<UploadHarOptions>(x =>
-      Regex.IsMatch(x.FileName, @"^.{200}-[a-z\d-]+\.har$")
-    ));
+      Regex.IsMatch(x.FileName, $"^.{{{DefaultScanFactory.MaxSlugLength}}}-[a-z\\d-]+\\.har$")));
   }
 }

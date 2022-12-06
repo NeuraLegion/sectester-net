@@ -18,43 +18,54 @@ public static class ServiceCollectionExtensions
 
   public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, Func<RequestRunnerOptions> configure)
   {
-    collection
+    return collection
       .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<RequestExecutingEventHandler>()
       .AddScoped(_ => configure())
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>()
-      .AddHttpClient(nameof(HttpRequestRunner), (sp, client) =>
-      {
-        var config = sp.GetRequiredService<RequestRunnerOptions>();
-        client.Timeout = config.Timeout;
-        foreach (var keyValuePair in config.Headers)
-        {
-          client.DefaultRequestHeaders.Add(keyValuePair.Key, keyValuePair.Value);
-        }
+      .AddHttpClientForHttpRequestRunner();
+  }
 
-        if (config.ReuseConnection)
-        {
-          client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-          client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
-        }
-      })
-      .ConfigurePrimaryHttpMessageHandler(sp =>
-      {
-        var config = sp.GetRequiredService<RequestRunnerOptions>();
-        var proxy = config.ProxyUrl is not null ? new WebProxy(config.ProxyUrl) : null;
-        // TODO: set unsafe HTTP parser to allow to attack headers. HttpClient does not accept any other characters which violate [rfc7230](https://tools.ietf.org/html/rfc7230#section-3.2.6).
-        return new HttpClientHandler
-        {
-          Proxy = proxy,
-          AllowAutoRedirect = false,
-          ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true,
-          AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-        };
-      });
-    ;
+  private static IServiceCollection AddHttpClientForHttpRequestRunner(this IServiceCollection collection)
+  {
+    collection.AddHttpClient(nameof(HttpRequestRunner), ConfigureHttpClient)
+      .ConfigurePrimaryHttpMessageHandler(CreateHttpMessageHandler);
 
     return collection;
   }
-}
 
+  private static HttpMessageHandler CreateHttpMessageHandler(IServiceProvider sp)
+  {
+    var config = sp.GetRequiredService<RequestRunnerOptions>();
+    var proxy = config.ProxyUrl is not null ? new WebProxy(config.ProxyUrl) : null;
+
+    return new HttpClientHandler
+    {
+      Proxy = proxy,
+      AllowAutoRedirect = false,
+      ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true,
+      AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+    };
+  }
+
+  private static void ConfigureHttpClient(IServiceProvider sp, HttpClient client)
+  {
+    var config = sp.GetRequiredService<RequestRunnerOptions>();
+
+    client.Timeout = config.Timeout;
+
+    foreach (var keyValuePair in config.Headers)
+    {
+      client.DefaultRequestHeaders.Add(keyValuePair.Key, keyValuePair.Value);
+    }
+
+    if (!config.ReuseConnection)
+    {
+      return;
+    }
+
+    client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+    client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
+  }
+}

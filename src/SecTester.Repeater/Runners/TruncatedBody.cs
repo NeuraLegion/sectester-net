@@ -20,3 +20,4 @@ internal sealed class TruncatedBody
     return Encoding.GetString(Body);
   }
 }
+

@@ -155,5 +155,3 @@ internal sealed class HttpRequestRunner : RequestRunner
     return await httpClient.SendAsync(options, cancellationToken).ConfigureAwait(false);
   }
 }
-
-

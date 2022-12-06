@@ -69,3 +69,4 @@ public static class ServiceCollectionExtensions
     client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
   }
 }
+

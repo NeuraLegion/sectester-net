@@ -32,10 +32,10 @@ public class RepeaterOptionsTests
 
     // assert
     result.Should().BeEquivalentTo(
-    new
-    {
-      NamePrefix = namePrefix
-    });
+      new
+      {
+        NamePrefix = namePrefix
+      });
   }
 
   [Fact]

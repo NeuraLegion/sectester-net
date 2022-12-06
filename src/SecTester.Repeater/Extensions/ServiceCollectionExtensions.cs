@@ -57,3 +57,4 @@ public static class ServiceCollectionExtensions
     return collection;
   }
 }
+

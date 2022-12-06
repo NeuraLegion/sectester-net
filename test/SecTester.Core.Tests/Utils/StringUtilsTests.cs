@@ -17,12 +17,37 @@ public class StringUtilsTests
     new object[] { "kebab-case_with_snake", "kebab-case_with_snake" },
   };
 
+  public static readonly IEnumerable<object[]> TruncateMapping = new List<object[]>
+  {
+    new object[] { null!, null!, 0 },
+    new object[] { "", "", 0 },
+    new object[] { "a", "a", -1 },
+    new object[] { "a", "…", 0 },
+    new object[] { "a", "a", 1 },
+    new object[] { "a", "a", 2 },
+    new object[] { "aa", "…", 0 },
+    new object[] { "aa", "a…", 1 },
+    new object[] { "aa", "aa", 2 },
+    new object[] { "aa", "aa", 3 }
+  };
+
   [Theory]
   [MemberData(nameof(SnakeCaseMapping))]
   public void ToSnakeCase_SatisfyConversion(string input, string expected)
   {
     // act
     var result = input.ToSnakeCase();
+
+    // assert
+    result.Should().Be(expected);
+  }
+
+  [Theory]
+  [MemberData(nameof(TruncateMapping))]
+  public void Truncate_SatisfyConversion(string input, string expected, int length)
+  {
+    // act
+    var result = input.Truncate(length);
 
     // assert
     result.Should().Be(expected);

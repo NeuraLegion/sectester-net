@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SecTester.Core.Utils;
@@ -21,6 +20,12 @@ public static class StringUtils
       : SupportedCaseRegexes.Aggregate(value!,
           (input, regex) => regex.Replace(input, "$1_$2"))
         .ToLowerInvariant();
+  }
 
+  public static string? Truncate(this string? value, int n)
+  {
+    return string.IsNullOrEmpty(value) || n < 0 || value!.Length <= n
+      ? value
+      : $"{value.Substring(0, n)}…";
   }
 }

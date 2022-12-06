@@ -121,7 +121,7 @@ public class ScanTests : IAsyncDisposable
     cts.Cancel();
 
     // act
-    var act = async () => await _sut.Status(cts.Token).FirstAsync();
+    var act = async () => await _sut.Status(cts.Token).FirstAsync(CancellationToken.None);
 
     // assert
     await act.Should().ThrowAsync<OperationCanceledException>();

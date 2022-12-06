@@ -4,7 +4,10 @@ public class UploadHarTests
 {
   private const string HarFileName = "filename.har";
 
-  private static readonly Har Har = new();
+  private static readonly Har Har = new(
+    new Log(
+      new Tool("Configuration_Name", "Configuration_Version"))
+  );
 
   [Fact]
   public void Constructor_ConstructsInstance()
@@ -15,8 +18,7 @@ public class UploadHarTests
     var expectedContent = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-        "file",
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file",
         HarFileName
       }
     };

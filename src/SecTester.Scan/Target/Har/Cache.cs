@@ -1,3 +1,3 @@
 namespace SecTester.Scan.Target.Har;
 
-public record Har(Log Log);
+public record Cache;

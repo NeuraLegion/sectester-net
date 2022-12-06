@@ -10,7 +10,6 @@ public class DefaultScansTests : IDisposable
   private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
   private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
   private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
-
   private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
   private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
   private const string HarId = "gwycPnxzQihoeGP141pvDe";
@@ -46,7 +45,11 @@ public class DefaultScansTests : IDisposable
     DateTime.UtcNow)
   { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" };
 
-  private static readonly Har Har = new();
+  private static readonly Har Har = new(
+    new Log(
+      new Tool("Configuration_Name", "Configuration_Version")
+    )
+  );
 
   private readonly Configuration _configuration = new("app.neuralegion.com");
   private readonly CommandDispatcher _commandDispatcher = Substitute.For<CommandDispatcher>();

@@ -1,4 +1,5 @@
 using Request = SecTester.Scan.Models.Request;
+using Response = SecTester.Scan.Models.Response;
 
 namespace SecTester.Scan.Tests.Models;
 
@@ -15,8 +16,8 @@ public class IssueTests
   private const Protocol Protocol = SecTester.Scan.Models.Protocol.Http;
   private const string Remedy = "remedy";
   private const string Link = "link";
-  private readonly Request _originalRequest = new("http://example.com");
-  private readonly Request _request = new("http://example.com");
+  private readonly Request _originalRequest = new("https://example.com");
+  private readonly Request _request = new("https://example.com");
   private readonly DateTime _time = DateTime.Now;
 
   [Fact]

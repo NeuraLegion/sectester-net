@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
 
@@ -18,7 +19,7 @@
     <Folder Include="Commands" />
     <Folder Include="Extensions" />
     <Folder Include="Models" />
+    <Folder Include="Mocks" />
     <Folder Include="Target" />
-    <Folder Include="Fixtures" />
   </ItemGroup>
 </Project>

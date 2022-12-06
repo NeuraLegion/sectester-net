@@ -1,21 +1,23 @@
-using SecTester.Scan.Tests.Fixtures;
-
 namespace SecTester.Scan.Tests.Commands;
 
-public class UploadHarTests : ScanFixture
+public class UploadHarTests
 {
+  private const string HarFileName = "filename.har";
+
+  private static readonly Har Har = new();
+
   [Fact]
   public void Constructor_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har");
+    var options = new UploadHarOptions(Har, HarFileName);
 
     var expectedContent = new MultipartFormDataContent
     {
       {
         new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
         "file",
-        "filename.har"
+        HarFileName
       }
     };
 
@@ -34,11 +36,11 @@ public class UploadHarTests : ScanFixture
         }, config => config.IncludingNestedObjects()
           .Using<MultipartFormDataContent>(ctx =>
           {
-            ReadHttpContentAsString(ctx.Subject.First()).Should()
-              .BeEquivalentTo(ReadHttpContentAsString(ctx.Expectation.First()));
+            ctx.Subject.First().ReadHttpContentAsString().Should()
+              .Be(ctx.Expectation.First().ReadHttpContentAsString());
             ctx.Subject.First().Headers.ContentType.Should()
-              .BeEquivalentTo(ctx.Expectation.First().Headers.ContentType);
-            ctx.Subject.Headers.ContentDisposition.Should().BeEquivalentTo(ctx.Expectation.Headers.ContentDisposition);
+              .Be(ctx.Expectation.First().Headers.ContentType);
+            ctx.Subject.Headers.ContentDisposition.Should().Be(ctx.Expectation.Headers.ContentDisposition);
           })
           .When(info => info.Path.EndsWith(nameof(UploadHar.Body)))
       );
@@ -48,7 +50,7 @@ public class UploadHarTests : ScanFixture
   public void Constructor_DiscardIsTrue_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(new Har(), "filename.har", true);
+    var options = new UploadHarOptions(Har, HarFileName, true);
 
     // act 
     var command = new UploadHar(options);

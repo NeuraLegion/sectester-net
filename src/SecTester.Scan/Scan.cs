@@ -96,6 +96,34 @@ public class Scan : IAsyncDisposable
     yield return _scanState;
   }
 
+  public async Task Expect(Func<Scan, Task<bool>> expectation)
+  {
+    if (expectation == null)
+    {
+      throw new ArgumentNullException(nameof(expectation));
+    }
+
+    using var cancellationTokenSource = new CancellationTokenSource();
+
+    cancellationTokenSource.CancelAfter(this._options.Timeout);
+
+    await Expect(expectation, cancellationTokenSource.Token).ConfigureAwait(false);
+  }
+
+  private async Task Expect(Func<Scan, Task<bool>> expectation, CancellationToken cancellationToken)
+  {
+    await foreach (var _ in Status(CancellationToken.None).ConfigureAwait(false))
+    {
+      var preventFurtherPolling =
+        await expectation(this).ConfigureAwait(false) || Done || cancellationToken.IsCancellationRequested;
+
+      if (preventFurtherPolling)
+      {
+        break;
+      }
+    }
+  }
+
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);

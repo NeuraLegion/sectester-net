@@ -352,7 +352,7 @@ public class ScanTests : IAsyncDisposable
     var sut = new Scan(ScanId, _scans, _logger,
       new ScanOptions()
       {
-        PollingInterval = TimeSpan.FromMilliseconds(50), 
+        PollingInterval = TimeSpan.FromMilliseconds(50),
         Timeout = TimeSpan.Zero
       });
     await using var _ = sut;
@@ -386,20 +386,29 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task Expect_GivenPredicateInvokingStatus_Returns(ScanStatus scanStatus)
+  public async Task Expect_GivenPredicateWithStatusMatching_Returns(ScanStatus scanStatus)
   {
     // arrange
-    Func<Scan, Task<bool>> predicate = async x =>
+    var satisfyingScanState = new ScanState(scanStatus)
     {
-      await x.Status().FirstAsync();
-      return await _predicate(x);
+      IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
     };
 
-    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
+    async Task<bool> Predicate(Scan scan)
+    {
+      var status = await scan.Status().FirstAsync();
+
+      await _predicate(scan);
+
+      return status.IssuesBySeverity.Any(x => x.Type == Severity.High);
+    }
+
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
+
     _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(true);
 
     // act
-    var act = () => _sut.Expect(predicate);
+    var act = () => _sut.Expect(Predicate);
 
     // assert
     await act.Should().NotThrowAsync();
@@ -407,12 +416,26 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Fact]
-  public async Task Expect_ExpectationIsNull_ThrowError()
+  public async Task Expect_PredicateIsNull_ThrowError()
   {
     // act
     var act = () => _sut.Expect(null!);
 
     // assert
-    await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("*expectation*");
+    await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("*predicate*");
+  }
+
+  [Fact]
+  public async Task Expect_PredicateThrows_DoesNothing()
+  {
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Done));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Throws<NullReferenceException>();
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
   }
 }

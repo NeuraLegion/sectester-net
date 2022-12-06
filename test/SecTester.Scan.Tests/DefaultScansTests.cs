@@ -1,10 +1,3 @@
-using SecTester.Core;
-using SecTester.Core.Bus;
-using SecTester.Core.Exceptions;
-using SecTester.Scan.CI;
-using SecTester.Scan.Commands;
-using SecTester.Scan.Models;
-using SecTester.Scan.Target.Har;
 using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests;

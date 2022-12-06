@@ -12,8 +12,6 @@ namespace SecTester.Scan;
 
 public class Scan : IAsyncDisposable
 {
-  private static readonly TimeSpan DefaultPollingInterval = TimeSpan.FromSeconds(5);
-
   private static readonly IReadOnlyCollection<ScanStatus> ActiveStatuses =
     new[] { ScanStatus.Pending, ScanStatus.Running, ScanStatus.Queued };
 
@@ -28,26 +26,9 @@ public class Scan : IAsyncDisposable
 
   public string Id { get; }
 
-  private bool DoneCore => DoneStatuses.Contains(_scanState.Status);
-  private bool ActiveCore => ActiveStatuses.Contains(_scanState.Status);
+  public bool Active => ActiveStatuses.Contains(_scanState.Status);
 
-  public bool Active
-  {
-    get
-    {
-      using var _ = _semaphore.Lock();
-      return ActiveCore;
-    }
-  }
-
-  public bool Done
-  {
-    get
-    {
-      using var _ = _semaphore.Lock();
-      return DoneCore;
-    }
-  }
+  public bool Done => DoneStatuses.Contains(_scanState.Status);
 
   public Scan(string id, Scans scans, ILogger logger, ScanOptions options)
   {
@@ -90,11 +71,9 @@ public class Scan : IAsyncDisposable
   {
     try
     {
-      using var _ = await _semaphore.LockAsync().ConfigureAwait(false);
+      await RefreshState().ConfigureAwait(false);
 
-      await RefreshStateCore().ConfigureAwait(false);
-
-      if (ActiveCore)
+      if (Active)
       {
         await _scans.StopScan(Id).ConfigureAwait(false);
       }
@@ -110,23 +89,18 @@ public class Scan : IAsyncDisposable
   {
     while (Active)
     {
-      await Task.Delay(_options.PollingInterval ?? DefaultPollingInterval, cancellationToken).ConfigureAwait(false);
+      await Task.Delay(_options.PollingInterval, cancellationToken).ConfigureAwait(false);
       yield return await RefreshState(cancellationToken).ConfigureAwait(false);
     }
 
-    using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
     yield return _scanState;
   }
 
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
-    return await RefreshStateCore().ConfigureAwait(false);
-  }
 
-  private async Task<ScanState> RefreshStateCore()
-  {
-    if (DoneCore)
+    if (Done)
     {
       return _scanState;
     }

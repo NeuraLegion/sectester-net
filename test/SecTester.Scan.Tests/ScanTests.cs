@@ -1,5 +1,3 @@
-using SecTester.Scan.Models;
-using SecTester.Scan.Tests.Mocks;
 using Request = SecTester.Scan.Models.Request;
 
 namespace SecTester.Scan.Tests;
@@ -65,8 +63,8 @@ public class ScanTests : IAsyncDisposable
 
   public ScanTests()
   {
-    _sut = new Scan(ScanId, _scans, _logger, new ScanOptions(
-      Timeout: TimeSpan.FromSeconds(1), PollingInterval: TimeSpan.Zero, DeleteOnDispose: true));
+    _sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions() { Timeout = TimeSpan.FromSeconds(1), PollingInterval = TimeSpan.Zero, DeleteOnDispose = true });
   }
 
   public async ValueTask DisposeAsync()
@@ -321,7 +319,8 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions(Timeout: TimeSpan.Zero, PollingInterval: TimeSpan.Zero));
+      new ScanOptions() { Timeout = TimeSpan.Zero, PollingInterval = TimeSpan.Zero });
+
     await using var _ = sut;
 
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));

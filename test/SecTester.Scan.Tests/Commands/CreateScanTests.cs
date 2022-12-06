@@ -1,8 +1,3 @@
-using SecTester.Bus.Dispatchers;
-using SecTester.Scan.Commands;
-using SecTester.Scan.Models;
-using SecTester.Scan.Tests.Extensions;
-
 namespace SecTester.Scan.Tests.Commands;
 
 public class CreateScanTests

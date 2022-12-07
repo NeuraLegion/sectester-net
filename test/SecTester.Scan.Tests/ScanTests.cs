@@ -510,7 +510,7 @@ public class ScanTests : IAsyncDisposable
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
 
     // act
-    var act = () => _sut.Expect(Severity.High);
+    var act = () => _sut.Expect(Severity.Medium);
 
     // assert
     await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));

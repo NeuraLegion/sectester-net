@@ -18,6 +18,14 @@ public class Scan : IAsyncDisposable
   private static readonly IReadOnlyCollection<ScanStatus> DoneStatuses =
     new[] { ScanStatus.Disrupted, ScanStatus.Done, ScanStatus.Failed, ScanStatus.Stopped };
 
+  private static readonly IEnumerable<KeyValuePair<Severity, IEnumerable<Severity>>> SeverityRanges =
+    new Dictionary<Severity, IEnumerable<Severity>>()
+    {
+      { Severity.Low, new List<Severity>() { Severity.Low, Severity.Medium, Severity.High } },
+      { Severity.Medium, new List<Severity>() { Severity.Medium, Severity.High } },
+      { Severity.High, new List<Severity>() { Severity.High } }
+    };
+
   private readonly ScanOptions _options;
   private readonly ILogger _logger;
   private readonly Scans _scans;
@@ -103,10 +111,11 @@ public class Scan : IAsyncDisposable
 
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
-    var predicate = (Scan _) =>
-      Task.FromResult(_scanState.IssuesBySeverity?.Any(x => x.Number > 0 && x.Type == expectation) ?? false);
+    var predicate = () =>
+      _scanState.IssuesBySeverity?.Any(x => x.Number > 0 &&
+      SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type))) ?? false;
 
-    await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    await ExpectCore(_ => Task.FromResult(predicate()), cancellationTokenSource.Token).ConfigureAwait(false);
   }
 
   public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)

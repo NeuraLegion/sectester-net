@@ -103,11 +103,12 @@ public class Scan : IAsyncDisposable
       throw new ArgumentNullException(nameof(predicate));
     }
 
-    using var timeoutCancellationTokenSource = new CancellationTokenSource(this._options.Timeout);
-    using var linkedCancellationTokenSource =
-      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+    using var cancellationTokenSource =
+      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+    
+    cancellationTokenSource.CancelAfter(_options.Timeout);
 
-    await ExpectCore(predicate, linkedCancellationTokenSource.Token).ConfigureAwait(false);
+    await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
   }
 
   private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)

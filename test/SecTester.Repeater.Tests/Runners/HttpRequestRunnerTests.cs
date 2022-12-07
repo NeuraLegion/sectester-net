@@ -159,7 +159,8 @@ public class HttpRequestRunnerTests : IDisposable
     // assert
     result.Should().BeEquivalentTo(new
     {
-      StatusCode = (int)HttpStatusCode.NoContent
+      StatusCode = (int)HttpStatusCode.NoContent,
+      Body = ""
     });
   }
 

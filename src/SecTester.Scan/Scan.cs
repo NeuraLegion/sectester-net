@@ -96,19 +96,21 @@ public class Scan : IAsyncDisposable
     yield return _scanState;
   }
 
-  public async Task Expect(Func<Scan, Task<bool>> predicate)
+  public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
   {
     if (predicate == null)
     {
       throw new ArgumentNullException(nameof(predicate));
     }
 
-    using var cancellationTokenSource = new CancellationTokenSource(this._options.Timeout);
+    using var timeoutCancellationTokenSource = new CancellationTokenSource(this._options.Timeout);
+    using var linkedCancellationTokenSource =
+      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
 
-    await Expect(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    await ExpectCore(predicate, linkedCancellationTokenSource.Token).ConfigureAwait(false);
   }
 
-  private async Task<bool> SatisfyPredicate(Func<Scan, Task<bool>> predicate)
+  private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)
   {
     try
     {
@@ -120,11 +122,11 @@ public class Scan : IAsyncDisposable
     }
   }
 
-  private async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  private async Task ExpectCore(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
     await foreach (var _ in Status(CancellationToken.None).ConfigureAwait(false))
     {
-      var predicateIsSatisfied = await SatisfyPredicate(predicate).ConfigureAwait(false);
+      var predicateIsSatisfied = await ApplyPredicate(predicate).ConfigureAwait(false);
 
       var preventFurtherPolling = predicateIsSatisfied || Done || cancellationToken.IsCancellationRequested;
 

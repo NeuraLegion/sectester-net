@@ -367,6 +367,33 @@ public class ScanTests : IAsyncDisposable
     await act.Should().NotThrowAsync();
     await _predicate.Received(1)(Arg.Any<Scan>());
   }
+  
+  [Fact]
+  public async Task Expect_GivenPredicateAndCancelledToken_Returns()
+  {
+    // arrange
+    using var cancelledTokenSource = new CancellationTokenSource();
+    cancelledTokenSource.Cancel();
+    
+    var sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions()
+      {
+        PollingInterval = TimeSpan.Zero,
+        Timeout = TimeSpan.FromSeconds(1)
+      });
+    
+    await using var _ = sut;
+
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+
+    // act
+    var act = () => sut.Expect(_predicate, cancelledTokenSource.Token);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
+  }
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
@@ -394,21 +421,16 @@ public class ScanTests : IAsyncDisposable
       IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
     };
 
-    async Task<bool> Predicate(Scan scan)
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(async _ =>
     {
-      var status = await scan.Status().FirstAsync();
-
-      await _predicate(scan);
-
-      return status.IssuesBySeverity.Any(x => x.Type == Severity.High);
-    }
-
+      var status = await _sut.Status().FirstAsync();
+      return status.IssuesBySeverity?.Any(x => x.Type == Severity.High) ?? false;
+    });
+    
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
 
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(true);
-
     // act
-    var act = () => _sut.Expect(Predicate);
+    var act = () => _sut.Expect(_predicate);
 
     // assert
     await act.Should().NotThrowAsync();

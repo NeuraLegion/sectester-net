@@ -56,7 +56,7 @@ public class Scan : IAsyncDisposable
 
   protected virtual async ValueTask DisposeAsyncCore()
   {
-    if (_options.DeleteOnDispose is true)
+    if (_options.DeleteOnDispose)
     {
       await _scans.DeleteScan(Id).ConfigureAwait(false);
     }
@@ -96,6 +96,19 @@ public class Scan : IAsyncDisposable
     yield return _scanState;
   }
 
+  public async Task Expect(Severity expectation, CancellationToken cancellationToken = default)
+  {
+    using var cancellationTokenSource =
+      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+    cancellationTokenSource.CancelAfter(_options.Timeout);
+
+    var predicate = (Scan _) =>
+      Task.FromResult(_scanState.IssuesBySeverity?.Any(x => x.Number > 0 && x.Type == expectation) ?? false);
+
+    await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+  }
+
   public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
   {
     if (predicate == null)
@@ -105,7 +118,7 @@ public class Scan : IAsyncDisposable
 
     using var cancellationTokenSource =
       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-    
+
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
     await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);

@@ -17,14 +17,14 @@ internal static class ListExtensions
       throw new ArgumentNullException(nameof(predicate));
     }
 
-    var contentLenghtIdx = source.FindIndex(predicate);
+    var idx = source.FindIndex(predicate);
 
-    if (contentLenghtIdx != -1)
+    if (idx != -1)
     {
-      source[contentLenghtIdx] = newValue;
+      source[idx] = newValue;
     }
 
-    return contentLenghtIdx;
+    return idx;
   }
 }
 

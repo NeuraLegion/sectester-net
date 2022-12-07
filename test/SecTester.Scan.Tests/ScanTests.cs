@@ -5,29 +5,8 @@ namespace SecTester.Scan.Tests;
 public class ScanTests : IAsyncDisposable
 {
   private const string BaseUrl = "https://example.com/api/v1";
-  private const string ScanName = "Scan Name";
-  private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
-  private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
-  private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
   private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
   private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
-
-  private readonly ScanConfig _scanConfig = new(ScanName)
-  {
-    Module = Module.Dast,
-    Repeaters = new[] { RepeaterId },
-    Smart = true,
-    Tests = new[] { TestType.Csrf, TestType.Jwt },
-    DiscoveryTypes = new[] { Discovery.Crawler },
-    FileId = FileId,
-    HostsFilter = new[] { "example.com" },
-    PoolSize = 2,
-    ProjectId = ProjectId,
-    TargetTimeout = 10,
-    AttackParamLocations = new[] { AttackParamLocation.Body, AttackParamLocation.Header },
-    SkipStaticParams = true,
-    SlowEpTimeout = 20
-  };
 
   private readonly Issue _issue = new(IssueId,
     "Cross-site request forgery is a type of malicious website exploit.",
@@ -60,6 +39,7 @@ public class ScanTests : IAsyncDisposable
   private readonly Scans _scans = Substitute.For<Scans>();
   private readonly MockLogger _logger = Substitute.For<MockLogger>();
   private readonly Scan _sut;
+  private readonly Func<Scan, Task<bool>> _predicate = Substitute.For<Func<Scan, Task<bool>>>();
 
   public ScanTests()
   {
@@ -71,6 +51,7 @@ public class ScanTests : IAsyncDisposable
   {
     await _sut.DisposeAsync();
 
+    _predicate.ClearSubstitute();
     _scans.ClearSubstitute();
     _logger.ClearSubstitute();
 
@@ -345,5 +326,138 @@ public class ScanTests : IAsyncDisposable
     // assert
     await act.Should().NotThrowAsync();
     await _scans.Received(1).DeleteScan(ScanId);
+  }
+
+  [Theory]
+  [MemberData(nameof(DoneStatuses))]
+  public async Task Expect_GivenPredicateFinalStateReached_Returns(ScanStatus scanStatus)
+  {
+    // arrange
+    _scans.GetScan(ScanId).Returns(
+        new ScanState(ScanStatus.Running), new ScanState(scanStatus));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(2)(Arg.Any<Scan>());
+  }
+
+  [Fact]
+  public async Task Expect_GivenPredicateCancelledByTimeout_Returns()
+  {
+    // arrange
+    var sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions()
+      {
+        PollingInterval = TimeSpan.FromMilliseconds(50),
+        Timeout = TimeSpan.Zero
+      });
+    await using var _ = sut;
+
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+
+    // act
+    var act = () => sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
+  }
+  
+  [Fact]
+  public async Task Expect_GivenPredicateAndCancelledToken_Returns()
+  {
+    // arrange
+    using var cancelledTokenSource = new CancellationTokenSource();
+    cancelledTokenSource.Cancel();
+    
+    var sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions()
+      {
+        PollingInterval = TimeSpan.Zero,
+        Timeout = TimeSpan.FromSeconds(1)
+      });
+    
+    await using var _ = sut;
+
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+
+    // act
+    var act = () => sut.Expect(_predicate, cancelledTokenSource.Token);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
+  }
+
+  [Theory]
+  [MemberData(nameof(ActiveStatuses))]
+  public async Task Expect_GivenPredicateConditionSatisfied_Returns(ScanStatus scanStatus)
+  {
+    // arrange
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(true);
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
+  }
+
+  [Theory]
+  [MemberData(nameof(ActiveStatuses))]
+  public async Task Expect_GivenPredicateWithStatusMatching_Returns(ScanStatus scanStatus)
+  {
+    // arrange
+    var satisfyingScanState = new ScanState(scanStatus)
+    {
+      IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
+    };
+
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(async _ =>
+    {
+      var status = await _sut.Status().FirstAsync();
+      return status.IssuesBySeverity?.Any(x => x.Type == Severity.High) ?? false;
+    });
+    
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
+  }
+
+  [Fact]
+  public async Task Expect_PredicateIsNull_ThrowError()
+  {
+    // act
+    var act = () => _sut.Expect(null!);
+
+    // assert
+    await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("*predicate*");
+  }
+
+  [Fact]
+  public async Task Expect_PredicateThrows_DoesNothing()
+  {
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Done));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Throws<NullReferenceException>();
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().NotThrowAsync();
+    await _predicate.Received(1)(Arg.Any<Scan>());
   }
 }

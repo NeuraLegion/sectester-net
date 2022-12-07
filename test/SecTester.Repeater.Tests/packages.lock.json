@@ -52,6 +52,12 @@
           "Castle.Core": "5.0.0"
         }
       },
+      "RichardSzalay.MockHttp": {
+        "type": "Direct",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "bStGNqIX/MGYtML7K3EzdsE/k5HGVAcg7XgN23TQXGXqxNC9fvYFR94fA0sGM5hAT36R+BBGet6ZDQxXL/IPxg=="
+      },
       "xunit": {
         "type": "Direct",
         "requested": "[2.4.1, )",
@@ -1329,7 +1335,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
           "Microsoft.Extensions.Http": "[6.0.0, )",
           "RabbitMQ.Client": "[6.4.0, )",
-          "SecTester.Core": "[0.18.0, )",
+          "SecTester.Core": "[0.23.0, )",
           "System.Text.Json": "[6.0.0, )",
           "System.Threading.RateLimiting": "[7.0.0, )"
         }
@@ -1346,8 +1352,8 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "SecTester.Bus": "[0.18.0, )",
-          "SecTester.Core": "[0.18.0, )"
+          "SecTester.Bus": "[0.23.0, )",
+          "SecTester.Core": "[0.23.0, )"
         }
       }
     }

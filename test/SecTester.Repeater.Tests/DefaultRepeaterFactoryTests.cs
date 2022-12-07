@@ -47,10 +47,10 @@ public class DefaultRepeaterFactoryTests : IDisposable
     // assert
     repeater.Should().BeOfType<Repeater>();
     repeater.Should().BeEquivalentTo(
-    new
-    {
-      RepeaterId = Id
-    });
+      new
+      {
+        RepeaterId = Id
+      });
   }
 
   [Fact]

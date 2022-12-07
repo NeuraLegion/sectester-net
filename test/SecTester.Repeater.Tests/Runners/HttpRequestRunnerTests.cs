@@ -3,6 +3,7 @@ namespace SecTester.Repeater.Tests.Runners;
 public class HttpRequestRunnerTests : IDisposable
 {
   private const string Url = "https://example.com";
+  private static readonly Uri Uri = new(Url);
   private const string JsonContentType = "application/json";
   private const string HtmlContentType = "text/html";
   private const string HtmlContentTypeWithCharSet = $"{HtmlContentType}; charset=utf-16";
@@ -50,7 +51,7 @@ public class HttpRequestRunnerTests : IDisposable
         HeaderFieldValue
       })
     };
-    var request = new RequestExecutingEvent(new Uri(Url))
+    var request = new RequestExecutingEvent(Uri)
     {
       Method = HttpMethod.Patch,
       Body = JsonContent,
@@ -82,7 +83,7 @@ public class HttpRequestRunnerTests : IDisposable
     var sut = CreateSut();
     var encoding = Encoding.GetEncoding("utf-16");
     var expectedByteLength = Buffer.ByteLength(encoding.GetBytes(HtmlBody));
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     var content = new StringContent(HtmlBody, encoding, HtmlContentType);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, content);
 
@@ -106,7 +107,7 @@ public class HttpRequestRunnerTests : IDisposable
     {
       Timeout = TimeSpan.Zero
     });
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     _mockHttp.Expect(Url)
       .Respond(async () =>
       {
@@ -131,7 +132,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut(new RequestRunnerOptions { MaxContentLength = -1 });
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     var body = string.Concat(Enumerable.Repeat("x", 5));
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, CustomContentType, body);
 
@@ -150,7 +151,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.NoContent);
 
     // act
@@ -169,7 +170,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(new Uri(Url))
+    var request = new RequestExecutingEvent(Uri)
     {
       Method = HttpMethod.Head
     };
@@ -191,7 +192,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, JsonContentType, JsonContent);
 
     // act
@@ -225,7 +226,7 @@ public class HttpRequestRunnerTests : IDisposable
         $"{options.MaxContentLength}"
       })
     };
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     var body = string.Concat(Enumerable.Repeat("x", 5));
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, CustomContentType, body);
 
@@ -246,7 +247,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.ServiceUnavailable, JsonContentType, JsonContent);
 
     // act
@@ -265,7 +266,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(new Uri(Url));
+    var request = new RequestExecutingEvent(Uri);
     _mockHttp.Expect(Url).Throw(new SocketException((int)SocketError.ConnectionRefused));
 
     // act
@@ -290,7 +291,7 @@ public class HttpRequestRunnerTests : IDisposable
         InvalidHostHeaderValue
       })
     };
-    var request = new RequestExecutingEvent(new Uri(Url))
+    var request = new RequestExecutingEvent(Uri)
     {
       Headers = headers
     };
@@ -317,7 +318,7 @@ public class HttpRequestRunnerTests : IDisposable
         JsonContentType
       })
     };
-    var request = new RequestExecutingEvent(new Uri(Url))
+    var request = new RequestExecutingEvent(Uri)
     {
       Method = HttpMethod.Post,
       Headers = headers,

@@ -10,8 +10,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Api" />
+    <Folder Include="Bus" />
+    <Folder Include="Extensions" />
     <Folder Include="Internal" />
+    <Folder Include="Runners" />
   </ItemGroup>
 
   <ItemGroup>

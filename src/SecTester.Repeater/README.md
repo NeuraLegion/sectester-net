@@ -146,7 +146,7 @@ Task<Response> Run(Request request);
 }
 ```
 
-> We are going to provide `RequestRunner` implementations for both HTTP and WS protocols soon.
+Package contains `RequestRunner` implementations for both HTTP and WS protocols.
 
 To support other protocol new class implementation of `RequestRunner` should be registered in the IoC container:
 

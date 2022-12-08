@@ -144,17 +144,11 @@ public class Scan : IAsyncDisposable
 
   private async Task PollStatusUntil(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
-    await foreach (var _ in Status(CancellationToken.None).ConfigureAwait(false))
-    {
-      var predicateIsSatisfied = await ApplyPredicate(predicate).ConfigureAwait(false);
-
-      var preventFurtherPolling = predicateIsSatisfied || Done || cancellationToken.IsCancellationRequested;
-
-      if (preventFurtherPolling)
-      {
-        break;
-      }
-    }
+    await Status(CancellationToken.None)
+      .FirstOrDefaultAwaitAsync(
+        async _ => await ApplyPredicate(predicate).ConfigureAwait(false) || Done || cancellationToken.IsCancellationRequested,
+        CancellationToken.None)
+      .ConfigureAwait(false);
   }
 
   private bool IsInExpectedSeverityRange(Severity expectation)
@@ -228,3 +222,4 @@ public class Scan : IAsyncDisposable
     }
   }
 }
+

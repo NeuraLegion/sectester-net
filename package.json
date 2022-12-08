@@ -28,10 +28,10 @@
   },
   "homepage": "https://github.com/NeuraLegion/sectester-js#readme",
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "semantic-release": "~19.0.3"
+    "semantic-release": "~19.0.5"
   }
 }

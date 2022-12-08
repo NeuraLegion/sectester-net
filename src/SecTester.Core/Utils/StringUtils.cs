@@ -24,6 +24,6 @@ public static class StringUtils
 
   public static string Truncate(this string value, int n)
   {
-    return value.Length >  n ? Regex.Replace(value.Substring(0, n), @"\w$","…") : value;
+    return value.Length > n ? Regex.Replace(value.Substring(0, n), @"\w$", "…") : value;
   }
 }

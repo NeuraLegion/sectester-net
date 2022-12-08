@@ -27,7 +27,16 @@ internal record CreateScan : HttpRequest<Identifiable<string>>
       config.ProjectId,
       config.SlowEpTimeout,
       config.TargetTimeout,
-      Info = new { Source = "utlib", client = new { Name = configurationName, Version = configurationVersion }, Provider = ciProvider }
+      Info = new
+      {
+        Source = "utlib",
+        client = new
+        {
+          Name = configurationName,
+          Version = configurationVersion
+        },
+        Provider = ciProvider
+      }
     };
 
     Body = new StringContent(MessageSerializer.Serialize(payload), Encoding.UTF8, "application/json");

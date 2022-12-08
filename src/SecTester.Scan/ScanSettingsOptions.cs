@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SecTester.Scan.Models;
-using SecTester.Scan.Target;
 
 namespace SecTester.Scan;
 

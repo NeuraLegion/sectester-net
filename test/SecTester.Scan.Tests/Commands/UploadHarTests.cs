@@ -20,8 +20,7 @@ public class UploadHarTests
     var expectedContent = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file",
-        HarFileName
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file", HarFileName
       }
     };
 
@@ -61,6 +60,12 @@ public class UploadHarTests
 
     // assert
     command.Should()
-      .BeEquivalentTo(new { Params = new List<KeyValuePair<string, string>> { new("discard", "true") } });
+      .BeEquivalentTo(new
+      {
+        Params = new List<KeyValuePair<string, string>>
+        {
+          new("discard", "true")
+        }
+      });
   }
 }

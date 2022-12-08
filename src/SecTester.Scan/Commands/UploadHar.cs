@@ -13,16 +13,17 @@ internal record UploadHar : HttpRequest<Identifiable<string>>
     : base("/api/v1/files", HttpMethod.Post)
   {
     Params = options.Discard
-      ? new[] { new KeyValuePair<string, string>("discard", options.Discard.ToString().ToLowerInvariant()) }
+      ? new[]
+      {
+        new KeyValuePair<string, string>("discard", options.Discard.ToString().ToLowerInvariant())
+      }
       : default;
 
 
     var content = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-        "file",
-        options.FileName
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file", options.FileName
       }
     };
 

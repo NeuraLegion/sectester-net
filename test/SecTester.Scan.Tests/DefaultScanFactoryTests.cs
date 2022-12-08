@@ -8,11 +8,11 @@ public class DefaultScanFactoryTests : IDisposable
   private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
 
   private readonly Configuration _configuration = new("app.neuralegion.com");
+  private readonly MockLogger _logger = Substitute.For<MockLogger>();
   private readonly ScanSettingsOptions _options = Substitute.For<ScanSettingsOptions>();
   private readonly Scans _scans = Substitute.For<Scans>();
-  private readonly SystemTimeProvider _systemTimeProvider = Substitute.For<SystemTimeProvider>();
-  private readonly MockLogger _logger = Substitute.For<MockLogger>();
   private readonly ScanFactory _sut;
+  private readonly SystemTimeProvider _systemTimeProvider = Substitute.For<SystemTimeProvider>();
 
   public DefaultScanFactoryTests()
   {
@@ -35,8 +35,11 @@ public class DefaultScanFactoryTests : IDisposable
     // arrange
     _options.Name.ReturnsForAnyArgs(null as string);
     _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(new SecTester.Scan.Target.Target("https://example.com"));
-    _options.Tests.Returns(new List<TestType> { TestType.DomXss });
+    _options.Target.Returns(new Target("https://example.com"));
+    _options.Tests.Returns(new List<TestType>
+    {
+      TestType.DomXss
+    });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
@@ -50,8 +53,10 @@ public class DefaultScanFactoryTests : IDisposable
       x.Name == "GET example.com" &&
       x.FileId == FileId &&
       x.Module == Module.Dast &&
-      x.Tests.Contains(TestType.DomXss) && x.Tests.Count() == 1 &&
-      x.DiscoveryTypes.Contains(Discovery.Archive) && x.DiscoveryTypes.Count() == 1
+      x.Tests!.Contains(TestType.DomXss) &&
+      x.Tests!.Count() == 1 &&
+      x.DiscoveryTypes!.Contains(Discovery.Archive) &&
+      x.DiscoveryTypes!.Count() == 1
     ));
   }
 
@@ -61,8 +66,11 @@ public class DefaultScanFactoryTests : IDisposable
     // arrange
     _options.Name.ReturnsForAnyArgs(null as string);
     _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(new SecTester.Scan.Target.Target("https://example.com"));
-    _options.Tests.Returns(new List<TestType> { TestType.DomXss });
+    _options.Target.Returns(new Target("https://example.com"));
+    _options.Tests.Returns(new List<TestType>
+    {
+      TestType.DomXss
+    });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
@@ -72,7 +80,8 @@ public class DefaultScanFactoryTests : IDisposable
 
     // assert
     await _scans.Received(1).UploadHar(Arg.Is<UploadHarOptions>(x =>
-      x.Discard && Regex.IsMatch(x.FileName, @"^example\.com-[a-z\d-]+\.har$") &&
+      x.Discard &&
+      Regex.IsMatch(x.FileName, @"^example\.com-[a-z\d-]+\.har$") &&
       x.Har.Log.Creator.Version == _configuration.Version &&
       x.Har.Log.Creator.Name == _configuration.Name &&
       x.Har.Log.Version == "1.2"
@@ -86,8 +95,11 @@ public class DefaultScanFactoryTests : IDisposable
     _options.Name.ReturnsForAnyArgs(null as string);
     _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
     _options.Target.Returns(
-      new SecTester.Scan.Target.Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"));
-    _options.Tests.Returns(new List<TestType> { TestType.DomXss });
+      new Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"));
+    _options.Tests.Returns(new List<TestType>
+    {
+      TestType.DomXss
+    });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);

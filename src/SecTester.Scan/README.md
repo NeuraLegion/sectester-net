@@ -25,7 +25,7 @@ var scanFactory = serviceProvider.GetService<ScanFactory>();
 To create a new scan, you have to define a target first (for details, see [here](#defining-a-target-for-attack)):
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com");
+var target = new Target("https://example.com");
 ```
 
 The factory exposes the `CreateScan` method that returns a new [Scan instance](#managing-a-scan):
@@ -62,7 +62,7 @@ The target can accept the following options:
 The server URL that will be used for the request. Usually the `Url` represents a WHATWG URL:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target(
+var target = new Target(
   "https://example.com"
 );
 ```
@@ -70,7 +70,7 @@ var target = new SecTester.Scan.Target.Target(
 If `Url` contains a query string, they will be parsed as search params:
 
 ```csharp
-const target = new SecTester.Scan.Target.Target(
+const target = new Target(
   "https://example.com?foo=bar"
 );
 ```
@@ -78,7 +78,7 @@ const target = new SecTester.Scan.Target.Target(
 If you pass a `Query` parameter, it will override these which obtained from `Url`:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com?foo=bar")
+var target = new Target("https://example.com?foo=bar")
   .WithQuery(new Dictionary<string, string>() { { "bar", "foo" } });
 ```
 
@@ -89,7 +89,7 @@ var target = new SecTester.Scan.Target.Target("https://example.com?foo=bar")
 The request method to be used when making the request, `GET` by default:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithMethod(HttpMethod.Delete);
 ```
 
@@ -100,7 +100,7 @@ var target = new SecTester.Scan.Target.Target("https://example.com")
 The query parameters to be sent with the request:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithQuery(new Dictionary<string, string>()
   {
     {"hello", "world"},
@@ -115,7 +115,7 @@ It is possible to define a custom serializer for query parameters:
 ```csharp
 using Cysharp.Web;
 
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithQuery(new Dictionary<string, string>()
   {
     {"foo", "bar"},
@@ -130,7 +130,7 @@ var target = new SecTester.Scan.Target.Target("https://example.com")
 The HTTP headers to be sent:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithHeaders(new Dictionary<string, IEnumerable<string>>()
   {
     { "content-type", new List<string> { "application/json" } },
@@ -144,7 +144,7 @@ var target = new SecTester.Scan.Target.Target("https://example.com")
 The data to be sent as the request body. Makes sense only for `POST`, `PUT`, `PATCH`, and `DELETE`:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithBody(@"{""foo"":""bar""}", "application/json");
 ```
 
@@ -157,7 +157,7 @@ var content = new MultipartFormDataContent {
     "greeting"
   }
 };
-var target = new SecTester.Scan.Target.Target("https://example.com")
+var target = new Target("https://example.com")
   .WithBody(content);
 ```
 

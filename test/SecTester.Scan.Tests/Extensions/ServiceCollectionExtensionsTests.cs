@@ -2,8 +2,8 @@ namespace SecTester.Scan.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests
 {
-  private readonly ServiceCollection _services;
   private readonly Configuration _config;
+  private readonly ServiceCollection _services;
 
   public ServiceCollectionExtensionsTests()
   {

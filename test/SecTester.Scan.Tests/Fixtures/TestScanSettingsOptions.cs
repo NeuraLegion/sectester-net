@@ -1,9 +1,7 @@
 namespace SecTester.Scan.Tests.Fixtures;
 
-public record TestScanSettingsOptions: ScanSettingsOptions
+public record TestScanSettingsOptions(IEnumerable<TestType> Tests, TargetOptions Target) : ScanSettingsOptions
 {
-  public IEnumerable<TestType> Tests { get; init; }
-  public TargetOptions Target { get; init; }
   public string? Name { get; init; }
   public string? RepeaterId { get; init; }
   public bool? Smart { get; init; }

@@ -17,7 +17,12 @@ public class UploadHarOptionsTests
     var options = new UploadHarOptions(_har, HarFileName, true);
 
     // assert
-    options.Should().BeEquivalentTo(new { FileName = HarFileName, Har = _har, Discard = true });
+    options.Should().BeEquivalentTo(new
+    {
+      FileName = HarFileName,
+      Har = _har,
+      Discard = true
+    });
   }
 
   [Fact]

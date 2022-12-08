@@ -13,22 +13,23 @@ namespace SecTester.Scan;
 public class Scan : IAsyncDisposable
 {
   private static readonly IReadOnlyCollection<ScanStatus> ActiveStatuses =
-    new[] { ScanStatus.Pending, ScanStatus.Running, ScanStatus.Queued };
+    new[]
+    {
+      ScanStatus.Pending, ScanStatus.Running, ScanStatus.Queued
+    };
 
   private static readonly IReadOnlyCollection<ScanStatus> DoneStatuses =
-    new[] { ScanStatus.Disrupted, ScanStatus.Done, ScanStatus.Failed, ScanStatus.Stopped };
+    new[]
+    {
+      ScanStatus.Disrupted, ScanStatus.Done, ScanStatus.Failed, ScanStatus.Stopped
+    };
+
+  private readonly ILogger _logger;
 
   private readonly ScanOptions _options;
-  private readonly ILogger _logger;
   private readonly Scans _scans;
-  private ScanState _scanState = new(ScanStatus.Pending);
   private readonly SemaphoreSlim _semaphore = new(1, 1);
-
-  public string Id { get; }
-
-  public bool Active => ActiveStatuses.Contains(_scanState.Status);
-
-  public bool Done => DoneStatuses.Contains(_scanState.Status);
+  private ScanState _scanState = new(ScanStatus.Pending);
 
   public Scan(string id, Scans scans, ILogger logger, ScanOptions options)
   {
@@ -37,6 +38,12 @@ public class Scan : IAsyncDisposable
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
+
+  public string Id { get; }
+
+  public bool Active => ActiveStatuses.Contains(_scanState.Status);
+
+  public bool Done => DoneStatuses.Contains(_scanState.Status);
 
   public async ValueTask DisposeAsync()
   {
@@ -56,7 +63,7 @@ public class Scan : IAsyncDisposable
 
   protected virtual async ValueTask DisposeAsyncCore()
   {
-    if (_options.DeleteOnDispose is true)
+    if (_options.DeleteOnDispose)
     {
       await _scans.DeleteScan(Id).ConfigureAwait(false);
     }
@@ -105,7 +112,7 @@ public class Scan : IAsyncDisposable
 
     using var cancellationTokenSource =
       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-    
+
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
     await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);

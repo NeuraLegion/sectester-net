@@ -11,9 +11,9 @@ namespace SecTester.Scan;
 
 public class DefaultScans : Scans
 {
-  private readonly Configuration _configuration;
-  private readonly CommandDispatcher _commandDispatcher;
   private readonly CiDiscovery _ciDiscovery;
+  private readonly CommandDispatcher _commandDispatcher;
+  private readonly Configuration _configuration;
 
   public DefaultScans(Configuration configuration, CommandDispatcher commandDispatcher, CiDiscovery ciDiscovery)
   {
@@ -60,7 +60,7 @@ public class DefaultScans : Scans
 
   private async Task<T> SendCommand<T>(Command<T> command)
   {
-    var result = await this._commandDispatcher.Execute(command).ConfigureAwait(false);
+    var result = await _commandDispatcher.Execute(command).ConfigureAwait(false);
 
     return AssertReply(result);
   }

@@ -8,24 +8,30 @@ public class ScanSettingsTests
   private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
   private const string TargetUrl = "https://example.com/api/v1/info";
 
-  private readonly TestTargetOptions _testTargetOptions;
-  private readonly TestScanSettingsOptions _testScanSettingsOptions;
-
   public static readonly IEnumerable<object[]> DefaultNameInput = new List<object[]>
   {
     new object[]
     {
-      "GET example.com", (TestScanSettingsOptions options) =>
-        new ScanSettings(options with { Name = null })
+      "GET example.com",
+      (TestScanSettingsOptions options) =>
+        new ScanSettings(options with
+        {
+          Name = null
+        })
     },
     new object[]
     {
-      "GET example.com", (TestScanSettingsOptions options) =>
-        new ScanSettings(options.Target, new List<TestType> { TestType.Hrs }),
+      "GET example.com",
+      (TestScanSettingsOptions options) =>
+        new ScanSettings(options.Target, new List<TestType>
+        {
+          TestType.Hrs
+        })
     },
     new object[]
     {
-      $"GET {new string('a', ScanSettings.MaxNameLength - 5)}…", (TestScanSettingsOptions options) =>
+      $"GET {new string('a', ScanSettings.MaxNameLength - 5)}…",
+      (TestScanSettingsOptions options) =>
         new ScanSettings(options with
         {
           Name = null,
@@ -37,13 +43,17 @@ public class ScanSettingsTests
     },
     new object[]
     {
-      $"GET {new string('a', ScanSettings.MaxNameLength - 5)}…", (TestScanSettingsOptions options) =>
+      $"GET {new string('a', ScanSettings.MaxNameLength - 5)}…",
+      (TestScanSettingsOptions options) =>
         new ScanSettings(
           (TestTargetOptions)options.Target with
           {
             Url = $"https://{new string('a', ScanSettings.MaxNameLength)}.example.com/api/v1/info"
-          }, new List<TestType> { TestType.Hrs }),
-    },
+          }, new List<TestType>
+          {
+            TestType.Hrs
+          })
+    }
   };
 
   public static readonly IEnumerable<object[]> UniqueAttackParamLocationsInput = new List<object[]>
@@ -51,12 +61,18 @@ public class ScanSettingsTests
     new object[]
     {
       (TestScanSettingsOptions options, IEnumerable<AttackParamLocation> @params) =>
-        new ScanSettings(options with { AttackParamLocations = @params })
+        new ScanSettings(options with
+        {
+          AttackParamLocations = @params
+        })
     },
     new object[]
     {
       (TestScanSettingsOptions options, IEnumerable<AttackParamLocation> @params) =>
-        new ScanSettings(options) { AttackParamLocations = @params }
+        new ScanSettings(options)
+        {
+          AttackParamLocations = @params
+        }
     }
   };
 
@@ -65,12 +81,18 @@ public class ScanSettingsTests
     new object[]
     {
       (TestScanSettingsOptions options, IEnumerable<TestType> @params) =>
-        new ScanSettings(options with { Tests = @params })
+        new ScanSettings(options with
+        {
+          Tests = @params
+        })
     },
     new object[]
     {
       (TestScanSettingsOptions options, IEnumerable<TestType> @params) =>
-        new ScanSettings(options) { Tests = @params }
+        new ScanSettings(options)
+        {
+          Tests = @params
+        }
     },
     new object[]
     {
@@ -84,104 +106,177 @@ public class ScanSettingsTests
   {
     new object[]
     {
-      "Unknown attack param location supplied.", (ScanSettings x) =>
-        x with { AttackParamLocations = new List<AttackParamLocation> { (AttackParamLocation)1024 } }
+      "Unknown attack param location supplied.",
+      (ScanSettings x) =>
+        x with
+        {
+          AttackParamLocations = new List<AttackParamLocation>
+          {
+            (AttackParamLocation)1024
+          }
+        }
     },
     new object[]
     {
-      "Please provide at least one attack parameter location.", (ScanSettings x) =>
-        x with { AttackParamLocations = new List<AttackParamLocation>() }
+      "Please provide at least one attack parameter location.",
+      (ScanSettings x) =>
+        x with
+        {
+          AttackParamLocations = new List<AttackParamLocation>()
+        }
     },
     new object[]
     {
-      "Unknown test type supplied.", (ScanSettings x) =>
-        x with { Tests = new List<TestType> { (TestType)1024 } }
+      "Unknown test type supplied.",
+      (ScanSettings x) =>
+        x with
+        {
+          Tests = new List<TestType>
+          {
+            (TestType)1024
+          }
+        }
     },
     new object[]
     {
-      "Please provide at least one test.", (ScanSettings x) =>
-        x with { Tests = new List<TestType>() }
+      "Please provide at least one test.",
+      (ScanSettings x) =>
+        x with
+        {
+          Tests = new List<TestType>()
+        }
     },
     new object[]
     {
-      "Invalid target connection timeout.", (ScanSettings x) =>
-        x with { TargetTimeout = null }
+      "Invalid target connection timeout.",
+      (ScanSettings x) =>
+        x with
+        {
+          TargetTimeout = null
+        }
     },
     new object[]
     {
-      "Invalid target connection timeout.", (ScanSettings x) =>
-        x with { TargetTimeout = TimeSpan.FromSeconds(0) }
+      "Invalid target connection timeout.",
+      (ScanSettings x) =>
+        x with
+        {
+          TargetTimeout = TimeSpan.FromSeconds(0)
+        }
     },
     new object[]
     {
-      "Invalid target connection timeout.", (ScanSettings x) =>
-        x with { TargetTimeout = TimeSpan.FromSeconds(121) }
+      "Invalid target connection timeout.",
+      (ScanSettings x) =>
+        x with
+        {
+          TargetTimeout = TimeSpan.FromSeconds(121)
+        }
     },
     new object[]
     {
-      "Invalid slow entry point timeout.", (ScanSettings x) =>
-        x with { SlowEpTimeout = null }
+      "Invalid slow entry point timeout.",
+      (ScanSettings x) =>
+        x with
+        {
+          SlowEpTimeout = null
+        }
     },
     new object[]
     {
-      "Invalid slow entry point timeout.", (ScanSettings x) =>
-        x with { SlowEpTimeout = TimeSpan.FromSeconds(99) }
+      "Invalid slow entry point timeout.",
+      (ScanSettings x) =>
+        x with
+        {
+          SlowEpTimeout = TimeSpan.FromSeconds(99)
+        }
     },
     new object[]
     {
-      "Invalid pool size.", (ScanSettings x) =>
-        x with { PoolSize = null }
+      "Invalid pool size.",
+      (ScanSettings x) =>
+        x with
+        {
+          PoolSize = null
+        }
     },
     new object[]
     {
-      "Invalid pool size.", (ScanSettings x) =>
-        x with { PoolSize = 0 }
+      "Invalid pool size.",
+      (ScanSettings x) =>
+        x with
+        {
+          PoolSize = 0
+        }
     },
     new object[]
     {
-      "Invalid pool size.", (ScanSettings x) =>
-        x with { PoolSize = 51 }
+      "Invalid pool size.",
+      (ScanSettings x) =>
+        x with
+        {
+          PoolSize = 51
+        }
     },
     new object[]
     {
-      "Name must be less than 200 characters.", (ScanSettings x) =>
-        x with { Name = null }
+      "Name must be less than 200 characters.",
+      (ScanSettings x) =>
+        x with
+        {
+          Name = null
+        }
     },
     new object[]
     {
-      "Name must be less than 200 characters.", (ScanSettings x) =>
-        x with { Name = " " }
+      "Name must be less than 200 characters.",
+      (ScanSettings x) =>
+        x with
+        {
+          Name = " "
+        }
     },
     new object[]
     {
-      "Name must be less than 200 characters.", (ScanSettings x) =>
-        x with { Name = new string('a', 201) }
+      "Name must be less than 200 characters.",
+      (ScanSettings x) =>
+        x with
+        {
+          Name = new string('a', 201)
+        }
     }
   };
 
+  private readonly TestScanSettingsOptions _testScanSettingsOptions;
+
+  private readonly TestTargetOptions _testTargetOptions;
+
   public ScanSettingsTests()
   {
-    _testTargetOptions = new()
+    _testTargetOptions = new TestTargetOptions(TargetUrl)
     {
-      Url = TargetUrl,
       Body = new StringContent("{}", Encoding.UTF8, "application/json"),
       Headers = new List<KeyValuePair<string, IEnumerable<string>>>(),
       Method = HttpMethod.Get,
       Query = new List<KeyValuePair<string, string>>()
     };
 
-    _testScanSettingsOptions = new()
+    _testScanSettingsOptions = new TestScanSettingsOptions(new List<TestType>
+    {
+      TestType.HeaderSecurity
+    }, _testTargetOptions)
     {
       RepeaterId = RepeaterId,
       Name = ScanName,
-      Target = _testTargetOptions,
       Smart = false,
       PoolSize = 1,
       TargetTimeout = TimeSpan.FromSeconds(5),
       SlowEpTimeout = TimeSpan.FromSeconds(200),
       SkipStaticParams = false,
-      AttackParamLocations = new List<AttackParamLocation> { AttackParamLocation.Query },
-      Tests = new List<TestType>() { TestType.HeaderSecurity }
+      AttackParamLocations = new List<AttackParamLocation>
+      {
+        AttackParamLocation.Query
+      }
     };
   }
 
@@ -189,7 +284,10 @@ public class ScanSettingsTests
   public void ScanSettings_CreatesInstanceWithDefaultOptions()
   {
     // act
-    var result = new ScanSettings(_testTargetOptions, new List<TestType> { TestType.Csrf });
+    var result = new ScanSettings(_testTargetOptions, new List<TestType>
+    {
+      TestType.Csrf
+    });
 
     // assert
     result.Should().BeEquivalentTo(new
@@ -201,12 +299,18 @@ public class ScanSettingsTests
       SlowEpTimeout = TimeSpan.FromSeconds(1000),
       Smart = true,
       SkipStaticParams = true,
-      Tests = new List<TestType> { TestType.Csrf },
+      Tests = new List<TestType>
+      {
+        TestType.Csrf
+      },
       AttackParamLocations = new List<AttackParamLocation>
       {
         AttackParamLocation.Body, AttackParamLocation.Query, AttackParamLocation.Fragment
       },
-      Target = new { Url = TargetUrl }
+      Target = new
+      {
+        Url = TargetUrl
+      }
     });
   }
 
@@ -226,9 +330,18 @@ public class ScanSettingsTests
       SlowEpTimeout = TimeSpan.FromSeconds(200),
       Smart = false,
       SkipStaticParams = false,
-      Tests = new List<TestType> { TestType.HeaderSecurity },
-      AttackParamLocations = new List<AttackParamLocation> { AttackParamLocation.Query },
-      Target = new { Url = TargetUrl }
+      Tests = new List<TestType>
+      {
+        TestType.HeaderSecurity
+      },
+      AttackParamLocations = new List<AttackParamLocation>
+      {
+        AttackParamLocation.Query
+      },
+      Target = new
+      {
+        Url = TargetUrl
+      }
     });
   }
 
@@ -236,7 +349,10 @@ public class ScanSettingsTests
   public void ScanSettings_NameIsTooLong_ThrowsError()
   {
     // arrange
-    var scanSettingsOptions = _testScanSettingsOptions with { Name = new string('a', 1 + ScanSettings.MaxNameLength) };
+    var scanSettingsOptions = _testScanSettingsOptions with
+    {
+      Name = new string('a', 1 + ScanSettings.MaxNameLength)
+    };
 
     // act
     var act = () => new ScanSettings(scanSettingsOptions);
@@ -256,7 +372,10 @@ public class ScanSettingsTests
     var result = creatorFunc(_testScanSettingsOptions);
 
     // assert
-    result.Should().BeEquivalentTo(new { Name = expected });
+    result.Should().BeEquivalentTo(new
+    {
+      Name = expected
+    });
   }
 
   [Theory]
@@ -266,7 +385,10 @@ public class ScanSettingsTests
   {
     // arrange
     var attackParamLocations =
-      new List<AttackParamLocation> { AttackParamLocation.Header, AttackParamLocation.Header };
+      new List<AttackParamLocation>
+      {
+        AttackParamLocation.Header, AttackParamLocation.Header
+      };
 
     // act
     var result = creatorFunc(_testScanSettingsOptions, attackParamLocations);
@@ -274,7 +396,10 @@ public class ScanSettingsTests
     // assert
     result.Should().BeEquivalentTo(new
     {
-      AttackParamLocations = new List<AttackParamLocation> { AttackParamLocation.Header }
+      AttackParamLocations = new List<AttackParamLocation>
+      {
+        AttackParamLocation.Header
+      }
     });
   }
 
@@ -284,13 +409,22 @@ public class ScanSettingsTests
     Func<TestScanSettingsOptions, IEnumerable<TestType>, ScanSettings> creatorFunc)
   {
     // arrange
-    var tests = new List<TestType> { TestType.Csrf, TestType.Csrf, TestType.Hrs };
+    var tests = new List<TestType>
+    {
+      TestType.Csrf, TestType.Csrf, TestType.Hrs
+    };
 
     // act
     var result = creatorFunc(_testScanSettingsOptions, tests);
 
     // assert
-    result.Should().BeEquivalentTo(new { Tests = new List<TestType> { TestType.Csrf, TestType.Hrs } });
+    result.Should().BeEquivalentTo(new
+    {
+      Tests = new List<TestType>
+      {
+        TestType.Csrf, TestType.Hrs
+      }
+    });
   }
 
 

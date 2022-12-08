@@ -5,9 +5,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using SecTester.Core.Utils;
-using SecTester.Scan.Target.HarSpec;
+using SecTester.Scan.Models.HarSpec;
 
-namespace SecTester.Scan.Target;
+namespace SecTester.Scan.Models;
 
 public sealed class Target : TargetOptions
 {

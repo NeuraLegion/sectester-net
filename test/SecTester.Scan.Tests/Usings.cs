@@ -18,6 +18,5 @@ global using SecTester.Scan.CI;
 global using SecTester.Scan.Commands;
 global using SecTester.Scan.Extensions;
 global using SecTester.Scan.Models;
-global using SecTester.Scan.Target;
-global using SecTester.Scan.Target.HarSpec;
+global using SecTester.Scan.Models.HarSpec;
 global using Xunit;

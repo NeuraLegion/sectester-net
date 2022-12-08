@@ -5,7 +5,7 @@ internal class TestServerApplicationFactory<TStartup> : WebApplicationFactory<TS
 {
   protected override TestServer CreateServer(IWebHostBuilder builder) =>
     base.CreateServer(
-      builder.UseSolutionRelativeContentRoot(""));
+      builder.UseSolutionRelativeContentRoot("").ConfigureLogging(logging => logging.ClearProviders()));
 
   protected override IWebHostBuilder CreateWebHostBuilder() =>
     WebHost.CreateDefaultBuilder()

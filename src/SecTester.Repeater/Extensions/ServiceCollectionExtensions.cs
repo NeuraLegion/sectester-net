@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,17 +14,23 @@ public static class ServiceCollectionExtensions
 {
   public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection)
   {
-    return AddSecTesterRepeater(collection, () => new RequestRunnerOptions());
+    return AddSecTesterRepeater(collection, new RequestRunnerOptions());
   }
 
-  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, Func<RequestRunnerOptions> configure)
+  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, RequestRunnerOptions options)
   {
     return collection
       .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<RequestExecutingEventHandler>()
-      .AddScoped(_ => configure())
+      .AddScoped(_ => options)
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>()
+      .AddScoped<WsClientFactory, DefaultWsClientFactory>()
+      .AddScoped<RequestRunner, HttpRequestRunner>()
+      .AddScoped<RequestRunner, WsRequestRunner>()
+      .AddScoped<RequestRunnerResolver>(sp =>
+        protocol => sp.GetServices<RequestRunner>().FirstOrDefault(x => x.Protocol == protocol)
+      )
       .AddHttpClientForHttpRequestRunner();
   }
 
@@ -60,13 +67,13 @@ public static class ServiceCollectionExtensions
       client.DefaultRequestHeaders.Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    if (!config.ReuseConnection)
+    if (config.ReuseConnection)
     {
-      return;
+      client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+      client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
     }
-
-    client.DefaultRequestHeaders.Add("Connection", "keep-alive");
-    client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
   }
 }
+
+
 

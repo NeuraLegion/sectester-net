@@ -1,4 +1,4 @@
-namespace SecTester.Scan.Tests.Target;
+namespace SecTester.Scan.Tests.Models;
 
 public class TargetTests
 {
@@ -16,7 +16,7 @@ public class TargetTests
   public async Task ToHarRequest_CreatesComprehensiveRequest()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl);
+    var target = new Target(BaseUrl);
 
     // act
     var result = await target.ToHarRequest();
@@ -40,7 +40,7 @@ public class TargetTests
   {
     // arrange
     const string httpMethod = "put";
-    var target = new SecTester.Scan.Target.Target(BaseUrl)
+    var target = new Target(BaseUrl)
       .WithMethod(httpMethod)
       .WithQuery(new[]
       {
@@ -54,7 +54,7 @@ public class TargetTests
         })
       })
       .WithBody("text");
-    var target2 = new SecTester.Scan.Target.Target(target);
+    var target2 = new Target(target);
 
     // act
     var result = await target2.ToHarRequest();
@@ -89,8 +89,8 @@ public class TargetTests
   public async Task ToHarRequest_MinimalTargetOptionsIsPassed_CreatesComprehensiveRequest()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl);
-    var target2 = new SecTester.Scan.Target.Target(target);
+    var target = new Target(BaseUrl);
+    var target2 = new Target(target);
 
     // act
     var result = await target2.ToHarRequest();
@@ -114,7 +114,7 @@ public class TargetTests
   {
     // arrange
     var httpMethod = HttpMethod.Delete;
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod(httpMethod);
+    var target = new Target(BaseUrl).WithMethod(httpMethod);
 
     // act
     var result = await target.ToHarRequest();
@@ -131,7 +131,7 @@ public class TargetTests
   {
     // arrange
     const string httpMethod = "get";
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod(httpMethod);
+    var target = new Target(BaseUrl).WithMethod(httpMethod);
 
     // act
     var result = await target.ToHarRequest();
@@ -147,7 +147,7 @@ public class TargetTests
   public void ToHarRequest_MethodIsEmptyString_ThrowsError()
   {
     // act
-    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithMethod("");
+    var act = () => new Target(BaseUrl).WithMethod("");
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -157,7 +157,7 @@ public class TargetTests
   public async Task ToHarRequest_MethodAsString_SetsMethod()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithMethod("PUT");
+    var target = new Target(BaseUrl).WithMethod("PUT");
 
     // act
     var result = await target.ToHarRequest();
@@ -173,7 +173,7 @@ public class TargetTests
   public async Task ToHarRequest_SetsQueryString()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithQuery(new[]
+    var target = new Target(BaseUrl).WithQuery(new[]
     {
       new KeyValuePair<string, string>("foo", "bar")
     });
@@ -200,7 +200,7 @@ public class TargetTests
   {
     // arrange
     const string url = $"{BaseUrl}?foo=bar";
-    var target = new SecTester.Scan.Target.Target(url);
+    var target = new Target(url);
 
     // act
     var result = await target.ToHarRequest();
@@ -224,7 +224,7 @@ public class TargetTests
   {
     // arrange
     const string url = $"{BaseUrl}?foo=bar";
-    var target = new SecTester.Scan.Target.Target(url).WithQuery(new[]
+    var target = new Target(url).WithQuery(new[]
     {
       new KeyValuePair<string, string>("bar", "foo")
     });
@@ -250,7 +250,7 @@ public class TargetTests
   public void ToHarRequest_QueryIsNull_ThrowsError()
   {
     // act
-    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithQuery(null!);
+    var act = () => new Target(BaseUrl).WithQuery(null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -260,7 +260,7 @@ public class TargetTests
   public async Task ToHarRequest_UsesCustomQuerySerializer()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithQuery(new[]
+    var target = new Target(BaseUrl).WithQuery(new[]
     {
       new KeyValuePair<string, string>("bar", "foo"), new KeyValuePair<string, string>("bar", "baz")
     }, _ => "bar=foo,baz");
@@ -290,7 +290,7 @@ public class TargetTests
   public void ToHarRequest_HeadersIsNull_ThrowsError()
   {
     // act
-    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithHeaders(null!);
+    var act = () => new Target(BaseUrl).WithHeaders(null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -300,7 +300,7 @@ public class TargetTests
   public async Task ToHarRequest_SetsHeaders()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
+    var target = new Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
     {
       [ContentType] = new[]
       {
@@ -328,7 +328,7 @@ public class TargetTests
   public async Task ToHarRequest_HeadersWithSameKeys_MergersHeaders()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
+    var target = new Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
     {
       [Cookie] = new[]
       {
@@ -361,7 +361,7 @@ public class TargetTests
   {
     // arrange
     const string url = "HTTPS://EXAMPLE.COM///";
-    var target = new SecTester.Scan.Target.Target(url);
+    var target = new Target(url);
 
     // act
     var result = await target.ToHarRequest();
@@ -377,7 +377,7 @@ public class TargetTests
   public async Task ToHarRequest_ReturnsDefaultHttpVersion()
   {
     // arrange
-    var target = new SecTester.Scan.Target.Target(BaseUrl);
+    var target = new Target(BaseUrl);
 
     // act
     var result = await target.ToHarRequest();
@@ -394,7 +394,7 @@ public class TargetTests
   {
     // arrange
     const string version = "HTTP/1.1";
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
+    var target = new Target(BaseUrl).WithHeaders(new Dictionary<string, IEnumerable<string>>
     {
       [Version] = new[]
       {
@@ -423,7 +423,7 @@ public class TargetTests
   public void ToHarRequest_BodyIsNull_ThrowsError()
   {
     // act
-    var act = () => new SecTester.Scan.Target.Target(BaseUrl).WithBody((HttpContent)null!);
+    var act = () => new Target(BaseUrl).WithBody((HttpContent)null!);
 
     // assert
     act.Should().Throw<ArgumentNullException>();
@@ -436,7 +436,7 @@ public class TargetTests
     const string body = @"{""foo"":""bar""}";
 
     var content = new StringContent(body, Encoding.Default, ApplicationJson);
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(content).WithHeaders(new Dictionary<string, IEnumerable<string>>
+    var target = new Target(BaseUrl).WithBody(content).WithHeaders(new Dictionary<string, IEnumerable<string>>
     {
       [ContentType] = new[]
       {
@@ -468,7 +468,7 @@ public class TargetTests
       0x00, 0x01
     });
     var text = await content.ReadAsStringAsync();
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(text);
+    var target = new Target(BaseUrl).WithBody(text);
 
     // act
     var result = await target.ToHarRequest();
@@ -494,7 +494,7 @@ public class TargetTests
     {
       Foo = "bar"
     }, new MediaTypeHeaderValue(ApplicationJson));
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(content);
+    var target = new Target(BaseUrl).WithBody(content);
 
     // act
     var result = await target.ToHarRequest();
@@ -520,7 +520,7 @@ public class TargetTests
       new("foo", "bar")
     };
     var content = new FormUrlEncodedContent(input);
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(content);
+    var target = new Target(BaseUrl).WithBody(content);
 
     // act
     var result = await target.ToHarRequest();
@@ -556,7 +556,7 @@ public class TargetTests
     content.Add(field, name, fileName);
     var text = await content.ReadAsStringAsync();
 
-    var target = new SecTester.Scan.Target.Target(BaseUrl).WithBody(content);
+    var target = new Target(BaseUrl).WithBody(content);
 
     // act
     var result = await target.ToHarRequest();

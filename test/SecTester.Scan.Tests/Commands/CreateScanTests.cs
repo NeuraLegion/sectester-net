@@ -1,3 +1,5 @@
+using SecTester.Scan.Tests.Extensions;
+
 namespace SecTester.Scan.Tests.Commands;
 
 public class CreateScanTests
@@ -10,16 +12,31 @@ public class CreateScanTests
   private readonly ScanConfig _scanConfig = new(ScanName)
   {
     Module = Module.Dast,
-    Repeaters = new[] { RepeaterId },
+    Repeaters = new[]
+    {
+      RepeaterId
+    },
     Smart = true,
-    Tests = new[] { TestType.Csrf, TestType.Jwt },
-    DiscoveryTypes = new[] { Discovery.Crawler },
+    Tests = new[]
+    {
+      TestType.Csrf, TestType.Jwt
+    },
+    DiscoveryTypes = new[]
+    {
+      Discovery.Crawler
+    },
     FileId = FileId,
-    HostsFilter = new[] { "example.com" },
+    HostsFilter = new[]
+    {
+      "example.com"
+    },
     PoolSize = 2,
     ProjectId = ProjectId,
     TargetTimeout = 10,
-    AttackParamLocations = new[] { AttackParamLocation.Body, AttackParamLocation.Header },
+    AttackParamLocations = new[]
+    {
+      AttackParamLocation.Body, AttackParamLocation.Header
+    },
     SkipStaticParams = true,
     SlowEpTimeout = 20
   };
@@ -47,7 +64,11 @@ public class CreateScanTests
       Info = new
       {
         Source = "utlib",
-        client = new { Name = "Configuration Name", Version = "Configuration Version" },
+        client = new
+        {
+          Name = "Configuration Name",
+          Version = "Configuration Version"
+        },
         Provider = "Some CI"
       }
     };

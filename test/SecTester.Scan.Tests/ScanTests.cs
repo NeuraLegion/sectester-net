@@ -1,4 +1,4 @@
-using Request = SecTester.Scan.Models.Request;
+using SecTester.Scan.Tests.Mocks;
 
 namespace SecTester.Scan.Tests;
 
@@ -12,40 +12,77 @@ public class ScanTests : IAsyncDisposable
     "Cross-site request forgery is a type of malicious website exploit.",
     "Database connection crashed",
     "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
-    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
-    new Request("https://brokencrystals.com/") { Method = HttpMethod.Get },
+    new Request("https://brokencrystals.com/")
+    {
+      Method = HttpMethod.Get
+    },
+    new Request("https://brokencrystals.com/")
+    {
+      Method = HttpMethod.Get
+    },
     $"{BaseUrl}/scans/{ScanId}/issues/{IssueId}",
     1,
     Severity.Medium,
     Protocol.Http,
     DateTime.UtcNow)
-  { Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L" };
+  {
+    Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+  };
+
+  private readonly MockLogger _logger = Substitute.For<MockLogger>();
+  private readonly Func<Scan, Task<bool>> _predicate = Substitute.For<Func<Scan, Task<bool>>>();
+
+  private readonly Scans _scans = Substitute.For<Scans>();
+  private readonly Scan _sut;
+
+  public ScanTests()
+  {
+    _sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions
+      {
+        Timeout = TimeSpan.FromSeconds(1),
+        PollingInterval = TimeSpan.Zero,
+        DeleteOnDispose = true
+      });
+  }
 
   public static IEnumerable<object[]> DoneStatuses =>
     new List<object[]>
     {
-      new object[] { ScanStatus.Disrupted },
-      new object[] { ScanStatus.Done },
-      new object[] { ScanStatus.Failed },
-      new object[] { ScanStatus.Stopped }
+      new object[]
+      {
+        ScanStatus.Disrupted
+      },
+      new object[]
+      {
+        ScanStatus.Done
+      },
+      new object[]
+      {
+        ScanStatus.Failed
+      },
+      new object[]
+      {
+        ScanStatus.Stopped
+      }
     };
 
   public static IEnumerable<object[]> ActiveStatuses =>
     new List<object[]>
     {
-      new object[] { ScanStatus.Pending }, new object[] { ScanStatus.Running }, new object[] { ScanStatus.Queued }
+      new object[]
+      {
+        ScanStatus.Pending
+      },
+      new object[]
+      {
+        ScanStatus.Running
+      },
+      new object[]
+      {
+        ScanStatus.Queued
+      }
     };
-
-  private readonly Scans _scans = Substitute.For<Scans>();
-  private readonly MockLogger _logger = Substitute.For<MockLogger>();
-  private readonly Scan _sut;
-  private readonly Func<Scan, Task<bool>> _predicate = Substitute.For<Func<Scan, Task<bool>>>();
-
-  public ScanTests()
-  {
-    _sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions() { Timeout = TimeSpan.FromSeconds(1), PollingInterval = TimeSpan.Zero, DeleteOnDispose = true });
-  }
 
   public async ValueTask DisposeAsync()
   {
@@ -121,7 +158,7 @@ public class ScanTests : IAsyncDisposable
     cts.Cancel();
 
     // act
-    var act = async () => await _sut.Status(cts.Token).FirstAsync();
+    var act = async () => await _sut.Status(cts.Token).FirstAsync(CancellationToken.None);
 
     // assert
     await act.Should().ThrowAsync<OperationCanceledException>();
@@ -212,7 +249,10 @@ public class ScanTests : IAsyncDisposable
   public async Task Issues_ReturnsIssues()
   {
     // arrange
-    var issues = new List<Issue> { _issue };
+    var issues = new List<Issue>
+    {
+      _issue
+    };
     _scans.ListIssues(ScanId)
       .Returns(issues);
 
@@ -300,7 +340,11 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions() { Timeout = TimeSpan.Zero, PollingInterval = TimeSpan.Zero });
+      new ScanOptions
+      {
+        Timeout = TimeSpan.Zero,
+        PollingInterval = TimeSpan.Zero
+      });
 
     await using var _ = sut;
 
@@ -334,7 +378,7 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     _scans.GetScan(ScanId).Returns(
-        new ScanState(ScanStatus.Running), new ScanState(scanStatus));
+      new ScanState(ScanStatus.Running), new ScanState(scanStatus));
     _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
 
     // act
@@ -350,7 +394,7 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions()
+      new ScanOptions
       {
         PollingInterval = TimeSpan.FromMilliseconds(50),
         Timeout = TimeSpan.Zero
@@ -367,21 +411,21 @@ public class ScanTests : IAsyncDisposable
     await act.Should().NotThrowAsync();
     await _predicate.Received(1)(Arg.Any<Scan>());
   }
-  
+
   [Fact]
   public async Task Expect_GivenPredicateAndCancelledToken_Returns()
   {
     // arrange
     using var cancelledTokenSource = new CancellationTokenSource();
     cancelledTokenSource.Cancel();
-    
+
     var sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions()
+      new ScanOptions
       {
         PollingInterval = TimeSpan.Zero,
         Timeout = TimeSpan.FromSeconds(1)
       });
-    
+
     await using var _ = sut;
 
     _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
@@ -418,7 +462,10 @@ public class ScanTests : IAsyncDisposable
     // arrange
     var satisfyingScanState = new ScanState(scanStatus)
     {
-      IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
+      IssuesBySeverity = new[]
+      {
+        new IssueGroup(1, Severity.High)
+      }
     };
 
     _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(async _ =>
@@ -426,7 +473,7 @@ public class ScanTests : IAsyncDisposable
       var status = await _sut.Status().FirstAsync();
       return status.IssuesBySeverity?.Any(x => x.Type == Severity.High) ?? false;
     });
-    
+
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
 
     // act

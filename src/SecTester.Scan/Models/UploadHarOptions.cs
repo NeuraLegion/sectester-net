@@ -1,5 +1,5 @@
 using System;
-using SecTester.Scan.Target.Har;
+using SecTester.Scan.Models.HarSpec;
 
 namespace SecTester.Scan.Models;
 

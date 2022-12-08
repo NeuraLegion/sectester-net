@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace SecTester.Scan.Target.Har;
+namespace SecTester.Scan.Models.HarSpec;
 
-public record Request : Message
+public record RequestMessage : EntryMessage
 {
   public string? Method { get; init; }
   public string? Url { get; init; }

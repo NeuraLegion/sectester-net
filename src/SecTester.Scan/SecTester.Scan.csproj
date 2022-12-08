@@ -20,8 +20,7 @@
     <Folder Include="Extensions" />
     <Folder Include="Internal" />
     <Folder Include="Models" />
-    <Folder Include="Target" />
-    <Folder Include="Target\Har" />
+    <Folder Include="Models\HarSpec" />
   </ItemGroup>
 
   <ItemGroup>

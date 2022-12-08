@@ -5,9 +5,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using SecTester.Core.Utils;
-using SecTester.Scan.Target.Har;
+using SecTester.Scan.Models.HarSpec;
 
-namespace SecTester.Scan.Target;
+namespace SecTester.Scan.Models;
 
 public sealed class Target : TargetOptions
 {
@@ -242,7 +242,7 @@ public sealed class Target : TargetOptions
   /// <summary>
   ///   Returns a HAR request containing detailed info about performed request
   /// </summary>
-  internal async Task<Request> ToHarRequest()
+  internal async Task<RequestMessage> ToHarRequest()
   {
     var uriBuilder = new UriBuilder(Url)
     {
@@ -254,7 +254,7 @@ public sealed class Target : TargetOptions
     var headers = BuildHeaderParameters();
     var postData = _bodyGenerator is not null ? await _bodyGenerator.Invoke().ConfigureAwait(false) : null;
 
-    return new Request
+    return new RequestMessage
     {
       Url = url,
       Headers = headers,

@@ -5,7 +5,7 @@ namespace SecTester.Scan.Models;
 
 public record ScanConfig(string Name)
 {
-  public string Name { get; init; } = Name ?? throw new ArgumentNullException(nameof(Name));
+  public string Name { get; } = Name ?? throw new ArgumentNullException(nameof(Name));
   public Module? Module { get; init; }
   public IEnumerable<TestType>? Tests { get; init; }
   public IEnumerable<Discovery>? DiscoveryTypes { get; init; }

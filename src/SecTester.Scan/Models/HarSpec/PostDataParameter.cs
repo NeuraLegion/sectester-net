@@ -1,4 +1,4 @@
-namespace SecTester.Scan.Target.Har;
+namespace SecTester.Scan.Models.HarSpec;
 
 public record PostDataParameter(string Name, string Value) : Parameter(Name, Value)
 {

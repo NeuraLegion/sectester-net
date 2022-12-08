@@ -111,11 +111,7 @@ public class Scan : IAsyncDisposable
 
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
-    var predicate = () =>
-      _scanState.IssuesBySeverity?.Any(x => x.Number > 0 &&
-      SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type))) ?? false;
-
-    await ExpectCore(_ => Task.FromResult(predicate()), cancellationTokenSource.Token).ConfigureAwait(false);
+    await ExpectCore(_ => Task.FromResult(IsInExpectedSeverityRange(expectation)), cancellationTokenSource.Token).ConfigureAwait(false);
   }
 
   public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
@@ -131,6 +127,14 @@ public class Scan : IAsyncDisposable
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
     await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+  }
+
+  private bool IsInExpectedSeverityRange(Severity expectation)
+  {
+    if (_scanState.IssuesBySeverity == null) { return false; }
+
+    return _scanState.IssuesBySeverity.Any(x =>
+      SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)));
   }
 
   private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)

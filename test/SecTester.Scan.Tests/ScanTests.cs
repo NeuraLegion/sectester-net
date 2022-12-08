@@ -462,7 +462,7 @@ public class ScanTests : IAsyncDisposable
   }
   
   [Fact]
-  public async Task Expect_GivenSeverityThresholdCancelledByTimeout_Returns()
+  public async Task Expect_CancelledByTimeout_Returns()
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
@@ -483,7 +483,7 @@ public class ScanTests : IAsyncDisposable
   }
   
   [Fact]
-  public async Task Expect_GivenSeverityThresholdAndCancelledToken_Returns()
+  public async Task Expect_CancellationTokenIsCancelled_Returns()
   {
     // arrange
     using var cancelledTokenSource = new CancellationTokenSource();
@@ -500,7 +500,7 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task Expect_GivenSeverityThresholdWithConditionSatisfied_Returns(ScanStatus scanStatus)
+  public async Task Expect_ConditionSatisfied_Returns(ScanStatus scanStatus)
   {
     // arrange
     var satisfyingScanState = new ScanState(scanStatus)

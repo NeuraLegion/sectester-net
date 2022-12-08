@@ -16,50 +16,30 @@ $ dotnet add package SecTester.Scan
 
 ## Usage
 
-To start scanning your application, you have to configure and than create a `ScanFactory` as follows:
+To start scanning your application, you have to configure and retrieve a `ScanFactory` as follows:
 
 ```csharp
-
-using SecTester.Core;
-using SecTester.Core.Extensions;
-using SecTester.Scan.Extensions;
-using SecTester.Bus.Extensions;
-
-...
-
-var config = Configuration(hostname: "app.neuralegion.com")
-
-ServiceCollection _services = new ServiceCollection();
-_services.AddSecTesterConfig(config);
-_services.AddSecTesterBus();
-_services.AddSecTesterScan();
-
-var provider = _services.BuildServiceProvider();
-
-var scanFactory = provider.GetRequiredService<ScanFactory>();
+var scanFactory = serviceProvider.GetService<ScanFactory>();
 ```
 
 To create a new scan, you have to define a target first (for details, see [here](#defining-a-target-for-attack)):
 
 ```csharp
-
 var target = new SecTester.Scan.Target.Target("https://example.com");
 ```
+
 The factory exposes the `CreateScan` method that returns a new [Scan instance](#managing-a-scan):
 
 ```csharp
-using SecTester.Scan.Models;
-
-var target = new SecTester.Scan.Target.Target("https://example.com");
-
-var scan = scanFactory.CreateScan(new ScanSettings(
+await using var result = scanFactory.CreateScan(new ScanSettings(
   target,
   new List<TestType>() { TestType.HeaderSecurity }));
 ```
+
 Below you will find a list of parameters that can be used to configure a `Scan`:
 
 | Option                 | Description                                                                                                                                                                                        |
-|------------------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Target`               | The target that will be attacked. For details, see [here](#defining-a-target-for-attack).                                                                                                          |
 | `Tests`                | The list of tests to be performed against the target application. [Learn more about tests](https://docs.brightsec.com/docs/vulnerability-guide)                                                    |
 | `RepeaterId`           | Connects the scan to a Repeater agent, which provides secure access to local networks.                                                                                                             |
@@ -83,78 +63,66 @@ The server URL that will be used for the request. Usually the `Url` represents a
 
 ```csharp
 var target = new SecTester.Scan.Target.Target(
-    "https://exmaple.com"
-  );
+  "https://example.com"
+);
 ```
+
 If `Url` contains a query string, they will be parsed as search params:
 
 ```csharp
 const target = new SecTester.Scan.Target.Target(
   "https://example.com?foo=bar"
-  );
- 
-// foo=bar
+);
 ```
 
 If you pass a `Query` parameter, it will override these which obtained from `Url`:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
+var target = new SecTester.Scan.Target.Target("https://example.com?foo=bar")
   .WithQuery(new Dictionary<string, string>() { { "bar", "foo" } });
-
-// bar=foo
 ```
 
 #### Method
 
-- type: `HttpMethod`
+- type: `string | HttpMethod`
 
 The request method to be used when making the request, `GET` by default:
 
 ```csharp
-public Target WithMethod(HttpMethod value);
-public Target WithMethod(string value);
-```
-example:
-```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
+var target = new SecTester.Scan.Target.Target("https://example.com")
   .WithMethod(HttpMethod.Delete);
 ```
 
 #### Query
 
-- type: `IEnumerable<string, string>`
+- type: `IEnumerable<KeyValuePair<string, string>>`
 
 The query parameters to be sent with the request:
 
 ```csharp
-public Target WithQuery(IEnumerable<KeyValuePair<string, string>> value);
-public Target WithQuery(IEnumerable<KeyValuePair<string, string>> value,
-    Func<IEnumerable<KeyValuePair<string, string>>, string> serializer);
-```
-example:
-
-```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
+var target = new SecTester.Scan.Target.Target("https://example.com")
   .WithQuery(new Dictionary<string, string>()
   {
     {"hello", "world"},
     {"foo", "123"}
   });
-
-// hello=world&foo=123
 ```
+
 > This will override the query string in url.
 
 It is possible to define a custom serializer for query parameters:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
-  .WithQuery(new Dictionary<string, string>(),
-  _ => "a[0]=b&a[1]=c&a[2]=d");
+using Cysharp.Web;
 
-// a[0]=b&a[1]=c&a[2]=d
+var target = new SecTester.Scan.Target.Target("https://example.com")
+  .WithQuery(new Dictionary<string, string>()
+  {
+    {"foo", "bar"},
+    {"foo", "baz"}
+  }, query => WebSerializer.ToQueryString(query));
 ```
+
 #### Headers
 
 - type: `IEnumerable<KeyValuePair<string, IEnumerable<string>>>`
@@ -162,13 +130,7 @@ var target = new SecTester.Scan.Target.Target("https://exmaple.com")
 The HTTP headers to be sent:
 
 ```csharp
-public Target WithHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> value);
-```
-
-example:
-
-```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
+var target = new SecTester.Scan.Target.Target("https://example.com")
   .WithHeaders(new Dictionary<string, IEnumerable<string>>()
   {
     { "content-type", new List<string> { "application/json" } },
@@ -177,34 +139,39 @@ var target = new SecTester.Scan.Target.Target("https://exmaple.com")
 
 #### Body
 
-- type: `object`
+- type: `string | HttpContent`
 
 The data to be sent as the request body. Makes sense only for `POST`, `PUT`, `PATCH`, and `DELETE`:
 
 ```csharp
-public Target WithBody(FormUrlEncodedContent value);
-public Target WithBody(MultipartContent value);
-public Target WithBody(HttpContent value);
-public Target WithBody(string value, string contentType);
+var target = new SecTester.Scan.Target.Target("https://example.com")
+  .WithBody(@"{""foo"":""bar""}", "application/json");
 ```
-example:
+
+You can use any derived class of `HttpContent`, such as [MultipartContent](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.multipartcontent?view=netstandard-2.0), as request body as well:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://exmaple.com")
-  .WithBody("text");
+var content = new MultipartFormDataContent {
+  {
+    new StringContent("Hello, world!", Encoding.UTF8, "text/plain"),
+    "greeting"
+  }
+};
+var target = new SecTester.Scan.Target.Target("https://example.com")
+  .WithBody(content);
 ```
 
 ### Managing a scan
 
 The `Scan` provides a lightweight API to revise and control the status of test execution.
 
-For instance, to get a list of found issues, you can use the `Issues` method:
+For instance, to get a list of found issues, you can use the `issues` method:
 
 ```csharp
 var issues = await scan.Issues();
 ```
 
-To wait for certain conditions you can use the `Expect` method:
+To wait for certain conditions you can use the `expect` method:
 
 ```csharp
 await scan.Expect(Severity.High);
@@ -215,24 +182,21 @@ var issues = await scan.Issues();
 
 You can also define a custom expectation passing a function that accepts an instance of `Scan` as follows:
 
-It might return a `Task` instance:
-
 ```csharp
-await scan.Expect(async (Scan: scan) => {
-  var issues = await scan.issues();
+await scan.Expect(async scan => {
+    var issues = await scan.Issues();
 
-  return issues.length > 3;
+    return issues.Count() > 3;
 });
 ```
 
 You can use the `Status` method to obtain scan status, to ensure that the scan is done and nothing prevents the user to check for issues, or for other reasons:
 
 ```csharp
-await foreach (var _ in scan.Status())
+await foreach (var state in scan.Status())
 {
-  // your code  
+  // your code
 }
-
 ```
 
 > This `await foreach...in` will work while a scan is active.
@@ -243,17 +207,10 @@ To stop scan, use the `Stop` method:
 await scan.Stop();
 ```
 
-To delete a scan, you just need to pass `DeleteOnDispose` scan option to factory while scan is created:
+To delete a scan while disposing, you just need to set the `DeleteOnDispose` option in the `ScanOptions` as follows:
 
 ```csharp
-var target = new SecTester.Scan.Target.Target("https://example.com");
-
-var scan = scanFactory.CreateScan(new ScanSettings(
-    target,
-    new List<TestType>() { TestType.HeaderSecurity }),
-  new ScanOptions() { DeleteOnDispose = true });
-
-await using var _ = scan;
+await using var scan = scanFactory.CreateScan(settings, new ScanOptions { DeleteOnDispose = true });
 
 await scan.Expect(Severity.High);
 ```

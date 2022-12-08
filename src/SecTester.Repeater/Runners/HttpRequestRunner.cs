@@ -84,7 +84,7 @@ internal sealed class HttpRequestRunner : RequestRunner
     return headers;
   }
 
-  private async Task<TruncatedBody?> TruncateResponseBody(HttpResponseMessage response)
+  private async Task<ResponseBody?> TruncateResponseBody(HttpResponseMessage response)
   {
     if (response.StatusCode == HttpStatusCode.NoContent || response.RequestMessage.Method == HttpMethod.Head || response.Content == null)
     {
@@ -97,7 +97,7 @@ internal sealed class HttpRequestRunner : RequestRunner
 
     var body = await ParseResponseBody(response, allowed).ConfigureAwait(false);
 
-    return new TruncatedBody(body, contentType?.CharSet);
+    return new ResponseBody(body, contentType?.CharSet);
   }
 
   private async Task<byte[]> ParseResponseBody(HttpResponseMessage response, bool allowed)

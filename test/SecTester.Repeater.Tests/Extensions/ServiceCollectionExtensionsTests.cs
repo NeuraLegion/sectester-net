@@ -58,6 +58,20 @@ public class ServiceCollectionExtensionsTests : IDisposable
   }
 
   [Fact]
+  public void AddSecTesterRepeater_RegistersRequestRunnerRegistry()
+  {
+    // act
+    _sut.AddSecTesterRepeater();
+
+    // assert
+    using var provider = _sut.BuildServiceProvider();
+    var result = provider.GetRequiredService<RequestRunnerResolver>();
+
+    result(Protocol.Http).Should().BeOfType(typeof(HttpRequestRunner));
+    result(Protocol.Ws).Should().BeOfType(typeof(WsRequestRunner));
+  }
+
+  [Fact]
   public void AddSecTesterRepeater_WithKeepAlive_RegistersHttpClient()
   {
     // arrange
@@ -65,7 +79,7 @@ public class ServiceCollectionExtensionsTests : IDisposable
 
 
     // act
-    _sut.AddSecTesterRepeater(() => new RequestRunnerOptions
+    _sut.AddSecTesterRepeater(new RequestRunnerOptions
     {
       Timeout = timeout,
       ReuseConnection = true
@@ -99,7 +113,7 @@ public class ServiceCollectionExtensionsTests : IDisposable
     };
 
     // act
-    _sut.AddSecTesterRepeater(() => new RequestRunnerOptions
+    _sut.AddSecTesterRepeater(new RequestRunnerOptions
     {
       Headers = headers,
     });

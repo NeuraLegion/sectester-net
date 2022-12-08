@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
       .AddScoped(_ => options)
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>()
-      .AddScoped<WsClientFactory, DefaultWsClientFactory>()
+      .AddScoped<WebSocketFactory, DefaultWebSocketFactory>()
       .AddScoped<RequestRunner, HttpRequestRunner>()
       .AddScoped<RequestRunner, WsRequestRunner>()
       .AddScoped<RequestRunnerResolver>(sp =>

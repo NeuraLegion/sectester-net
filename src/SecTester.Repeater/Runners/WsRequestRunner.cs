@@ -17,12 +17,12 @@ internal sealed class WsRequestRunner : RequestRunner
   private const int MaxBufferSize = 1024 * 4;
 
   private readonly RequestRunnerOptions _options;
-  private readonly WsClientFactory _wsClientFactory;
+  private readonly WebSocketFactory _webSocketFactory;
 
-  public WsRequestRunner(RequestRunnerOptions options, WsClientFactory wsClientFactory)
+  public WsRequestRunner(RequestRunnerOptions options, WebSocketFactory webSocketFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
-    _wsClientFactory = wsClientFactory ?? throw new ArgumentNullException(nameof(wsClientFactory));
+    _webSocketFactory = webSocketFactory ?? throw new ArgumentNullException(nameof(webSocketFactory));
   }
 
   public Protocol Protocol => Protocol.Ws;
@@ -30,12 +30,14 @@ internal sealed class WsRequestRunner : RequestRunner
   public async Task<Response> Run(Request request)
   {
     using var cts = new CancellationTokenSource(_options.Timeout);
-    // TODO: handle possible WebSocketException
-    using var client = await _wsClientFactory.CreateWsClient(request.Url, cts.Token).ConfigureAwait(false);
+
+    WebSocket? client = null;
 
     try
     {
       var message = BuildMessage(request);
+
+      client = await _webSocketFactory.CreateWebSocket(request.Url, cts.Token).ConfigureAwait(false);
 
       await client.SendAsync(message, WebSocketMessageType.Text, true, cts.Token).ConfigureAwait(false);
 
@@ -47,7 +49,10 @@ internal sealed class WsRequestRunner : RequestRunner
     }
     finally
     {
-      await CloseSocket(client, cts.Token).ConfigureAwait(false);
+      if (client != null)
+      {
+        await CloseSocket(client, cts.Token).ConfigureAwait(false);
+      }
     }
   }
 
@@ -59,6 +64,8 @@ internal sealed class WsRequestRunner : RequestRunner
       {
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken).ConfigureAwait(false);
       }
+
+      client.Dispose();
     }
     catch
     {

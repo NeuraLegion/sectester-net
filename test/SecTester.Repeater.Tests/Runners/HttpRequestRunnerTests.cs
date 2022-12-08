@@ -3,7 +3,6 @@ namespace SecTester.Repeater.Tests.Runners;
 public class HttpRequestRunnerTests : IDisposable
 {
   private const string Url = "https://example.com";
-  private static readonly Uri Uri = new(Url);
   private const string JsonContentType = "application/json";
   private const string HtmlContentType = "text/html";
   private const string HtmlContentTypeWithCharSet = $"{HtmlContentType}; charset=utf-16";
@@ -17,6 +16,7 @@ public class HttpRequestRunnerTests : IDisposable
   private const string ContentTypeFieldName = "Content-Type";
   private const string HostFieldName = "Host";
   private const string InvalidHostHeaderValue = "\0example.com\n";
+  private static readonly Uri Uri = new(Url);
 
   private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
   private readonly MockHttpMessageHandler _mockHttp = new();
@@ -61,7 +61,8 @@ public class HttpRequestRunnerTests : IDisposable
       .WithContent(JsonContent)
       .WithHeaders($"{HeaderFieldName}: {HeaderFieldValue}")
       .With(message => message.Method.Equals(HttpMethod.Patch))
-      .With(message => (bool)message.Content?.Headers.ContentType?.MediaType?.StartsWith(JsonContentType, StringComparison.OrdinalIgnoreCase))
+      .With(message =>
+        (bool)message.Content?.Headers.ContentType?.MediaType?.StartsWith(JsonContentType, StringComparison.OrdinalIgnoreCase))
       .Respond(HttpStatusCode.OK, JsonContentType, JsonContent);
 
     // act
@@ -94,7 +95,17 @@ public class HttpRequestRunnerTests : IDisposable
     _mockHttp.VerifyNoOutstandingExpectation();
     result.Should().BeEquivalentTo(new
     {
-      Headers = new[] { new KeyValuePair<string, string[]>(ContentTypeFieldName, new[] { HtmlContentTypeWithCharSet }), new KeyValuePair<string, string[]>(ContentLengthFieldName, new[] { $"{expectedByteLength}" }) },
+      Headers = new[]
+      {
+        new KeyValuePair<string, string[]>(ContentTypeFieldName, new[]
+        {
+          HtmlContentTypeWithCharSet
+        }),
+        new KeyValuePair<string, string[]>(ContentLengthFieldName, new[]
+        {
+          $"{expectedByteLength}"
+        })
+      },
       Body = HtmlBody
     }, options => options.ExcludingMissingMembers().IncludingNestedObjects());
   }
@@ -131,7 +142,10 @@ public class HttpRequestRunnerTests : IDisposable
   public async Task Run_MaxContentLengthIsLessThan0_SkipsTruncating()
   {
     // arrange
-    var sut = CreateSut(new RequestRunnerOptions { MaxContentLength = -1 });
+    var sut = CreateSut(new RequestRunnerOptions
+    {
+      MaxContentLength = -1
+    });
     var request = new RequestExecutingEvent(Uri);
     var body = string.Concat(Enumerable.Repeat("x", 5));
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, CustomContentType, body);
@@ -276,7 +290,9 @@ public class HttpRequestRunnerTests : IDisposable
     result.Should().BeEquivalentTo(new
     {
       ErrorCode = "ConnectionRefused"
-    }, options => options.Using<Response>(ctx => ctx.Subject.Should().BeOfType<string>()).When(info => info.Path.EndsWith("Message")));
+    },
+      options => options.Using<Response>(ctx => ctx.Subject.Should().BeOfType<string>())
+        .When(info => info.Path.EndsWith(nameof(RequestExecutingResult.Message))));
   }
 
   [Fact]
@@ -336,3 +352,4 @@ public class HttpRequestRunnerTests : IDisposable
     _mockHttp.VerifyNoOutstandingExpectation();
   }
 }
+

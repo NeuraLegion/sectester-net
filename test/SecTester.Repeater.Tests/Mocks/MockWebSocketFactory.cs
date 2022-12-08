@@ -1,10 +1,10 @@
 namespace SecTester.Repeater.Tests.Mocks;
 
-public class MockWsClientFactory : WsClientFactory, IDisposable
+public class MockWebSocketFactory : WebSocketFactory, IDisposable
 {
   private readonly TestServer _server;
 
-  public MockWsClientFactory(TestServer server)
+  public MockWebSocketFactory(TestServer server)
   {
     _server = server ?? throw new ArgumentNullException(nameof(server));
   }
@@ -15,7 +15,7 @@ public class MockWsClientFactory : WsClientFactory, IDisposable
     GC.SuppressFinalize(this);
   }
 
-  public Task<WebSocket> CreateWsClient(Uri url, CancellationToken cancellationToken)
+  public Task<WebSocket> CreateWebSocket(Uri url, CancellationToken cancellationToken)
   {
     var ws = _server.CreateWebSocketClient();
     return ws.ConnectAsync(url, cancellationToken);

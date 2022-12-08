@@ -5,8 +5,8 @@ namespace SecTester.Repeater.Tests.Runners;
 public class WsRequestRunnerTests : IClassFixture<TestServerApplicationFixture<Startup>>, IAsyncDisposable
 {
   private readonly TestServerApplicationFixture<Startup> _fixture;
+  private readonly WebSocketFactory _mockWebSocketFactory = Substitute.For<WebSocketFactory>();
   private readonly WebSocket _mockWsClient = Substitute.For<WebSocket>();
-  private readonly WsClientFactory _mockWsClientFactory = Substitute.For<WsClientFactory>();
 
   public WsRequestRunnerTests(TestServerApplicationFixture<Startup> fixture)
   {
@@ -16,7 +16,7 @@ public class WsRequestRunnerTests : IClassFixture<TestServerApplicationFixture<S
   public async ValueTask DisposeAsync()
   {
     _mockWsClient.ClearSubstitute();
-    _mockWsClientFactory.ClearSubstitute();
+    _mockWebSocketFactory.ClearSubstitute();
     await _fixture.DisposeAsync();
     GC.SuppressFinalize(this);
   }
@@ -141,8 +141,8 @@ public class WsRequestRunnerTests : IClassFixture<TestServerApplicationFixture<S
     {
       Body = body
     };
-    var sut = _fixture.CreateWsRequestRunner(_mockWsClientFactory);
-    _mockWsClientFactory.CreateWsClient(Arg.Any<Uri>(), Arg.Any<CancellationToken>()).Returns(_mockWsClient);
+    var sut = _fixture.CreateWsRequestRunner(_mockWebSocketFactory);
+    _mockWebSocketFactory.CreateWebSocket(Arg.Any<Uri>(), Arg.Any<CancellationToken>()).Returns(_mockWsClient);
     _mockWsClient.SendAsync(Arg.Any<ArraySegment<byte>>(), Arg.Any<WebSocketMessageType>(), true, Arg.Any<CancellationToken>())
       .ThrowsAsync(new WebSocketException(WebSocketError.UnsupportedProtocol));
 
@@ -182,7 +182,32 @@ public class WsRequestRunnerTests : IClassFixture<TestServerApplicationFixture<S
       Message = "The operation was canceled."
     });
   }
+
+  [Fact]
+  public async Task Run_ReturnsResultWithError_WhenConnectionRefused()
+  {
+    // arrange
+    const string body = "echo";
+    var url = new Uri("wss://example.com");
+    var request = new RequestExecutingEvent(url)
+    {
+      Body = body
+    };
+    var sut = _fixture.CreateWsRequestRunner();
+
+    // act
+    var result = await sut.Run(request);
+
+    // assert
+    result.Should().BeEquivalentTo(new
+    {
+      Protocol = Protocol.Ws
+    },
+      options => options.Using<string>(ctx => ctx.Subject.Should().Contain("Incomplete handshake"))
+        .When(info => info.Path.EndsWith(nameof(RequestExecutingResult.Message))));
+  }
 }
+
 
 
 

@@ -12,11 +12,13 @@
     <Folder Include="Api" />
     <Folder Include="Bus" />
     <Folder Include="Extensions" />
+    <Folder Include="Fixtures" />
     <Folder Include="Mocks" />
     <Folder Include="Runners" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
   </ItemGroup>
 </Project>

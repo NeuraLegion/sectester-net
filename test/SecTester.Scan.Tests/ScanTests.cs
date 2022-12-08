@@ -507,7 +507,7 @@ public class ScanTests : IAsyncDisposable
     await act.Should().NotThrowAsync();
     await _predicate.Received(1)(Arg.Any<Scan>());
   }
-  
+
   [Fact]
   public async Task Expect_CancelledByTimeout_Returns()
   {
@@ -528,7 +528,7 @@ public class ScanTests : IAsyncDisposable
     // assert
     await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
   }
-  
+
   [Fact]
   public async Task Expect_CancellationTokenIsCancelled_Returns()
   {

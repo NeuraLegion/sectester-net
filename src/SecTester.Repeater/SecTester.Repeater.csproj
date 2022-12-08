@@ -5,20 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SecTester.Bus\SecTester.Bus.csproj" />
-    <ProjectReference Include="..\SecTester.Core\SecTester.Core.csproj" />
+    <ProjectReference Include="..\SecTester.Bus\SecTester.Bus.csproj"/>
+    <ProjectReference Include="..\SecTester.Core\SecTester.Core.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Api" />
-    <Folder Include="Bus" />
-    <Folder Include="Extensions" />
-    <Folder Include="Internal" />
-    <Folder Include="Runners" />
+    <Folder Include="Api"/>
+    <Folder Include="Bus"/>
+    <Folder Include="Extensions"/>
+    <Folder Include="Internal"/>
+    <Folder Include="Runners"/>
   </ItemGroup>
 
   <ItemGroup>

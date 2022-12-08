@@ -3,11 +3,11 @@ namespace SecTester.Repeater.Tests.Bus;
 public class RequestExecutingEventHandlerTests : IDisposable
 {
   private readonly RequestRunnerResolver _resolver = Substitute.For<RequestRunnerResolver>();
-  private readonly RequestExecutingEventHandler _sut;
+  private readonly RequestExecutingEventListener _sut;
 
   public RequestExecutingEventHandlerTests()
   {
-    _sut = new RequestExecutingEventHandler(_resolver);
+    _sut = new RequestExecutingEventListener(_resolver);
   }
 
   public void Dispose()

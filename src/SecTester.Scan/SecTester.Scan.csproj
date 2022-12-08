@@ -5,22 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SecTester.Bus\SecTester.Bus.csproj" />
-    <ProjectReference Include="..\SecTester.Core\SecTester.Core.csproj" />
+    <ProjectReference Include="..\SecTester.Bus\SecTester.Bus.csproj"/>
+    <ProjectReference Include="..\SecTester.Core\SecTester.Core.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
-    <PackageReference Include="System.Text.Json" Version="6.0.0" />
+    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>
+    <PackageReference Include="System.Text.Json" Version="6.0.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CI" />
-    <Folder Include="Commands" />
-    <Folder Include="Extensions" />
-    <Folder Include="Internal" />
-    <Folder Include="Models" />
-    <Folder Include="Models\HarSpec" />
+    <Folder Include="CI"/>
+    <Folder Include="Commands"/>
+    <Folder Include="Extensions"/>
+    <Folder Include="Internal"/>
+    <Folder Include="Models"/>
+    <Folder Include="Models\HarSpec"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -21,7 +21,7 @@ internal static class HttpResponseMessageExtensions
   {
     if (!httpResponseMessage.IsSuccessStatusCode)
     {
-      var ex = await CreateHttpException(httpResponseMessage);
+      var ex = await CreateHttpException(httpResponseMessage).ConfigureAwait(false);
 
       throw ex;
     }
@@ -29,14 +29,14 @@ internal static class HttpResponseMessageExtensions
 
   private static async Task<HttpRequestException> CreateHttpException(HttpResponseMessage httpResponseMessage)
   {
-    var message = await ReadMessage(httpResponseMessage);
+    var message = await ReadMessage(httpResponseMessage).ConfigureAwait(false);
 
     return new HttpStatusException(message, httpResponseMessage.StatusCode);
   }
 
   private static async Task<string> ReadMessage(HttpResponseMessage httpResponseMessage)
   {
-    var message = CanObtainErrorMessage(httpResponseMessage) ? await httpResponseMessage.Content.ReadAsStringAsync() : "";
+    var message = CanObtainErrorMessage(httpResponseMessage) ? await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false) : "";
 
     return string.IsNullOrEmpty(message)
       ? string.Format(CultureInfo.InvariantCulture, DefaultErrorMessageTemplate, httpResponseMessage.StatusCode)

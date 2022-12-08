@@ -6,9 +6,9 @@ public class HttpCommandDispatcherTests : IDisposable
 {
   private const string BaseUrl = "https://example.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
-  private readonly MockHttpMessageHandler _mockHttp;
   private readonly HttpCommandDispatcher _dispatcher;
   private readonly IHttpClientFactory _httpClientFactory;
+  private readonly MockHttpMessageHandler _mockHttp;
   private readonly RetryStrategy _retryStrategy;
 
   public HttpCommandDispatcherTests()
@@ -16,7 +16,8 @@ public class HttpCommandDispatcherTests : IDisposable
     _mockHttp = new MockHttpMessageHandler();
     _httpClientFactory = Substitute.For<IHttpClientFactory>();
     _retryStrategy = Substitute.For<RetryStrategy>();
-    _retryStrategy.Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>()).Returns(x => x.ArgAt<Func<Task<HttpResponseMessage>>>(0).Invoke());
+    _retryStrategy.Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>(), Arg.Any<CancellationToken>())
+      .Returns(x => x.ArgAt<Func<Task<HttpResponseMessage>>>(0).Invoke());
     _httpClientFactory.CreateClient(Arg.Any<string>()).Returns(_mockHttp.ToHttpClient());
 
     var config = new HttpCommandDispatcherConfig(BaseUrl, Token);
@@ -248,7 +249,8 @@ public class HttpCommandDispatcherTests : IDisposable
 
     // assert
     await act.Should().ThrowAsync<Exception>();
-    await _retryStrategy.Received().Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>());
+    await _retryStrategy.Received().Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>(), Arg.Any<CancellationToken>());
     _mockHttp.VerifyNoOutstandingExpectation();
   }
 }
+

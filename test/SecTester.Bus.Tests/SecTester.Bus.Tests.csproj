@@ -5,18 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SecTester.Bus\SecTester.Bus.csproj" />
-    <ProjectReference Include="..\..\src\SecTester.Scan\SecTester.Scan.csproj" />
+    <ProjectReference Include="..\..\src\SecTester.Bus\SecTester.Bus.csproj"/>
+    <ProjectReference Include="..\..\src\SecTester.Scan\SecTester.Scan.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dispatchers" />
-    <Folder Include="Exceptions" />
-    <Folder Include="Extensions" />
-    <Folder Include="RetryStrategies" />
+    <Folder Include="Dispatchers"/>
+    <Folder Include="Exceptions"/>
+    <Folder Include="Extensions"/>
+    <Folder Include="RetryStrategies"/>
   </ItemGroup>
 </Project>

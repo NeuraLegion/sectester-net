@@ -5,15 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SecTester.Core\SecTester.Core.csproj" />
+    <ProjectReference Include="..\..\src\SecTester.Core\SecTester.Core.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bus" />
-    <Folder Include="CredentialProviders" />
-    <Folder Include="Extensions" />
-    <Folder Include="Fixtures" />
-    <Folder Include="Logger" />
-    <Folder Include="Utils" />
+    <Folder Include="Bus"/>
+    <Folder Include="CredentialProviders"/>
+    <Folder Include="Extensions"/>
+    <Folder Include="Fixtures"/>
+    <Folder Include="Logger"/>
+    <Folder Include="Utils"/>
   </ItemGroup>
 </Project>

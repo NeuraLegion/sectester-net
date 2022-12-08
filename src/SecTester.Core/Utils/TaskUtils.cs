@@ -15,7 +15,7 @@ public static class TaskUtils
 
     while (chain.Any())
     {
-      var completedTask = await Task.WhenAny(chain);
+      var completedTask = await Task.WhenAny(chain).ConfigureAwait(false);
 
       if (completedTask.IsCompleted && predicate(completedTask.Result))
       {

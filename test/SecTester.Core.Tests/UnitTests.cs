@@ -78,7 +78,7 @@ public class UnitTests
   {
     return new[]
     {
-      new object[] {new object(), false},
+      new object[] {new(), false},
       new object[] {"", false},
       new object[] {"()", false},
       new object[] {null!, false},

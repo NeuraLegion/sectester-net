@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
   {
     return collection
       .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
-      .AddScoped<RequestExecutingEventHandler>()
+      .AddScoped<RequestExecutingEventListener>()
       .AddScoped(_ => options)
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>()
@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
     {
       Proxy = proxy,
       AllowAutoRedirect = false,
-      ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true,
+      ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
       AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
     };
   }

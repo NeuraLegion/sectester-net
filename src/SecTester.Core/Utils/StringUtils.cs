@@ -13,11 +13,11 @@ public static class StringUtils
     PascalCaseRegex, CamelCaseRegex
   };
 
-  public static string? ToSnakeCase(this string? value)
+  public static string ToSnakeCase(this string value)
   {
     return string.IsNullOrEmpty(value)
       ? value
-      : SupportedCaseRegexes.Aggregate(value!,
+      : SupportedCaseRegexes.Aggregate(value,
           (input, regex) => regex.Replace(input, "$1_$2"))
         .ToLowerInvariant();
   }

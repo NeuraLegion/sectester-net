@@ -22,7 +22,7 @@ First, you need to generate a new instance of `Configuration`.
 
 ```csharp
 var config = new Configuration(
-    hostname: "app.neuralegion.com", 
+    hostname: "app.neuralegion.com",
     credentials: new Credentials("your API key"));
 ```
 
@@ -44,8 +44,8 @@ Configuration can be customized using the following options:
 ```csharp
 public interface ConfigurationOptions {
   string hostname
-  { 
-    get; 
+  {
+    get;
   }
   Credentials? credentials
   {
@@ -125,7 +125,7 @@ to allow clients to perform operations on it using a visitor class (see `Dispatc
 For instance, you can dispatch a message in a way that is more approach you or convenient from the client's perspective.
 
 ```csharp
-public record Ping : Event 
+public record Ping : Event
 {
   public readonly string Status;
 }
@@ -151,7 +151,7 @@ Using `Command` you can easily ensure that the service has actually received the
 To create an instance of `Command` use the abstract class as follows:
 
 ```csharp
-public record RequestOptions 
+public record RequestOptions
 {
   public string Url;
   public string Method;
@@ -159,7 +159,7 @@ public record RequestOptions
   public string? Body;
 }
 
-public record RequestOutput 
+public record RequestOutput
 {
   public int Status;
   public Dictionary<string, string>? headers;
@@ -216,9 +216,9 @@ To adjust its behavior you can use next options:
 To create an event handler, you should implement the `Handler` interface and use the IoC container to register a handler using the interface as a provider:
 
 ```csharp
-public class IssueDetectedHandler : EventHandler<Issue> 
+public class IssueDetectedHandler : EventHandler<Issue>
 {
-  public Task<Unit> Handle(IssueDetected @event) 
+  public Task<Unit> Handle(IssueDetected @event)
   {
     // implementation
     return Unit.Task;

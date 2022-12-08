@@ -66,7 +66,7 @@ internal sealed class WsRequestRunner : RequestRunner
     }
   }
 
-  private async IAsyncEnumerable<ReceivedMessage> ConsumeMessage(WebSocket client,
+  private async IAsyncEnumerable<WsResponseBody> ConsumeMessage(WebSocket client,
     [EnumeratorCancellation] CancellationToken cancellationToken)
   {
     using var stream = new MemoryStream();
@@ -87,7 +87,7 @@ internal sealed class WsRequestRunner : RequestRunner
       }
 
       stream.Seek(0, SeekOrigin.Begin);
-      yield return new ReceivedMessage(stream.ToArray(), result.CloseStatus, result.CloseStatusDescription);
+      yield return new WsResponseBody(stream.ToArray(), result.CloseStatus, result.CloseStatusDescription);
     }
   }
 
@@ -101,7 +101,7 @@ internal sealed class WsRequestRunner : RequestRunner
     return CreateRequestExecutingResult(client, result);
   }
 
-  private static RequestExecutingResult CreateRequestExecutingResult(WebSocket client, ReceivedMessage result)
+  private static RequestExecutingResult CreateRequestExecutingResult(WebSocket client, WsResponseBody result)
   {
     var closeStatus = result.StatusCode ?? client.CloseStatus ?? DefaultStatusCode;
     var statusDescription = result.StatusDescription ?? client.CloseStatusDescription;

@@ -2,9 +2,9 @@ using System.Net.WebSockets;
 
 namespace SecTester.Repeater.Runners;
 
-internal sealed class WsResponseBody : ResponseBody
+internal sealed class WebSocketResponseBody : ResponseBody
 {
-  public WsResponseBody(byte[] body, WebSocketCloseStatus? statusCode = default, string? statusDescription = default) : base(body)
+  public WebSocketResponseBody(byte[] body, WebSocketCloseStatus? statusCode = default, string? statusDescription = default) : base(body)
   {
     StatusCode = statusCode;
     StatusDescription = statusDescription;

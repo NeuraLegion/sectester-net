@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SecTester.Core.Extensions;
 using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater.Runners;
@@ -15,6 +16,7 @@ internal sealed class WsRequestRunner : RequestRunner
 {
   private const WebSocketCloseStatus DefaultStatusCode = WebSocketCloseStatus.NormalClosure;
   private const int MaxBufferSize = 1024 * 4;
+  private readonly SemaphoreSlim _lock = new(1, 1);
 
   private readonly RequestRunnerOptions _options;
   private readonly WebSocketFactory _webSocketFactory;
@@ -35,13 +37,11 @@ internal sealed class WsRequestRunner : RequestRunner
 
     try
     {
-      var message = BuildMessage(request);
-
       client = await _webSocketFactory.CreateWebSocket(request.Url, cts.Token).ConfigureAwait(false);
 
-      await client.SendAsync(message, WebSocketMessageType.Text, true, cts.Token).ConfigureAwait(false);
+      var result = await SendAndRetrieve(client, request, cts.Token).ConfigureAwait(false);
 
-      return await Consume(request, client, cts.Token).ConfigureAwait(false);
+      return CreateRequestExecutingResult(client, result);
     }
     catch (Exception err)
     {
@@ -54,6 +54,21 @@ internal sealed class WsRequestRunner : RequestRunner
         await CloseSocket(client, cts.Token).ConfigureAwait(false);
       }
     }
+  }
+
+  private async Task<WebSocketResponseBody> SendAndRetrieve(WebSocket client, Request request, CancellationToken cancellationToken)
+  {
+    var message = BuildMessage(request);
+
+    await Send(client, message, cancellationToken).ConfigureAwait(false);
+
+    return await Consume(request, client, cancellationToken).ConfigureAwait(false);
+  }
+
+  private async Task Send(WebSocket client, ArraySegment<byte> message, CancellationToken cancellationToken)
+  {
+    using var _ = await _lock.LockAsync(cancellationToken).ConfigureAwait(false);
+    await client.SendAsync(message, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
   }
 
   private static async Task CloseSocket(WebSocket client, CancellationToken cancellationToken)
@@ -73,7 +88,7 @@ internal sealed class WsRequestRunner : RequestRunner
     }
   }
 
-  private async IAsyncEnumerable<WsResponseBody> ConsumeMessage(WebSocket client,
+  private static async IAsyncEnumerable<WebSocketResponseBody> ConsumeMessage(WebSocket client,
     [EnumeratorCancellation] CancellationToken cancellationToken)
   {
     using var stream = new MemoryStream();
@@ -94,21 +109,18 @@ internal sealed class WsRequestRunner : RequestRunner
       }
 
       stream.Seek(0, SeekOrigin.Begin);
-      yield return new WsResponseBody(stream.ToArray(), result.CloseStatus, result.CloseStatusDescription);
+      yield return new WebSocketResponseBody(stream.ToArray(), result.CloseStatus, result.CloseStatusDescription);
     }
   }
 
-  private async Task<RequestExecutingResult> Consume(Request request, WebSocket client,
+  private static ValueTask<WebSocketResponseBody> Consume(Request request, WebSocket client,
     CancellationToken cancellationToken)
   {
-    var result = await ConsumeMessage(client, cancellationToken)
-      .FirstAsync(r => request.CorrelationIdRegex is null || request.CorrelationIdRegex.IsMatch(r.ToString()), cancellationToken)
-      .ConfigureAwait(false);
-
-    return CreateRequestExecutingResult(client, result);
+    return ConsumeMessage(client, cancellationToken)
+      .FirstAsync(r => request.CorrelationIdRegex is null || request.CorrelationIdRegex.IsMatch(r.ToString()), cancellationToken);
   }
 
-  private static RequestExecutingResult CreateRequestExecutingResult(WebSocket client, WsResponseBody result)
+  private static RequestExecutingResult CreateRequestExecutingResult(WebSocket client, WebSocketResponseBody result)
   {
     var closeStatus = result.StatusCode ?? client.CloseStatus ?? DefaultStatusCode;
     var statusDescription = result.StatusDescription ?? client.CloseStatusDescription;
@@ -150,3 +162,6 @@ internal sealed class WsRequestRunner : RequestRunner
     return new ArraySegment<byte>(buffer);
   }
 }
+
+
+

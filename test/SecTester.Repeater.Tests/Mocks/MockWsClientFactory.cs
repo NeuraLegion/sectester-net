@@ -1,7 +1,3 @@
-using System.Diagnostics;
-using System.Net.WebSockets;
-using Microsoft.AspNetCore.TestHost;
-
 namespace SecTester.Repeater.Tests.Mocks;
 
 public class MockWsClientFactory : WsClientFactory, IDisposable

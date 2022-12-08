@@ -2,7 +2,7 @@ using SecTester.Repeater.Tests.Mocks;
 
 namespace SecTester.Repeater.Tests.Fixtures;
 
-public class TestServerApplicationFixture<TStartup> : IDisposable where TStartup : class
+public class TestServerApplicationFixture<TStartup> : IDisposable, IAsyncDisposable where TStartup : class
 {
   private readonly HttpClient _client;
   private readonly TestServerApplicationFactory<TStartup> _factory;
@@ -29,14 +29,25 @@ public class TestServerApplicationFixture<TStartup> : IDisposable where TStartup
 
   public void Dispose()
   {
+    _factory.Dispose();
     _client.Dispose();
     GC.SuppressFinalize(this);
   }
 
+  public async ValueTask DisposeAsync()
+  {
+    await _factory.DisposeAsync();
+    Dispose();
+  }
+
+  public RequestRunner CreateWsRequestRunner(WsClientFactory clientFactory, RequestRunnerOptions? options = default)
+  {
+    return new WsRequestRunner(options ?? new RequestRunnerOptions(), clientFactory);
+  }
+
   public RequestRunner CreateWsRequestRunner(RequestRunnerOptions? options = default)
   {
-    var wsClientFactory = new MockWsClientFactory(_factory.Server);
-    return new WsRequestRunner(options ?? new RequestRunnerOptions(), wsClientFactory);
+    return CreateWsRequestRunner(new MockWsClientFactory(_factory.Server), options);
   }
 }
 

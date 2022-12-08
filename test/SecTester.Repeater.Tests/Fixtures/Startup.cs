@@ -1,6 +1,3 @@
-using System.Net.WebSockets;
-using Microsoft.AspNetCore.Builder;
-
 namespace SecTester.Repeater.Tests.Fixtures;
 
 // This is from https://github.com/aspnet/AspNetCore.Docs/blob/master/aspnetcore/fundamentals/websockets/samples/2.x/WebSocketsSample/Startup.cs
@@ -16,21 +13,23 @@ public sealed class Startup
     app.UseWebSockets();
     app.Use(async (context, next) =>
     {
-      if (context.Request.Path == "/ws")
+      switch (context.Request.Path)
       {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-          var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-          await HandleRequest(webSocket);
-        }
-        else
-        {
-          context.Response.StatusCode = 400;
-        }
-      }
-      else
-      {
-        await next();
+        case "/ws":
+          if (context.WebSockets.IsWebSocketRequest)
+          {
+            var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            await HandleRequest(webSocket);
+          }
+          else
+          {
+            context.Response.StatusCode = 400;
+          }
+
+          break;
+        default:
+          await next();
+          break;
       }
     });
   }
@@ -57,10 +56,13 @@ public sealed class Startup
     return msg switch
     {
       "ping" => SendEcho(webSocket, "pong"),
-      not null when msg.StartsWith("echo_fast") => SendEcho(webSocket, msg),
+      "range" => Task.WhenAll(Enumerable.Range(0, 5).Select(idx => SendEcho(webSocket, $"range:{idx}"))),
+      "chunked" => SendChunkedEcho(webSocket, "ping pong"),
+      not null when msg.StartsWith("fast") => SendEcho(webSocket, msg),
       not null when msg.StartsWith("echo") => SendEcho(webSocket, msg, true),
-      "close-me" => webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", CancellationToken.None),
-      _ => SendEcho(webSocket, msg),
+      "close" => webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "normal closure", CancellationToken.None),
+      "close-output" => webSocket.CloseOutputAsync(WebSocketCloseStatus.InvalidPayloadData, "invalid payload", CancellationToken.None),
+      _ => SendEcho(webSocket, msg)
     };
   }
 
@@ -101,6 +103,24 @@ public sealed class Startup
       await Task.Delay(100);
     }
 
+    await Send(webSocket, msg, slowdown: slowdown);
+  }
+
+  private async Task SendChunkedEcho(WebSocket webSocket, string msg, bool slowdown = false)
+  {
+    var idx = (int)Math.Floor((double)msg.Length / 2);
+
+    await Send(webSocket, msg[..idx], endOfMessage: false, slowdown: slowdown);
+    await Send(webSocket, msg[idx..], slowdown: slowdown);
+  }
+
+  private async Task Send(WebSocket webSocket, string msg, bool endOfMessage = true, bool slowdown = false)
+  {
+    if (slowdown)
+    {
+      await Task.Delay(100);
+    }
+
     var encoding = GetEncoding();
     var bytes = encoding.GetBytes(msg);
     var segment = new ArraySegment<byte>(bytes);
@@ -108,10 +128,7 @@ public sealed class Startup
     await webSocket.SendAsync(
       segment,
       WebSocketMessageType.Text,
-      true,
+      endOfMessage,
       CancellationToken.None);
   }
 }
-
-
-

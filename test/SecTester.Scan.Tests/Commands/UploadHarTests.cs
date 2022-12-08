@@ -1,23 +1,26 @@
+using SecTester.Scan.Tests.Extensions;
+
 namespace SecTester.Scan.Tests.Commands;
 
 public class UploadHarTests
 {
   private const string HarFileName = "filename.har";
 
-  private static readonly Har Har = new();
+  private readonly Har _har = new(
+    new Log(
+      new Tool("name", "v1.1.1"))
+  );
 
   [Fact]
   public void Constructor_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName);
+    var options = new UploadHarOptions(_har, HarFileName);
 
     var expectedContent = new MultipartFormDataContent
     {
       {
-        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"),
-        "file",
-        HarFileName
+        new StringContent(MessageSerializer.Serialize(options.Har), Encoding.UTF8, "application/json"), "file", HarFileName
       }
     };
 
@@ -50,13 +53,19 @@ public class UploadHarTests
   public void Constructor_DiscardIsTrue_ConstructsInstance()
   {
     // arrange
-    var options = new UploadHarOptions(Har, HarFileName, true);
+    var options = new UploadHarOptions(_har, HarFileName, true);
 
     // act 
     var command = new UploadHar(options);
 
     // assert
     command.Should()
-      .BeEquivalentTo(new { Params = new List<KeyValuePair<string, string>> { new("discard", "true") } });
+      .BeEquivalentTo(new
+      {
+        Params = new List<KeyValuePair<string, string>>
+        {
+          new("discard", "true")
+        }
+      });
   }
 }

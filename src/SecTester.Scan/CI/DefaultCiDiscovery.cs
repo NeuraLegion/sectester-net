@@ -6,5 +6,4 @@ internal class DefaultCiDiscovery : CiDiscovery
   public CiServer? Server { get; }
 
   public bool IsCi => Server != null;
-
 }

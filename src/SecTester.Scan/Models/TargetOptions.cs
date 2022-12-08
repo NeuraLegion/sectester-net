@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace SecTester.Scan.Target;
+namespace SecTester.Scan.Models;
 
 public interface TargetOptions
 {

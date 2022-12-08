@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
@@ -19,10 +18,12 @@ internal sealed class WsRequestRunner : RequestRunner
   private const int MaxBufferSize = 1024 * 4;
 
   private readonly RequestRunnerOptions _options;
+  private readonly WsClientFactory _wsClientFactory;
 
-  public WsRequestRunner(RequestRunnerOptions options)
+  public WsRequestRunner(RequestRunnerOptions options, WsClientFactory wsClientFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
+    _wsClientFactory = wsClientFactory ?? throw new ArgumentNullException(nameof(wsClientFactory));
   }
 
   public Protocol Protocol => Protocol.Ws;
@@ -30,12 +31,11 @@ internal sealed class WsRequestRunner : RequestRunner
   public async Task<Response> Run(Request request)
   {
     using var cts = new CancellationTokenSource(_options.Timeout);
-    using var client = CreateWebSocketClient();
+    // TODO: handle possible WebSocketException
+    using var client = await _wsClientFactory.CreateWsClient(request.Url, cts.Token).ConfigureAwait(false);
 
     try
     {
-      await client.ConnectAsync(request.Url, cts.Token).ConfigureAwait(false);
-
       var message = BuildMessage(request);
 
       await client.SendAsync(message, WebSocketMessageType.Text, true, cts.Token).ConfigureAwait(false);
@@ -76,12 +76,19 @@ internal sealed class WsRequestRunner : RequestRunner
     while (!client.CloseStatus.HasValue)
     {
       var result = await client.ReceiveAsync(buffer, cancellationToken).ConfigureAwait(false);
-      await stream.WriteAsync(buffer.Array, buffer.Offset, result.Count, cancellationToken).ConfigureAwait(false);
 
-      if (result.CloseStatus.HasValue || result.EndOfMessage)
+      if (buffer.Array != null)
       {
-        yield return new ReceivedMessage(stream.ToArray(), result.CloseStatus);
+        await stream.WriteAsync(buffer.Array, buffer.Offset, result.Count, cancellationToken).ConfigureAwait(false);
       }
+
+      if (!result.CloseStatus.HasValue && !result.EndOfMessage)
+      {
+        continue;
+      }
+
+      stream.Seek(0, SeekOrigin.Begin);
+      yield return new ReceivedMessage(stream.ToArray(), result.CloseStatus);
     }
   }
 
@@ -132,19 +139,6 @@ internal sealed class WsRequestRunner : RequestRunner
   {
     var buffer = Encoding.Default.GetBytes(message.Body ?? "");
     return new ArraySegment<byte>(buffer);
-  }
-
-  private ClientWebSocket CreateWebSocketClient()
-  {
-    var proxy = _options.ProxyUrl is not null ? new WebProxy(_options.ProxyUrl) : null;
-    // TODO: disable certs validation. For details see https://github.com/dotnet/runtime/issues/18696
-    return new ClientWebSocket
-    {
-      Options =
-      {
-        Proxy = proxy, KeepAliveInterval = _options.Timeout
-      }
-    };
   }
 }
 

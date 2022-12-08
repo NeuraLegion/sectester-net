@@ -27,9 +27,15 @@
       }
     ],
     [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "dotnet restore --use-lock-file -f"
+      }
+    ],
+    [
       "@semantic-release/git",
       {
-        "assets": ["**/Directory.Build.props", "src/**/*.csproj"],
+        "assets": ["**/Directory.Build.props", "src/**/*.csproj", "**/packages.lock.json"],
         "message": "chore(release): cut the ${nextRelease.version} release [skip ci]"
       }
     ],

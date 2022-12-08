@@ -396,7 +396,7 @@ public class ScanTests : IAsyncDisposable
     var sut = new Scan(ScanId, _scans, _logger,
       new ScanOptions
       {
-        PollingInterval = TimeSpan.FromMilliseconds(50),
+        PollingInterval = TimeSpan.FromMilliseconds(200),
         Timeout = TimeSpan.Zero
       });
     await using var _ = sut;
@@ -506,5 +506,60 @@ public class ScanTests : IAsyncDisposable
     // assert
     await act.Should().NotThrowAsync();
     await _predicate.Received(1)(Arg.Any<Scan>());
+  }
+  
+  [Fact]
+  public async Task Expect_CancelledByTimeout_Returns()
+  {
+    // arrange
+    var sut = new Scan(ScanId, _scans, _logger,
+      new ScanOptions()
+      {
+        PollingInterval = TimeSpan.FromMilliseconds(200),
+        Timeout = TimeSpan.Zero
+      });
+    await using var _ = sut;
+
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
+
+    // act
+    var act = () => sut.Expect(Severity.High);
+
+    // assert
+    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
+  }
+  
+  [Fact]
+  public async Task Expect_CancellationTokenIsCancelled_Returns()
+  {
+    // arrange
+    using var cancelledTokenSource = new CancellationTokenSource();
+    cancelledTokenSource.Cancel();
+
+    _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
+
+    // act
+    var act = () => _sut.Expect(Severity.High, cancelledTokenSource.Token);
+
+    // assert
+    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
+  }
+
+  [Theory]
+  [MemberData(nameof(ActiveStatuses))]
+  public async Task Expect_ConditionSatisfied_Returns(ScanStatus scanStatus)
+  {
+    // arrange
+    var satisfyingScanState = new ScanState(scanStatus)
+    {
+      IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
+    };
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
+
+    // act
+    var act = () => _sut.Expect(Severity.Medium);
+
+    // assert
+    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
   }
 }

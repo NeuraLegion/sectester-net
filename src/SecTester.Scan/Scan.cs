@@ -26,6 +26,14 @@ public class Scan : IAsyncDisposable
 
   private readonly ILogger _logger;
 
+  private static readonly IEnumerable<KeyValuePair<Severity, IEnumerable<Severity>>> SeverityRanges =
+    new Dictionary<Severity, IEnumerable<Severity>>()
+    {
+      { Severity.Low, new List<Severity>() { Severity.Low, Severity.Medium, Severity.High } },
+      { Severity.Medium, new List<Severity>() { Severity.Medium, Severity.High } },
+      { Severity.High, new List<Severity>() { Severity.High } }
+    };
+
   private readonly ScanOptions _options;
   private readonly Scans _scans;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -103,6 +111,16 @@ public class Scan : IAsyncDisposable
     yield return _scanState;
   }
 
+  public async Task Expect(Severity expectation, CancellationToken cancellationToken = default)
+  {
+    using var cancellationTokenSource =
+      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+    cancellationTokenSource.CancelAfter(_options.Timeout);
+
+    await ExpectCore(_ => Task.FromResult(IsInExpectedSeverityRange(expectation)), cancellationTokenSource.Token).ConfigureAwait(false);
+  }
+
   public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
   {
     if (predicate == null)
@@ -116,6 +134,14 @@ public class Scan : IAsyncDisposable
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
     await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+  }
+
+  private bool IsInExpectedSeverityRange(Severity expectation)
+  {
+    if (_scanState.IssuesBySeverity == null) { return false; }
+
+    return _scanState.IssuesBySeverity.Any(x =>
+      SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)));
   }
 
   private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)

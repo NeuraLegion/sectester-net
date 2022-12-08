@@ -352,7 +352,7 @@ public class ScanTests : IAsyncDisposable
     var sut = new Scan(ScanId, _scans, _logger,
       new ScanOptions()
       {
-        PollingInterval = TimeSpan.FromMilliseconds(50),
+        PollingInterval = TimeSpan.FromMilliseconds(200),
         Timeout = TimeSpan.Zero
       });
     await using var _ = sut;
@@ -468,7 +468,7 @@ public class ScanTests : IAsyncDisposable
     var sut = new Scan(ScanId, _scans, _logger,
       new ScanOptions()
       {
-        PollingInterval = TimeSpan.FromMilliseconds(50),
+        PollingInterval = TimeSpan.FromMilliseconds(200),
         Timeout = TimeSpan.Zero
       });
     await using var _ = sut;

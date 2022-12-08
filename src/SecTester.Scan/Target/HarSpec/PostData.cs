@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SecTester.Scan.Target.Har;
+namespace SecTester.Scan.Target.HarSpec;
 
 public record PostData
 {

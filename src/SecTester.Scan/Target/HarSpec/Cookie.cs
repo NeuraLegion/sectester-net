@@ -1,6 +1,6 @@
 using System;
 
-namespace SecTester.Scan.Target.Har;
+namespace SecTester.Scan.Target.HarSpec;
 
 public record Cookie(string Name, string Value) : Parameter(Name, Value)
 {

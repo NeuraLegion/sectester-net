@@ -1,6 +1,3 @@
-using Request = SecTester.Scan.Models.Request;
-using Response = SecTester.Scan.Models.Response;
-
 namespace SecTester.Scan.Tests.Models;
 
 public class IssueTests

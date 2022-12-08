@@ -1,5 +1,3 @@
-using Request = SecTester.Scan.Models.Request;
-
 namespace SecTester.Scan.Tests;
 
 public class DefaultScansTests : IDisposable

@@ -21,7 +21,7 @@
     <Folder Include="Internal" />
     <Folder Include="Models" />
     <Folder Include="Target" />
-    <Folder Include="Target\Har" />
+    <Folder Include="Target\HarSpec" />
   </ItemGroup>
 
   <ItemGroup>

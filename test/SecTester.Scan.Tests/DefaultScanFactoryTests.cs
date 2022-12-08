@@ -1,3 +1,5 @@
+using SecTester.Scan.Tests.Mocks;
+
 namespace SecTester.Scan.Tests;
 
 public class DefaultScanFactoryTests : IDisposable

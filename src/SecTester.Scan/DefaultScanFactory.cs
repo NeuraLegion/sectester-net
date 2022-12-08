@@ -5,8 +5,7 @@ using Microsoft.Extensions.Logging;
 using SecTester.Core;
 using SecTester.Core.Utils;
 using SecTester.Scan.Models;
-using SecTester.Scan.Target.Har;
-using Response = SecTester.Scan.Target.Har.Response;
+using SecTester.Scan.Target.HarSpec;
 
 namespace SecTester.Scan;
 
@@ -81,7 +80,7 @@ public class DefaultScanFactory : ScanFactory
   {
     return new Entry(_systemTimeProvider.Now,
         await target.ToHarRequest().ConfigureAwait(false),
-        new Response(200, "OK", "", new Content(-1, "text/plain"))
+        new ResponseMessage(200, "OK", "", new Content(-1, "text/plain"))
         {
           HttpVersion = "HTTP/1.1"
         },
@@ -96,7 +95,8 @@ public class DefaultScanFactory : ScanFactory
 
     return new Har(
       new Log(
-        new Tool(_configuration.Name, _configuration.Version)) { Entries = new List<Entry> { entry } }
+        new Tool(_configuration.Name, _configuration.Version))
+      { Entries = new List<Entry> { entry } }
     );
   }
 }

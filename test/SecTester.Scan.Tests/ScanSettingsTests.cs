@@ -1,3 +1,5 @@
+using SecTester.Scan.Tests.Fixtures;
+
 namespace SecTester.Scan.Tests;
 
 public class ScanSettingsTests

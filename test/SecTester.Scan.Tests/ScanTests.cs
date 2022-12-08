@@ -1,4 +1,4 @@
-using Request = SecTester.Scan.Models.Request;
+using SecTester.Scan.Tests.Mocks;
 
 namespace SecTester.Scan.Tests;
 
@@ -367,21 +367,21 @@ public class ScanTests : IAsyncDisposable
     await act.Should().NotThrowAsync();
     await _predicate.Received(1)(Arg.Any<Scan>());
   }
-  
+
   [Fact]
   public async Task Expect_GivenPredicateAndCancelledToken_Returns()
   {
     // arrange
     using var cancelledTokenSource = new CancellationTokenSource();
     cancelledTokenSource.Cancel();
-    
+
     var sut = new Scan(ScanId, _scans, _logger,
       new ScanOptions()
       {
         PollingInterval = TimeSpan.Zero,
         Timeout = TimeSpan.FromSeconds(1)
       });
-    
+
     await using var _ = sut;
 
     _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
@@ -426,7 +426,7 @@ public class ScanTests : IAsyncDisposable
       var status = await _sut.Status().FirstAsync();
       return status.IssuesBySeverity?.Any(x => x.Type == Severity.High) ?? false;
     });
-    
+
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
 
     // act

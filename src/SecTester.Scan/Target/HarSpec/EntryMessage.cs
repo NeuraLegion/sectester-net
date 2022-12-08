@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace SecTester.Scan.Target.Har;
+namespace SecTester.Scan.Target.HarSpec;
 
-public record Message
+public record EntryMessage
 {
   public int HeadersSize { get; init; } = -1;
   public int? BodySize { get; init; } = -1;

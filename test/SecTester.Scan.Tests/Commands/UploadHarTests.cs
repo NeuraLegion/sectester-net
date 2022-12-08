@@ -1,3 +1,5 @@
+using SecTester.Scan.Tests.Extensions;
+
 namespace SecTester.Scan.Tests.Commands;
 
 public class UploadHarTests

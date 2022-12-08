@@ -7,11 +7,11 @@ namespace SecTester.Repeater.Bus;
 
 public delegate RequestRunner? RequestRunnerResolver(Protocol key);
 
-public class RequestExecutingEventHandler : EventListener<RequestExecutingEvent, RequestExecutingResult>
+public class RequestExecutingEventListener : EventListener<RequestExecutingEvent, RequestExecutingResult>
 {
   private readonly RequestRunnerResolver _requestRunnersAccessor;
 
-  public RequestExecutingEventHandler(RequestRunnerResolver requestRunnersAccessor)
+  public RequestExecutingEventListener(RequestRunnerResolver requestRunnersAccessor)
   {
     _requestRunnersAccessor = requestRunnersAccessor;
   }

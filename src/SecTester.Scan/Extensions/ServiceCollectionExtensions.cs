@@ -7,10 +7,8 @@ public static class ServiceCollectionExtensions
 {
   public static IServiceCollection AddSecTesterScan(this IServiceCollection collection)
   {
-    collection
+    return collection
       .AddSingleton<CiDiscovery, DefaultCiDiscovery>()
       .AddSingleton<Scans, DefaultScans>();
-
-    return collection;
   }
 }

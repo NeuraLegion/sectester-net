@@ -9,7 +9,7 @@ public class EnvCredentialProvider : CredentialProvider
 
   public Task<Credentials?> Get()
   {
-    string token = Environment.GetEnvironmentVariable(BrightToken);
+    var token = Environment.GetEnvironmentVariable(BrightToken);
 
     return Task.FromResult(!string.IsNullOrWhiteSpace(token) ? new Credentials(token) : null);
   }

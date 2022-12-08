@@ -30,18 +30,17 @@ internal sealed class RateLimitedHandler
     await _rateLimiter.DisposeAsync().ConfigureAwait(false);
 
     Dispose(disposing: false);
-    GC.SuppressFinalize(this);
   }
 
   protected override async Task<HttpResponseMessage> SendAsync(
     HttpRequestMessage request, CancellationToken cancellationToken)
   {
     using var lease = await _rateLimiter.AcquireAsync(
-      1, cancellationToken);
+      1, cancellationToken).ConfigureAwait(false);
 
     if (lease.IsAcquired)
     {
-      return await base.SendAsync(request, cancellationToken);
+      return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
     var response = new HttpResponseMessage((HttpStatusCode)429);

@@ -66,7 +66,7 @@ public class Repeater : IAsyncDisposable
 
   private void SubscribeToEvents()
   {
-    _eventBus.Register<RequestExecutingEventHandler, RequestExecutingEvent, RequestExecutingResult>();
+    _eventBus.Register<RequestExecutingEventListener, RequestExecutingEvent, RequestExecutingResult>();
   }
 
   private async Task SchedulePing()

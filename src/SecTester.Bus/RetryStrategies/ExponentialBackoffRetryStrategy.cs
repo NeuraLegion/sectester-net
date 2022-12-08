@@ -21,7 +21,7 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
   {
     var depth = 0;
 
-    for (; ; )
+    for ( ; ; )
     {
       try
       {

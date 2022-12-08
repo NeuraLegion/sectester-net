@@ -58,7 +58,7 @@ namespace SecTester.Core
         var chain = _credentialProviders.ConvertAll(provider =>
           provider.Get()
         );
-        var credentials = await TaskUtils.First(chain, x => x != null);
+        var credentials = await TaskUtils.First(chain, x => x != null).ConfigureAwait(false);
         Credentials = credentials ?? throw new InvalidOperationException("Could not load credentials from any providers");
       }
     }

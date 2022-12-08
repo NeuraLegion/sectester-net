@@ -38,7 +38,7 @@ public class HttpCommandDispatcher : CommandDispatcher
   public async Task<TResult?> Execute<TResult>(Command<TResult> message)
   {
     using var cts = new CancellationTokenSource(message.Ttl);
-    var res = await _retryStrategy.Acquire(() => PerformHttpRequest((HttpRequest<TResult>)message, cts.Token)).ConfigureAwait(false);
+    var res = await _retryStrategy.Acquire(() => PerformHttpRequest((HttpRequest<TResult>)message, cts.Token), cts.Token).ConfigureAwait(false);
 
     if (message.ExpectReply)
     {
@@ -69,7 +69,7 @@ public class HttpCommandDispatcher : CommandDispatcher
       request.ExpectReply ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead,
       cancellationToken).ConfigureAwait(false);
 
-    await response.ThrowIfUnsuccessful();
+    await response.ThrowIfUnsuccessful().ConfigureAwait(false);
 
     return response;
   }

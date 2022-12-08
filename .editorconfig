@@ -8,7 +8,7 @@ insert_final_newline = true
 indent_size = 2
 charset = utf-8
 end_of_line = lf
-trim_trailing_whitespace = false
+trim_trailing_whitespace = true
 
 [*.cs]
 # Organize usings
@@ -57,12 +57,13 @@ csharp_style_var_for_built_in_types = true:silent
 csharp_style_var_when_type_is_apparent = true:silent
 csharp_style_var_elsewhere = true:silent
 # Expression-bodied members
-csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_methods = true:silent
 csharp_style_expression_bodied_constructors = false:silent
 csharp_style_expression_bodied_operators = false:silent
 csharp_style_expression_bodied_properties = true:silent
 csharp_style_expression_bodied_indexers = true:silent
 csharp_style_expression_bodied_accessors = true:silent
+csharp_style_expression_bodied_local_functions = true:silent
 # Pattern matching preferences
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
@@ -88,7 +89,7 @@ csharp_new_line_between_query_expression_clauses = true
 # Indentation preferences
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
-csharp_indent_labels = flush_left
+csharp_indent_labels = one_less_than_current
 # Space preferences
 csharp_space_after_cast = false
 csharp_space_after_keywords_in_control_flow_statements = true
@@ -101,13 +102,50 @@ csharp_space_around_binary_operators = before_and_after
 csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
 csharp_space_between_method_call_name_and_opening_parenthesis = false
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
+csharp_space_before_semicolon_in_for_statement = true
 # Wrapping preferences
 csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
-# Naming rules
+
+# CA1715: Identifiers should have correct prefix
 dotnet_diagnostic.CA1715.severity = none
+# CA1716: Identifiers should not match keywords
 dotnet_diagnostic.CA1716.severity = none
+# CA1848: Use the LoggerMessage delegates
 dotnet_diagnostic.CA1848.severity = none
+# IDE0055: Fix formatting
+dotnet_diagnostic.IDE0055.severity = warning
+# IDE0170: Prefer extended property pattern
+dotnet_diagnostic.IDE0170.severity = warning
+# CA1304: Specify CultureInfo
+dotnet_diagnostic.CA1304.severity = error
+# CA1307: Specify StringComparison for clarity
+dotnet_diagnostic.CA1307.severity = error
+# CA1309: Use ordinal StringComparison
+dotnet_diagnostic.CA1309.severity = error
+# IDE0005: Remove unnecessary usings
+dotnet_diagnostic.IDE0005.severity = warning
+# IDE0020: Use pattern matching to avoid is check followed by a cast (with variable)
+dotnet_diagnostic.IDE0020.severity = warning
+# IDE0029: Use coalesce expression (non-nullable types)
+dotnet_diagnostic.IDE0029.severity = warning
+# IDE0030: Use coalesce expression (nullable types)
+dotnet_diagnostic.IDE0030.severity = warning
+# IDE0031: Use null propagation
+dotnet_diagnostic.IDE0031.severity = warning
+# IDE0038: Use pattern matching to avoid is check followed by a cast (without variable)
+dotnet_diagnostic.IDE0038.severity = warning
+# CA2012: Use ValueTask correctly
+dotnet_diagnostic.CA2012.severity = warning
+# CA2016: Forward the 'CancellationToken' parameter to methods that take one
+dotnet_diagnostic.CA2016.severity = warning
+# CA1507: Use nameof to express symbol names
+dotnet_diagnostic.CA1507.severity = warning
+
+[src/**/*.cs]
+# CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2007.severity = warning
+dotnet_diagnostic.CA2007.output_kind = DynamicallyLinkedLibrary
 
 [*.md]
 max_line_length = off

@@ -1,13 +1,10 @@
+using System.Globalization;
+
 namespace SecTester.Repeater.Tests.Fixtures;
 
 // This is from https://github.com/aspnet/AspNetCore.Docs/blob/master/aspnetcore/fundamentals/websockets/samples/2.x/WebSocketsSample/Startup.cs
 public sealed class Startup
 {
-  public void ConfigureServices(IServiceCollection services)
-  {
-    // noop
-  }
-
   public void Configure(IApplicationBuilder app)
   {
     app.UseWebSockets();
@@ -51,7 +48,7 @@ public sealed class Startup
 
   private Task HandleRequest(WebSocket webSocket, byte[] request)
   {
-    var msg = (Encoding.Default.GetString(request) ?? string.Empty).Trim().ToLower();
+    var msg = Encoding.Default.GetString(request ?? Array.Empty<byte>()).Trim().ToLower(CultureInfo.InvariantCulture);
 
     return msg switch
     {
@@ -67,7 +64,7 @@ public sealed class Startup
   }
 
 
-  private async Task<(WebSocketReceiveResult result, byte[]? message)> ReadRequest(WebSocket webSocket)
+  private static async Task<(WebSocketReceiveResult result, byte[]? message)> ReadRequest(WebSocket webSocket)
   {
     var buffer = new ArraySegment<byte>(new byte[8192]);
     using var stream = new MemoryStream();
@@ -91,7 +88,7 @@ public sealed class Startup
     return (result, stream.ToArray());
   }
 
-  private Encoding GetEncoding()
+  private static Encoding GetEncoding()
   {
     return Encoding.UTF8;
   }

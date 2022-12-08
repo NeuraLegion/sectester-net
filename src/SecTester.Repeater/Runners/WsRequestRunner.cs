@@ -162,6 +162,3 @@ internal sealed class WsRequestRunner : RequestRunner
     return new ArraySegment<byte>(buffer);
   }
 }
-
-
-

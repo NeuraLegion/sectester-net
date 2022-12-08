@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,7 +13,7 @@ namespace SecTester.Repeater.Runners;
 
 internal sealed class WsRequestRunner : RequestRunner
 {
-  private const int DefaultStatusCode = 1000;
+  private const WebSocketCloseStatus DefaultStatusCode = WebSocketCloseStatus.NormalClosure;
   private const int MaxBufferSize = 1024 * 4;
 
   private readonly RequestRunnerOptions _options;
@@ -88,7 +87,7 @@ internal sealed class WsRequestRunner : RequestRunner
       }
 
       stream.Seek(0, SeekOrigin.Begin);
-      yield return new ReceivedMessage(stream.ToArray(), result.CloseStatus);
+      yield return new ReceivedMessage(stream.ToArray(), result.CloseStatus, result.CloseStatusDescription);
     }
   }
 
@@ -104,10 +103,14 @@ internal sealed class WsRequestRunner : RequestRunner
 
   private static RequestExecutingResult CreateRequestExecutingResult(WebSocket client, ReceivedMessage result)
   {
+    var closeStatus = result.StatusCode ?? client.CloseStatus ?? DefaultStatusCode;
+    var statusDescription = result.StatusDescription ?? client.CloseStatusDescription;
+
     return new RequestExecutingResult
     {
       Protocol = Protocol.Ws,
-      StatusCode = (result.StatusCode ?? client.CloseStatus) as int? ?? DefaultStatusCode,
+      Message = statusDescription,
+      StatusCode = (int)closeStatus,
       Body = result.ToString()
     };
   }
@@ -119,7 +122,7 @@ internal sealed class WsRequestRunner : RequestRunner
     return new RequestExecutingResult
     {
       Protocol = Protocol.Ws,
-      Message = exception.Message,
+      Message = exception.Message.TrimEnd(),
       ErrorCode = errorCode
     };
   }
@@ -129,7 +132,6 @@ internal sealed class WsRequestRunner : RequestRunner
     // TODO: use native errno codes instead
     return err switch
     {
-      SocketException exception => Enum.GetName(typeof(SocketError), exception.SocketErrorCode),
       WebSocketException exception => Enum.GetName(typeof(WebSocketError), exception.WebSocketErrorCode),
       _ => null
     };
@@ -141,8 +143,3 @@ internal sealed class WsRequestRunner : RequestRunner
     return new ArraySegment<byte>(buffer);
   }
 }
-
-
-
-
-

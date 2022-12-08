@@ -374,7 +374,7 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(DoneStatuses))]
-  public async Task Expect_GivenPredicateFinalStateReached_Returns(ScanStatus scanStatus)
+  public async Task Expect_FinalStateReached_Returns(ScanStatus scanStatus)
   {
     // arrange
     _scans.GetScan(ScanId).Returns(
@@ -390,7 +390,7 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Fact]
-  public async Task Expect_GivenPredicateCancelledByTimeout_Returns()
+  public async Task Expect_GivenCustomPredicate_CancelledByTimeout_Returns()
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
@@ -413,7 +413,7 @@ public class ScanTests : IAsyncDisposable
   }
 
   [Fact]
-  public async Task Expect_GivenPredicateAndCancelledToken_Returns()
+  public async Task Expect_GivenCustomPredicate_CancellationTokenIsCancelled_Returns()
   {
     // arrange
     using var cancelledTokenSource = new CancellationTokenSource();
@@ -441,7 +441,7 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task Expect_GivenPredicateConditionSatisfied_Returns(ScanStatus scanStatus)
+  public async Task Expect_CustomConditionSatisfied_Returns(ScanStatus scanStatus)
   {
     // arrange
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
@@ -457,7 +457,7 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task Expect_GivenPredicateWithStatusMatching_Returns(ScanStatus scanStatus)
+  public async Task Expect_ComplexPredicatedGiven_Returns(ScanStatus scanStatus)
   {
     // arrange
     var satisfyingScanState = new ScanState(scanStatus)

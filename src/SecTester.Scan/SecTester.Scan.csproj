@@ -17,6 +17,7 @@
   <ItemGroup>
     <Folder Include="CI"/>
     <Folder Include="Commands"/>
+    <Folder Include="Exceptions" />
     <Folder Include="Extensions"/>
     <Folder Include="Internal"/>
     <Folder Include="Models"/>

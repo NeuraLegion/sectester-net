@@ -457,7 +457,7 @@ public class ScanTests : IAsyncDisposable
 
   [Theory]
   [MemberData(nameof(ActiveStatuses))]
-  public async Task Expect_ComplexPredicatedGiven_Returns(ScanStatus scanStatus)
+  public async Task Expect_ComplexPredicateGiven_Returns(ScanStatus scanStatus)
   {
     // arrange
     var satisfyingScanState = new ScanState(scanStatus)

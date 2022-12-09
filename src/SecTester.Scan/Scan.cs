@@ -54,6 +54,8 @@ public class Scan : IAsyncDisposable
 
   public bool Done => DoneStatuses.Contains(_state.Status);
 
+  private bool Failed => Done && _state.Status != ScanStatus.Done;
+
   public async ValueTask DisposeAsync()
   {
     try
@@ -135,19 +137,39 @@ public class Scan : IAsyncDisposable
 
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
-    await PollStatusUntil(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    try
+    {
+      await PollStatusUntil(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    }
+    catch (OperationCanceledException exception)
+    {
+      Assert(!cancellationToken.IsCancellationRequested, exception);
+    }
 
-    var timeoutPassed = cancellationTokenSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested;
+    Assert();
+  }
 
-    Assert(timeoutPassed);
+  private void Assert()
+  {
+    if (Failed)
+    {
+      throw new ScanAborted(_state.Status);
+    }
+  }
+
+  private void Assert(bool timeoutPassed, Exception? exception = default)
+  {
+    if (timeoutPassed)
+    {
+      throw new ScanTimedOut(_options.Timeout, exception);
+    }
   }
 
   private async Task PollStatusUntil(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
-    await Status(CancellationToken.None)
+    await Status(cancellationToken)
       .FirstOrDefaultAwaitAsync(
-        async _ => await ApplyPredicate(predicate).ConfigureAwait(false) || Done || cancellationToken.IsCancellationRequested,
-        CancellationToken.None)
+        async _ => await ApplyPredicate(predicate).ConfigureAwait(false) || Done, cancellationToken)
       .ConfigureAwait(false);
   }
 
@@ -170,19 +192,6 @@ public class Scan : IAsyncDisposable
     catch
     {
       return false;
-    }
-  }
-
-  private void Assert(bool timeoutPassed = default)
-  {
-    if (Done && _state.Status != ScanStatus.Done)
-    {
-      throw new ScanAborted(_state.Status);
-    }
-
-    if (timeoutPassed)
-    {
-      throw new ScanTimedOut(_options.Timeout);
     }
   }
 
@@ -222,4 +231,6 @@ public class Scan : IAsyncDisposable
     }
   }
 }
+
+
 

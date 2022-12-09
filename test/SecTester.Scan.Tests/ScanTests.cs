@@ -436,7 +436,7 @@ public class ScanTests : IAsyncDisposable
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(1)(Arg.Any<Scan>());
+    await _predicate.Received(0)(Arg.Any<Scan>());
   }
 
   [Theory]

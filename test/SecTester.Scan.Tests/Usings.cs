@@ -16,6 +16,7 @@ global using SecTester.Core.Exceptions;
 global using SecTester.Core.Utils;
 global using SecTester.Scan.CI;
 global using SecTester.Scan.Commands;
+global using SecTester.Scan.Exceptions;
 global using SecTester.Scan.Extensions;
 global using SecTester.Scan.Models;
 global using SecTester.Scan.Models.HarSpec;

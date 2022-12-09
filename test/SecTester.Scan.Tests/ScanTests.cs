@@ -46,16 +46,12 @@ public class ScanTests : IAsyncDisposable
       });
   }
 
-  public static IEnumerable<object[]> DoneStatuses =>
+  public static IEnumerable<object[]> FailedStatuses =>
     new List<object[]>
     {
       new object[]
       {
         ScanStatus.Disrupted
-      },
-      new object[]
-      {
-        ScanStatus.Done
       },
       new object[]
       {
@@ -66,6 +62,15 @@ public class ScanTests : IAsyncDisposable
         ScanStatus.Stopped
       }
     };
+
+  public static IEnumerable<object[]> DoneStatuses =>
+    new List<object[]>
+    {
+      new object[]
+      {
+        ScanStatus.Done
+      }
+    }.Concat(FailedStatuses);
 
   public static IEnumerable<object[]> ActiveStatuses =>
     new List<object[]>
@@ -372,13 +377,12 @@ public class ScanTests : IAsyncDisposable
     await _scans.Received(1).DeleteScan(ScanId);
   }
 
-  [Theory]
-  [MemberData(nameof(DoneStatuses))]
-  public async Task Expect_FinalStateReached_Returns(ScanStatus scanStatus)
+  [Fact]
+  public async Task Expect_ScanCompletedWithDoneStatus_Returns()
   {
     // arrange
     _scans.GetScan(ScanId).Returns(
-      new ScanState(ScanStatus.Running), new ScanState(scanStatus));
+      new ScanState(ScanStatus.Running), new ScanState(ScanStatus.Done));
     _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
 
     // act
@@ -389,8 +393,25 @@ public class ScanTests : IAsyncDisposable
     await _predicate.Received(2)(Arg.Any<Scan>());
   }
 
+  [Theory]
+  [MemberData(nameof(FailedStatuses))]
+  public async Task Expect_ScanCompletedWithStatusDifferentFromDone_ThrowsException(ScanStatus scanStatus)
+  {
+    // arrange
+    _scans.GetScan(ScanId).Returns(
+      new ScanState(ScanStatus.Running), new ScanState(scanStatus));
+    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+
+    // act
+    var act = () => _sut.Expect(_predicate);
+
+    // assert
+    await act.Should().ThrowAsync<ScanAborted>();
+    await _predicate.Received(2)(Arg.Any<Scan>());
+  }
+
   [Fact]
-  public async Task Expect_GivenCustomPredicate_CancelledByTimeout_Returns()
+  public async Task Expect_GivenCustomPredicate_CancelledByTimeout_ThrowsException()
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
@@ -408,8 +429,8 @@ public class ScanTests : IAsyncDisposable
     var act = () => sut.Expect(_predicate);
 
     // assert
-    await act.Should().NotThrowAsync();
-    await _predicate.Received(1)(Arg.Any<Scan>());
+    await act.Should().ThrowAsync<ScanTimedOut>();
+    await _predicate.Received(0)(Arg.Any<Scan>());
   }
 
   [Fact]
@@ -513,7 +534,7 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     var sut = new Scan(ScanId, _scans, _logger,
-      new ScanOptions()
+      new ScanOptions
       {
         PollingInterval = TimeSpan.FromMilliseconds(200),
         Timeout = TimeSpan.Zero
@@ -526,7 +547,7 @@ public class ScanTests : IAsyncDisposable
     var act = () => sut.Expect(Severity.High);
 
     // assert
-    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
+    await act.Should().ThrowAsync<ScanTimedOut>();
   }
 
   [Fact]
@@ -542,7 +563,7 @@ public class ScanTests : IAsyncDisposable
     var act = () => _sut.Expect(Severity.High, cancelledTokenSource.Token);
 
     // assert
-    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
+    await act.Should().NotThrowAsync<Exception>();
   }
 
   [Theory]
@@ -560,6 +581,6 @@ public class ScanTests : IAsyncDisposable
     var act = () => _sut.Expect(Severity.Medium);
 
     // assert
-    await act.Should().CompleteWithinAsync(TimeSpan.FromMilliseconds(500));
+    await act.Should().NotThrowAsync<Exception>();
   }
 }

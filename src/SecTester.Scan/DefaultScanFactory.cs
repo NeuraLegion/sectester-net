@@ -19,18 +19,18 @@ public class DefaultScanFactory : ScanFactory
   };
 
   private readonly Configuration _configuration;
-  private readonly ILogger _logger;
+  private readonly ILoggerFactory _loggerFactory;
 
   private readonly Scans _scans;
   private readonly SystemTimeProvider _systemTimeProvider;
 
-  public DefaultScanFactory(Configuration configuration, Scans scans, ILogger logger,
+  public DefaultScanFactory(Configuration configuration, Scans scans, ILoggerFactory loggerFactory,
     SystemTimeProvider systemTimeProvider)
   {
     _scans = scans ?? throw new ArgumentNullException(nameof(scans));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     _systemTimeProvider = systemTimeProvider ?? throw new ArgumentNullException(nameof(systemTimeProvider));
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
   }
 
   public async Task<Scan> CreateScan(ScanSettingsOptions settingsOptions, ScanOptions? options)
@@ -38,7 +38,7 @@ public class DefaultScanFactory : ScanFactory
     var scanConfig = await BuildScanConfig(new ScanSettings(settingsOptions)).ConfigureAwait(false);
     var scanId = await _scans.CreateScan(scanConfig).ConfigureAwait(false);
 
-    return new Scan(scanId, _scans, _logger, options ?? new ScanOptions());
+    return new Scan(scanId, _scans, _loggerFactory.CreateLogger<Scan>(), options ?? new ScanOptions());
   }
 
   private async Task<ScanConfig> BuildScanConfig(ScanSettings scanSettings)

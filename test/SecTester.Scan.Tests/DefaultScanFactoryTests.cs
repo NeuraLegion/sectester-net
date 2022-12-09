@@ -9,6 +9,7 @@ public class DefaultScanFactoryTests : IDisposable
 
   private readonly Configuration _configuration = new("app.neuralegion.com");
   private readonly MockLogger _logger = Substitute.For<MockLogger>();
+  private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
   private readonly ScanSettingsOptions _options = Substitute.For<ScanSettingsOptions>();
   private readonly Scans _scans = Substitute.For<Scans>();
   private readonly ScanFactory _sut;
@@ -16,7 +17,8 @@ public class DefaultScanFactoryTests : IDisposable
 
   public DefaultScanFactoryTests()
   {
-    _sut = new DefaultScanFactory(_configuration, _scans, _logger, _systemTimeProvider);
+    _loggerFactory.CreateLogger(Arg.Is<string>(nameof(Scan))).Returns(_logger);
+    _sut = new DefaultScanFactory(_configuration, _scans, _loggerFactory, _systemTimeProvider);
   }
 
   public void Dispose()
@@ -25,6 +27,7 @@ public class DefaultScanFactoryTests : IDisposable
     _scans.ClearSubstitute();
     _systemTimeProvider.ClearSubstitute();
     _logger.ClearSubstitute();
+    _loggerFactory.ClearSubstitute();
 
     GC.SuppressFinalize(this);
   }

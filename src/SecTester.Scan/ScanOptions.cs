@@ -11,7 +11,7 @@ public record ScanOptions
     DeleteOnDispose = deleteOnDispose;
   }
 
-  public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(300);
+  public TimeSpan Timeout { get; init; } = TimeSpan.FromHours(1);
 
   public TimeSpan PollingInterval { get; init; } = TimeSpan.FromSeconds(5);
 

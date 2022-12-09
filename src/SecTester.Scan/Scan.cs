@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SecTester.Core.Extensions;
+using SecTester.Scan.Exceptions;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
@@ -37,7 +38,7 @@ public class Scan : IAsyncDisposable
   private readonly ScanOptions _options;
   private readonly Scans _scans;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
-  private ScanState _scanState = new(ScanStatus.Pending);
+  private ScanState _state = new(ScanStatus.Pending);
 
   public Scan(string id, Scans scans, ILogger logger, ScanOptions options)
   {
@@ -49,9 +50,11 @@ public class Scan : IAsyncDisposable
 
   public string Id { get; }
 
-  public bool Active => ActiveStatuses.Contains(_scanState.Status);
+  public bool Active => ActiveStatuses.Contains(_state.Status);
 
-  public bool Done => DoneStatuses.Contains(_scanState.Status);
+  public bool Done => DoneStatuses.Contains(_state.Status);
+
+  private bool Failed => Done && _state.Status != ScanStatus.Done;
 
   public async ValueTask DisposeAsync()
   {
@@ -108,17 +111,13 @@ public class Scan : IAsyncDisposable
       yield return await RefreshState(cancellationToken).ConfigureAwait(false);
     }
 
-    yield return _scanState;
+    yield return _state;
   }
 
   public async Task Expect(Severity expectation, CancellationToken cancellationToken = default)
   {
-    using var cancellationTokenSource =
-      CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-    cancellationTokenSource.CancelAfter(_options.Timeout);
-
-    await ExpectCore(_ => Task.FromResult(IsInExpectedSeverityRange(expectation)), cancellationTokenSource.Token).ConfigureAwait(false);
+    Task<bool> Predicate(Scan _) => Task.FromResult(IsInExpectedSeverityRange(expectation));
+    await Expect(Predicate, cancellationToken).ConfigureAwait(false);
   }
 
   public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
@@ -128,20 +127,60 @@ public class Scan : IAsyncDisposable
       throw new ArgumentNullException(nameof(predicate));
     }
 
+    await ExpectCore(predicate, cancellationToken).ConfigureAwait(false);
+  }
+
+  private async Task ExpectCore(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  {
     using var cancellationTokenSource =
       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
     cancellationTokenSource.CancelAfter(_options.Timeout);
 
-    await ExpectCore(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    try
+    {
+      await PollStatusUntil(predicate, cancellationTokenSource.Token).ConfigureAwait(false);
+    }
+    catch (OperationCanceledException exception)
+    {
+      Assert(!cancellationToken.IsCancellationRequested, exception);
+    }
+
+    Assert();
+  }
+
+  private void Assert()
+  {
+    if (Failed)
+    {
+      throw new ScanAborted(_state.Status);
+    }
+  }
+
+  private void Assert(bool timeoutPassed, Exception? exception = default)
+  {
+    if (timeoutPassed)
+    {
+      throw new ScanTimedOut(_options.Timeout, exception);
+    }
+  }
+
+  private async Task PollStatusUntil(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  {
+    await Status(cancellationToken)
+      .FirstOrDefaultAwaitAsync(
+        async _ => await ApplyPredicate(predicate).ConfigureAwait(false) || Done, cancellationToken)
+      .ConfigureAwait(false);
   }
 
   private bool IsInExpectedSeverityRange(Severity expectation)
   {
-    if (_scanState.IssuesBySeverity == null) { return false; }
+    return _state.IssuesBySeverity switch
+    {
+      null => false,
+      _ => _state.IssuesBySeverity.Any(x => SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)))
+    };
 
-    return _scanState.IssuesBySeverity.Any(x =>
-      SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)));
   }
 
   private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)
@@ -156,37 +195,22 @@ public class Scan : IAsyncDisposable
     }
   }
 
-  private async Task ExpectCore(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
-  {
-    await foreach (var _ in Status(CancellationToken.None).ConfigureAwait(false))
-    {
-      var predicateIsSatisfied = await ApplyPredicate(predicate).ConfigureAwait(false);
-
-      var preventFurtherPolling = predicateIsSatisfied || Done || cancellationToken.IsCancellationRequested;
-
-      if (preventFurtherPolling)
-      {
-        break;
-      }
-    }
-  }
-
   private async Task<ScanState> RefreshState(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
 
     if (Done)
     {
-      return _scanState;
+      return _state;
     }
 
-    var lastState = _scanState;
+    var lastState = _state;
 
-    _scanState = await _scans.GetScan(Id).ConfigureAwait(false);
+    _state = await _scans.GetScan(Id).ConfigureAwait(false);
 
-    ChangingStatus(lastState.Status, _scanState.Status);
+    ChangingStatus(lastState.Status, _state.Status);
 
-    return _scanState;
+    return _state;
   }
 
   private void ChangingStatus(ScanStatus from, ScanStatus to)
@@ -207,3 +231,6 @@ public class Scan : IAsyncDisposable
     }
   }
 }
+
+
+

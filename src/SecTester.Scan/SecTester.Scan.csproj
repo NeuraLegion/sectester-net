@@ -12,11 +12,13 @@
   <ItemGroup>
     <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>
     <PackageReference Include="System.Text.Json" Version="6.0.0"/>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="CI"/>
     <Folder Include="Commands"/>
+    <Folder Include="Exceptions" />
     <Folder Include="Extensions"/>
     <Folder Include="Internal"/>
     <Folder Include="Models"/>

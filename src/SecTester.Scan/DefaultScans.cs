@@ -24,7 +24,7 @@ public class DefaultScans : Scans
 
   public async Task<string> CreateScan(ScanConfig config)
   {
-    var command = new CreateScan(config, _configuration.Name, _configuration.Version, _ciDiscovery.Server?.ServerName);
+    var command = new CreateScan(config, _configuration.Name, _configuration.Version, _ciDiscovery.Server?.Name);
 
     var result = await SendCommand(command).ConfigureAwait(false);
 

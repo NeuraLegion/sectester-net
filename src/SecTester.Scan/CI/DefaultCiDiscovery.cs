@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 
 namespace SecTester.Scan.CI;
 
 internal class DefaultCiDiscovery : CiDiscovery
 {
+  public const string VendorsResource = "SecTester.Scan.CI.vendors.json";
   public CiServer? Server { get; }
 
   public bool IsCi => Server != null;
@@ -19,7 +19,7 @@ internal class DefaultCiDiscovery : CiDiscovery
     env ??= Environment.GetEnvironmentVariables();
 
     var vendors = JsonSerializer.Deserialize<Vendor[]>(
-      ResourceUtils.GetEmbeddedResourceContent<DefaultCiDiscovery>("SecTester.Scan.CI.vendors.json"),
+      ResourceUtils.GetEmbeddedResourceContent<DefaultCiDiscovery>(VendorsResource),
       new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
 
     if (vendors is null)
@@ -29,20 +29,15 @@ internal class DefaultCiDiscovery : CiDiscovery
 
     var matcher = new VendorMatcher(env);
 
-    var vendor = vendors.FirstOrDefault(x => matcher.MatchEnvElement(x.Env));
+    var vendor = vendors.FirstOrDefault(x => matcher.MatchEnv(x.Env));
 
     if (vendor is null)
     {
       return;
     }
 
-    Server = typeof(CiServer)
-      .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-      .Where(x => x.Name.Equals(vendor.Constant, StringComparison.OrdinalIgnoreCase))
-      .Select(x => x.GetValue(null))
-      .Cast<CiServer>()
-      .FirstOrDefault() ?? new CiServer(vendor.Name);
+    Server = CiServer.From(vendor);
 
-    IsPr = matcher.MatchPrElement(vendor.Pr);
+    IsPr = matcher.MatchPr(vendor.Pr);
   }
 }

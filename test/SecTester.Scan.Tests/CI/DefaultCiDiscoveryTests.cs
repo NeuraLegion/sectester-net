@@ -21,7 +21,7 @@ public class DefaultCiDiscoveryTests
     var sut = new DefaultCiDiscovery(new Dictionary<string, string>() { { "GITHUB_ACTIONS", "" } });
 
     // assert
-    sut.Server.Should().BeSameAs(CiServer.GITHUB_ACTIONS);
+    sut.Server.Should().BeSameAs(CiServer.GithubActions);
     sut.IsCi.Should().BeTrue();
     sut.IsPr.Should().BeFalse();
   }
@@ -36,7 +36,7 @@ public class DefaultCiDiscoveryTests
     });
 
     // assert
-    sut.Server.Should().BeSameAs(CiServer.GITHUB_ACTIONS);
+    sut.Server.Should().BeSameAs(CiServer.GithubActions);
     sut.IsCi.Should().BeTrue();
     sut.IsPr.Should().BeTrue();
   }

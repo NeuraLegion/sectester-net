@@ -1,51 +1,125 @@
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+
 namespace SecTester.Scan.CI;
 
-public record CiServer(string? ServerName = default)
+[DebuggerDisplay("{Constant},{Name}")]
+public sealed class CiServer : IEquatable<CiServer>
 {
-  public static CiServer APPCENTER { get; } = new("Visual Studio App Center");
-  public static CiServer APPCIRCLE { get; } = new("Appcircle");
-  public static CiServer APPVEYOR { get; } = new("AppVeyor");
-  public static CiServer AZURE_PIPELINES { get; } = new("Azure Pipelines");
-  public static CiServer BAMBOO { get; } = new("Bamboo");
-  public static CiServer BITBUCKET { get; } = new("Bitbucket Pipelines");
-  public static CiServer BITRISE { get; } = new("Bitrise");
-  public static CiServer BUDDY { get; } = new("Buddy");
-  public static CiServer BUILDKITE { get; } = new("Buildkite");
-  public static CiServer CIRCLE { get; } = new("CircleCI");
-  public static CiServer CIRRUS { get; } = new("Cirrus CI");
-  public static CiServer CODEBUILD { get; } = new("AWS CodeBuild");
-  public static CiServer CODEFRESH { get; } = new("Codefresh");
-  public static CiServer CODEMAGIC { get; } = new("Codemagic");
-  public static CiServer CODESHIP { get; } = new("Codeship");
-  public static CiServer DRONE { get; } = new("Drone");
-  public static CiServer DSARI { get; } = new("dsari");
-  public static CiServer EAS { get; } = new("Expo Application Services");
-  public static CiServer GERRIT { get; } = new("Gerrit");
-  public static CiServer GITHUB_ACTIONS { get; } = new("GitHub Actions");
-  public static CiServer GITLAB { get; } = new("GitLab CI");
-  public static CiServer GOCD { get; } = new("GoCD");
-  public static CiServer GOOGLE_CLOUD_BUILD { get; } = new("Google Cloud Build");
-  public static CiServer HEROKU { get; } = new("Heroku");
-  public static CiServer HUDSON { get; } = new("Hudson");
-  public static CiServer JENKINS { get; } = new("Jenkins");
-  public static CiServer LAYERCI { get; } = new("LayerCI");
-  public static CiServer MAGNUM { get; } = new("Magnum CI");
-  public static CiServer NETLIFY { get; } = new("Netlify CI");
-  public static CiServer NEVERCODE { get; } = new("Nevercode");
-  public static CiServer RELEASEHUB { get; } = new("ReleaseHub");
-  public static CiServer RENDER { get; } = new("Render");
-  public static CiServer SAIL { get; } = new("Sail CI");
-  public static CiServer SCREWDRIVER { get; } = new("Screwdriver");
-  public static CiServer SEMAPHORE { get; } = new("Semaphore");
-  public static CiServer SHIPPABLE { get; } = new("Shippable");
-  public static CiServer SOLANO { get; } = new("Solano CI");
-  public static CiServer SOURCEHUT { get; } = new("Sourcehut");
-  public static CiServer STRIDER { get; } = new("Strider CD");
-  public static CiServer TASKCLUSTER { get; } = new("TaskCluster");
-  public static CiServer TEAMCITY { get; } = new("TeamCity");
-  public static CiServer TRAVIS { get; } = new("Travis CI");
-  public static CiServer VERCEL { get; } = new("Vercel");
-  public static CiServer WOODPECKER { get; } = new("Woodpecker");
-  public static CiServer XCODE_CLOUD { get; } = new("Xcode Cloud");
-  public static CiServer XCODE_SERVER { get; } = new("Xcode Server");
+  public static CiServer AppCenter { get; } = new("APPCENTER", "Visual Studio App Center");
+  public static CiServer AppCircle { get; } = new("APPCIRCLE", "Appcircle");
+  public static CiServer Appveyor { get; } = new("APPVEYOR", "AppVeyor");
+  public static CiServer AzurePipelines { get; } = new("AZURE_PIPELINES", "Azure Pipelines");
+  public static CiServer Bamboo { get; } = new("BAMBOO", "Bamboo");
+  public static CiServer Bitbucket { get; } = new("BITBUCKET", "Bitbucket Pipelines");
+  public static CiServer Bitrise { get; } = new("BITRISE", "Bitrise");
+  public static CiServer Buddy { get; } = new("BUDDY", "Buddy");
+  public static CiServer BuildKite { get; } = new("BUILDKITE", "Buildkite");
+  public static CiServer Circle { get; } = new("CIRCLE", "CircleCI");
+  public static CiServer Cirrus { get; } = new("CIRRUS", "Cirrus CI");
+  public static CiServer CodeBuild { get; } = new("CODEBUILD", "AWS CodeBuild");
+  public static CiServer CodeFresh { get; } = new("CODEFRESH", "Codefresh");
+  public static CiServer CodeMagic { get; } = new("CODEMAGIC", "Codemagic");
+  public static CiServer CodeShip { get; } = new("CODESHIP", "Codeship");
+  public static CiServer Drone { get; } = new("DRONE", "Drone");
+  public static CiServer Dsari { get; } = new("DSARI", "dsari");
+  public static CiServer Eas { get; } = new("EAS", "Expo Application Services");
+  public static CiServer Gerrit { get; } = new("GERRIT", "Gerrit");
+  public static CiServer GithubActions { get; } = new("GITHUB_ACTIONS", "GitHub Actions");
+  public static CiServer GitLab { get; } = new("GITLAB", "GitLab CI");
+  public static CiServer GoCd { get; } = new("GOCD", "GoCD");
+  public static CiServer GoogleCloudBuild { get; } = new("GOOGLE_CLOUD_BUILD", "Google Cloud Build");
+  public static CiServer Heroku { get; } = new("HEROKU", "Heroku");
+  public static CiServer Hudson { get; } = new("HUDSON", "Hudson");
+  public static CiServer Jenkins { get; } = new("JENKINS", "Jenkins");
+  public static CiServer LayerCi { get; } = new("LAYERCI", "LayerCI");
+  public static CiServer Magnum { get; } = new("MAGNUM", "Magnum CI");
+  public static CiServer Netlify { get; } = new("NETLIFY", "Netlify CI");
+  public static CiServer NeverCode { get; } = new("NEVERCODE", "Nevercode");
+  public static CiServer ReleaseHub { get; } = new("RELEASEHUB", "ReleaseHub");
+  public static CiServer Render { get; } = new("RENDER", "Render");
+  public static CiServer Sail { get; } = new("SAIL", "Sail CI");
+  public static CiServer Screwdriver { get; } = new("SCREWDRIVER", "Screwdriver");
+  public static CiServer Semaphore { get; } = new("SEMAPHORE", "Semaphore");
+  public static CiServer Shippable { get; } = new("SHIPPABLE", "Shippable");
+  public static CiServer Solano { get; } = new("SOLANO", "Solano CI");
+  public static CiServer SourceHut { get; } = new("SOURCEHUT", "Sourcehut");
+  public static CiServer Strider { get; } = new("STRIDER", "Strider CD");
+  public static CiServer TaskCluster { get; } = new("TASKCLUSTER", "TaskCluster");
+  public static CiServer TeamCity { get; } = new("TEAMCITY", "TeamCity");
+  public static CiServer Travis { get; } = new("TRAVIS", "Travis CI");
+  public static CiServer Vercel { get; } = new("VERCEL", "Vercel");
+  public static CiServer Woodpecker { get; } = new("WOODPECKER", "Woodpecker");
+  public static CiServer XcodeCloud { get; } = new("XCODE_CLOUD", "Xcode Cloud");
+  public static CiServer XcodeServer { get; } = new("XCODE_SERVER", "Xcode Server");
+
+  private readonly string _constant;
+  private readonly string _name;
+  private readonly int _hashcode;
+
+  public string Constant => _constant;
+  public string Name => _name;
+
+  private CiServer(string constant, string name)
+  {
+    _constant = constant;
+    _name = name;
+    _hashcode = StringComparer.OrdinalIgnoreCase.GetHashCode(_constant);
+  }
+
+  public override int GetHashCode()
+  {
+    return _hashcode;
+  }
+
+  public override string ToString()
+  {
+    return _constant;
+  }
+
+  public override bool Equals(object? obj)
+  {
+    return Equals(obj as CiServer);
+  }
+
+  public bool Equals(CiServer? other)
+  {
+    if (other is null)
+    {
+      return false;
+    }
+
+    return ReferenceEquals(Constant, other.Constant) || Constant.Equals(other.Constant, StringComparison.OrdinalIgnoreCase);
+  }
+
+  public static bool operator ==(CiServer? left, CiServer? right)
+  {
+    return left is null || right is null ? ReferenceEquals(left, right) : left.Equals(right);
+  }
+
+  public static bool operator !=(CiServer? left, CiServer? right)
+  {
+    return !(left == right);
+  }
+
+  internal static CiServer From(Vendor vendor)
+  {
+    return From(vendor.Constant, vendor.Name);
+  }
+  public static CiServer From(string constant, string name)
+  {
+    if (string.IsNullOrEmpty(constant))
+    {
+      throw new ArgumentException("Constant value must not be empty.");
+    }
+
+    return typeof(CiServer)
+             .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+             .Select(x => x.GetValue(null))
+             .Cast<CiServer>()
+             .FirstOrDefault(x => x.Constant.Equals(constant, StringComparison.OrdinalIgnoreCase))
+           ?? new CiServer(constant, name);
+  }
 }

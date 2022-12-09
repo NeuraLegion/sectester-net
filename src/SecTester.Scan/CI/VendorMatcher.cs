@@ -13,51 +13,52 @@ internal class VendorMatcher
     _env = env;
   }
 
-  public bool MatchEnvElement(JsonElement element)
+  public bool MatchEnv(JsonElement element)
   {
     return element.ValueKind switch
     {
-      JsonValueKind.String => element.GetString() is not null && _env.Contains(element.GetString()!),
-      JsonValueKind.Object => MatchInnerAny(element) || MatchInnerEnvIncludes(element) ||
-                              MatchOwnProperties(element),
-      JsonValueKind.Array => element.EnumerateArray()
-        .All(x => x.ValueKind == JsonValueKind.String && x.GetString() is not null && _env.Contains(x.GetString()!)),
+      JsonValueKind.String => CheckStringValue(element),
+      JsonValueKind.Object => Any(element) || Includes(element) || HasOwnProperties(element),
+      JsonValueKind.Array => element.EnumerateArray().All(CheckStringValue),
       _ => false
     };
   }
 
-
-  public bool MatchPrElement(JsonElement element)
+  public bool MatchPr(JsonElement element)
   {
     return element.ValueKind switch
     {
-      JsonValueKind.String => element.GetString() is not null && _env.Contains(element.GetString()!),
-      JsonValueKind.Object => MatchInnerEnvNe(element) || MatchEnvElement(element),
+      JsonValueKind.String => CheckStringValue(element),
+      JsonValueKind.Object => NotEqual(element) || MatchEnv(element),
       _ => false
     };
   }
 
-  private bool MatchOwnProperties(JsonElement element)
+  private bool CheckStringValue(JsonElement element)
+  {
+    return element.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(element.GetString()) && _env.Contains(element.GetString()!);
+  }
+
+  private bool HasOwnProperties(JsonElement element)
   {
     return element.EnumerateObject().All(x =>
       x.Value.ValueKind == JsonValueKind.String && _env.Contains(x.Name) &&
       x.Value.ValueEquals(_env[x.Name]?.ToString()));
   }
 
-  private bool MatchInnerAny(JsonElement element)
+  private bool Any(JsonElement element)
   {
     var any = element.EnumerateObject().FirstOrDefault(x => x.NameEquals("any"));
 
-    return any.Value.ValueKind == JsonValueKind.Array && any.Value.EnumerateArray()
-      .Any(x => x.ValueKind == JsonValueKind.String && x.GetString() is not null && _env.Contains(x.GetString()!));
+    return any.Value.ValueKind == JsonValueKind.Array && any.Value.EnumerateArray().Any(CheckStringValue);
   }
 
-  private bool MatchInnerEnvIncludes(JsonElement element)
+  private bool Includes(JsonElement element)
   {
-    var env = GetInnerPropertyValue(element, "env");
-    var includes = GetInnerPropertyValue(element, "includes");
+    var env = GetPropertyValue(element, "env");
+    var includes = GetPropertyValue(element, "includes");
 
-    if (env is null || includes is null || !_env.Contains(env))
+    if (string.IsNullOrEmpty(env) || string.IsNullOrEmpty(includes) || !_env.Contains(env))
     {
       return false;
     }
@@ -66,12 +67,12 @@ internal class VendorMatcher
     return envVarValue?.Contains(includes) ?? false;
   }
 
-  private bool MatchInnerEnvNe(JsonElement element)
+  private bool NotEqual(JsonElement element)
   {
-    var env = GetInnerPropertyValue(element, "env");
-    var ne = GetInnerPropertyValue(element, "ne");
+    var env = GetPropertyValue(element, "env");
+    var ne = GetPropertyValue(element, "ne");
 
-    if (env is null || ne is null || !_env.Contains(env) || ne != "false")
+    if (string.IsNullOrEmpty(env) || string.IsNullOrEmpty(ne) || !_env.Contains(env) || ne != "false")
     {
       return false;
     }
@@ -80,7 +81,7 @@ internal class VendorMatcher
     return !string.IsNullOrEmpty(envVarValue);
   }
 
-  private static string? GetInnerPropertyValue(JsonElement element, string name)
+  private static string? GetPropertyValue(JsonElement element, string name)
   {
     var property = element.EnumerateObject().FirstOrDefault(x => x.NameEquals(name));
     return property.Value.ValueKind == JsonValueKind.String ? property.Value.GetString() : default;

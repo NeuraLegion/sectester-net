@@ -1,3 +1,5 @@
+using SecTester.Core.Extensions;
+
 namespace SecTester.Scan.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests
@@ -16,7 +18,7 @@ public class ServiceCollectionExtensionsTests
   public void AddSecTesterScan_ReturnsDefaultScans()
   {
     // arrange
-    _services.AddSingleton(_config);
+    _services.AddSecTesterConfig(_config);
     _services.AddSecTesterBus();
 
     // act
@@ -32,7 +34,7 @@ public class ServiceCollectionExtensionsTests
   public void AddSecTesterScan_ReturnsCiDiscovery()
   {
     // arrange
-    _services.AddSingleton(_config);
+    _services.AddSecTesterConfig(_config);
     _services.AddSecTesterBus();
 
     // act
@@ -42,5 +44,21 @@ public class ServiceCollectionExtensionsTests
     using var provider = _services.BuildServiceProvider();
     var result = provider.GetRequiredService<CiDiscovery>();
     result.Should().BeOfType<DefaultCiDiscovery>();
+  }
+
+  [Fact]
+  public void AddSecTesterScan_ReturnsScanFactory()
+  {
+    // arrange
+    _services.AddSecTesterConfig(_config);
+    _services.AddSecTesterBus();
+
+    // act
+    _services.AddSecTesterScan();
+
+    // assert
+    using var provider = _services.BuildServiceProvider();
+    var result = provider.GetRequiredService<ScanFactory>();
+    result.Should().BeOfType<DefaultScanFactory>();
   }
 }

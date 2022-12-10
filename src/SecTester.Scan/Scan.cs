@@ -27,14 +27,6 @@ public class Scan : IScan
 
   private readonly ILogger _logger;
 
-  private static readonly IEnumerable<KeyValuePair<Severity, IEnumerable<Severity>>> SeverityRanges =
-    new Dictionary<Severity, IEnumerable<Severity>>()
-    {
-      { Severity.Low, new List<Severity>() { Severity.Low, Severity.Medium, Severity.High } },
-      { Severity.Medium, new List<Severity>() { Severity.Medium, Severity.High } },
-      { Severity.High, new List<Severity>() { Severity.High } }
-    };
-
   private readonly ScanOptions _options;
   private readonly Scans _scans;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -178,7 +170,7 @@ public class Scan : IScan
     return _state.IssuesBySeverity switch
     {
       null => false,
-      _ => _state.IssuesBySeverity.Any(x => SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)))
+      _ => _state.IssuesBySeverity.Any(x => x.Type >= expectation)
     };
 
   }

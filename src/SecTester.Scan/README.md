@@ -51,6 +51,10 @@ Below you will find a list of parameters that can be used to configure a `Scan`:
 | `TargetTimeout`        | Measure timeout responses from the target application globally, and stop the scan if the target is unresponsive for longer than the specified time. By default, 5min.                              |
 | `Name`                 | The scan name. The method and hostname by default, e.g. `GET example.com`.                                                                                                                         |
 
+We provide a fluent interface for building a `ScanSettings` object. To use it, you start by creating a `ScanSettingsBuilder` instance, and then you call its methods to specify the various settings you want to use for the scan.
+
+For example, you could call the `WithTarget` method to specify the target for the scan, the `WithTests` method to specify the tests to run, and the `Build` method to create a `ScanSettings` object with those settings.
+
 ### Defining a target for attack
 
 The target can accept the following options:

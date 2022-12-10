@@ -205,7 +205,7 @@ public sealed class Target
   }
 
   /// <summary>
-  ///   Set a request method to be used when making the request, GET by default
+  ///   Sets a request method to be used when making the request, GET by default
   /// </summary>
   public Target WithMethod(HttpMethod value)
   {
@@ -214,7 +214,7 @@ public sealed class Target
   }
 
   /// <summary>
-  ///   Set a request method to be used when making the request, GET by default
+  ///   Sets a request method to be used when making the request, GET by default
   /// </summary>
   public Target WithMethod(string value)
   {
@@ -228,7 +228,7 @@ public sealed class Target
   }
 
   /// <summary>
-  ///   Set headers
+  ///   Sets headers
   /// </summary>
   public Target WithHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> value)
   {

@@ -43,9 +43,9 @@ public class DefaultScanFactory : ScanFactory
 
   private async Task<ScanConfig> BuildScanConfig(ScanSettings scanSettings)
   {
-    var fileId = await CreateAndUploadHar((Target)scanSettings.Target).ConfigureAwait(false);
+    var fileId = await CreateAndUploadHar(scanSettings.Target).ConfigureAwait(false);
 
-    return new ScanConfig(scanSettings.Name!)
+    return new ScanConfig(scanSettings.Name)
     {
       FileId = fileId,
       Smart = scanSettings.Smart,

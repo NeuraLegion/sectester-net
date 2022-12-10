@@ -17,13 +17,13 @@ public class ScanSettingsBuilder
   private bool _skipStaticParams = true;
   private TimeSpan _slowEpTimeout = TimeSpan.FromSeconds(1000);
   private bool _smart = true;
-  private TargetOptions? _target;
+  private Target? _target;
   private TimeSpan _targetTimeout = TimeSpan.FromSeconds(5);
   private IEnumerable<TestType> _tests = new List<TestType>();
 
-  public ScanSettingsBuilder WithTarget(TargetOptions value)
+  public ScanSettingsBuilder WithTarget(Target value)
   {
-    _target = new Target(value ?? throw new ArgumentNullException(nameof(value)));
+    _target = value ?? throw new ArgumentNullException(nameof(value));
     return this;
   }
 
@@ -105,7 +105,7 @@ public class ScanSettingsBuilder
     };
   }
 
-  private static string CreateDefaultName(TargetOptions target)
+  private static string CreateDefaultName(Target target)
   {
     var uri = new Uri(target.Url);
 

@@ -21,9 +21,9 @@ public sealed record ScanSettings
   private readonly TimeSpan? _slowEpTimeout;
   private readonly TimeSpan? _targetTimeout;
   private readonly IEnumerable<TestType> _tests;
-  private readonly TargetOptions _target;
+  private readonly Target _target;
 
-  public ScanSettings(string name, TargetOptions target, IEnumerable<TestType> tests)
+  public ScanSettings(string name, Target target, IEnumerable<TestType> tests)
   {
     Name = name;
     Target = target;
@@ -33,10 +33,10 @@ public sealed record ScanSettings
   /// <summary>
   ///   The target that will be attacked
   /// </summary>
-  public TargetOptions Target
+  public Target Target
   {
     get => _target;
-    init => _target = new Target(value ?? throw new ArgumentNullException(nameof(Target)));
+    init => _target = value ?? throw new ArgumentNullException(nameof(Target));
   }
 
   /// <summary>

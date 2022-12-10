@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using SecTester.Core.Utils;
 using SecTester.Scan.Models.HarSpec;
 
-namespace SecTester.Scan.Models;
+namespace SecTester.Scan;
 
-public sealed class Target : TargetOptions
+public sealed class Target
 {
   private const string ContentTypeHeaderField = "content-type";
   private const string SetCookieHeaderField = "set-cookie";
@@ -44,32 +44,9 @@ public sealed class Target : TargetOptions
     Url = UrlUtils.NormalizeUrl(url);
   }
 
-  internal Target(TargetOptions options) : this(options.Url)
-  {
-    if (options.Query is not null)
-    {
-      WithQuery(options.Query, options.SerializeQuery);
-    }
+  private string? ContentType => GetHeaderValue(ContentTypeHeaderField);
 
-    if (options.Headers is not null)
-    {
-      WithHeaders(options.Headers);
-    }
-
-    if (options.Body is not null)
-    {
-      WithBody(options.Body);
-    }
-
-    if (options.Method is not null)
-    {
-      WithMethod(options.Method);
-    }
-  }
-
-  public string? ContentType => GetHeaderValue(ContentTypeHeaderField);
-
-  public string HttpVersion
+  private string HttpVersion
   {
     get
     {
@@ -79,15 +56,35 @@ public sealed class Target : TargetOptions
     }
   }
 
+  /// <summary>
+  ///   The server URL that will be used for the request
+  /// </summary>
   public string Url { get; }
 
+  /// <summary>
+  ///   The query parameters to be sent with the request
+  /// </summary>
   public IEnumerable<KeyValuePair<string, string>>? Query { get; private set; }
 
+  /// <summary>
+  ///   The data to be sent as the request body.
+  ///   The only required for POST, PUT, PATCH, and DELETE
+  /// </summary>
   public HttpContent? Body { get; private set; }
+
+  /// <summary>
+  ///   The request method to be used when making the request, GET by default
+  /// </summary>
   public HttpMethod Method { get; private set; } = HttpMethod.Get;
 
+  /// <summary>
+  ///   The headers
+  /// </summary>
   public IEnumerable<KeyValuePair<string, IEnumerable<string>>>? Headers { get; private set; }
 
+  /// <summary>
+  ///   The optional method of serializing `Query`
+  /// </summary>
   public string SerializeQuery(IEnumerable<KeyValuePair<string, string>> pairs)
   {
     return UrlUtils.SerializeQuery(pairs);

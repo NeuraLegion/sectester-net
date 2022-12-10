@@ -4,5 +4,5 @@ namespace SecTester.Scan;
 
 public interface ScanFactory
 {
-  Task<Scan> CreateScan(ScanSettings settings, ScanOptions? options = default);
+  Task<IScan> CreateScan(ScanSettings settings, ScanOptions? options = default);
 }

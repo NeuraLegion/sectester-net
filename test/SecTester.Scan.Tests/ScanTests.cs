@@ -30,8 +30,7 @@ public class ScanTests : IAsyncDisposable
   };
 
   private readonly MockLogger _logger = Substitute.For<MockLogger>();
-  private readonly Func<Scan, Task<bool>> _predicate = Substitute.For<Func<Scan, Task<bool>>>();
-
+  private readonly Func<IScan, Task<bool>> _predicate = Substitute.For<Func<IScan, Task<bool>>>();
   private readonly Scans _scans = Substitute.For<Scans>();
   private readonly Scan _sut;
 
@@ -383,14 +382,14 @@ public class ScanTests : IAsyncDisposable
     // arrange
     _scans.GetScan(ScanId).Returns(
       new ScanState(ScanStatus.Running), new ScanState(ScanStatus.Done));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(false);
 
     // act
     var act = () => _sut.Expect(_predicate);
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(2)(Arg.Any<Scan>());
+    await _predicate.Received(2)(Arg.Any<IScan>());
   }
 
   [Theory]
@@ -400,14 +399,14 @@ public class ScanTests : IAsyncDisposable
     // arrange
     _scans.GetScan(ScanId).Returns(
       new ScanState(ScanStatus.Running), new ScanState(scanStatus));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(false);
 
     // act
     var act = () => _sut.Expect(_predicate);
 
     // assert
     await act.Should().ThrowAsync<ScanAborted>();
-    await _predicate.Received(2)(Arg.Any<Scan>());
+    await _predicate.Received(2)(Arg.Any<IScan>());
   }
 
   [Fact]
@@ -423,14 +422,14 @@ public class ScanTests : IAsyncDisposable
     await using var _ = sut;
 
     _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(false);
 
     // act
     var act = () => sut.Expect(_predicate);
 
     // assert
     await act.Should().ThrowAsync<ScanTimedOut>();
-    await _predicate.Received(0)(Arg.Any<Scan>());
+    await _predicate.Received(0)(Arg.Any<IScan>());
   }
 
   [Fact]
@@ -450,14 +449,14 @@ public class ScanTests : IAsyncDisposable
     await using var _ = sut;
 
     _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Running));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(false);
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(false);
 
     // act
     var act = () => sut.Expect(_predicate, cancelledTokenSource.Token);
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(0)(Arg.Any<Scan>());
+    await _predicate.Received(0)(Arg.Any<IScan>());
   }
 
   [Theory]
@@ -466,14 +465,14 @@ public class ScanTests : IAsyncDisposable
   {
     // arrange
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(true);
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(true);
 
     // act
     var act = () => _sut.Expect(_predicate);
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(1)(Arg.Any<Scan>());
+    await _predicate.Received(1)(Arg.Any<IScan>());
   }
 
   [Theory]
@@ -489,7 +488,7 @@ public class ScanTests : IAsyncDisposable
       }
     };
 
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Returns(async _ =>
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Returns(async _ =>
     {
       var status = await _sut.Status().FirstAsync();
       return status.IssuesBySeverity?.Any(x => x.Type == Severity.High) ?? false;
@@ -502,7 +501,7 @@ public class ScanTests : IAsyncDisposable
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(1)(Arg.Any<Scan>());
+    await _predicate.Received(1)(Arg.Any<IScan>());
   }
 
   [Fact]
@@ -519,14 +518,14 @@ public class ScanTests : IAsyncDisposable
   public async Task Expect_PredicateThrows_DoesNothing()
   {
     _scans.GetScan(ScanId).Returns(new ScanState(ScanStatus.Done));
-    _predicate(Arg.Is<Scan>(x => x.Id == ScanId)).Throws<NullReferenceException>();
+    _predicate(Arg.Is<IScan>(x => x.Id == ScanId)).Throws<NullReferenceException>();
 
     // act
     var act = () => _sut.Expect(_predicate);
 
     // assert
     await act.Should().NotThrowAsync();
-    await _predicate.Received(1)(Arg.Any<Scan>());
+    await _predicate.Received(1)(Arg.Any<IScan>());
   }
 
   [Fact]
@@ -571,11 +570,10 @@ public class ScanTests : IAsyncDisposable
   public async Task Expect_ConditionSatisfied_Returns(ScanStatus scanStatus)
   {
     // arrange
-    var satisfyingScanState = new ScanState(scanStatus)
+    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), new ScanState(scanStatus)
     {
       IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
-    };
-    _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), satisfyingScanState);
+    });
 
     // act
     var act = () => _sut.Expect(Severity.Medium);

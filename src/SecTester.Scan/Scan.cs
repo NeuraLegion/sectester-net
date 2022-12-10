@@ -11,7 +11,7 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
 
-public class Scan : IAsyncDisposable
+public class Scan : IScan
 {
   private static readonly IReadOnlyCollection<ScanStatus> ActiveStatuses =
     new[]
@@ -116,11 +116,11 @@ public class Scan : IAsyncDisposable
 
   public async Task Expect(Severity expectation, CancellationToken cancellationToken = default)
   {
-    Task<bool> Predicate(Scan _) => Task.FromResult(IsInExpectedSeverityRange(expectation));
+    Task<bool> Predicate(IScan _) => Task.FromResult(IsInExpectedSeverityRange(expectation));
     await Expect(Predicate, cancellationToken).ConfigureAwait(false);
   }
 
-  public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task Expect(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken = default)
   {
     if (predicate == null)
     {
@@ -130,7 +130,7 @@ public class Scan : IAsyncDisposable
     await ExpectCore(predicate, cancellationToken).ConfigureAwait(false);
   }
 
-  private async Task ExpectCore(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  private async Task ExpectCore(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
     using var cancellationTokenSource =
       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -165,7 +165,7 @@ public class Scan : IAsyncDisposable
     }
   }
 
-  private async Task PollStatusUntil(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  private async Task PollStatusUntil(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
     await Status(cancellationToken)
       .FirstOrDefaultAwaitAsync(
@@ -183,7 +183,7 @@ public class Scan : IAsyncDisposable
 
   }
 
-  private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)
+  private async Task<bool> ApplyPredicate(Func<IScan, Task<bool>> predicate)
   {
     try
     {

@@ -10,7 +10,6 @@ public class DefaultScanFactoryTests : IDisposable
   private readonly Configuration _configuration = new("app.neuralegion.com");
   private readonly MockLogger _logger = Substitute.For<MockLogger>();
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly ScanSettings _options = Substitute.For<ScanSettings>();
   private readonly Scans _scans = Substitute.For<Scans>();
   private readonly ScanFactory _sut;
   private readonly SystemTimeProvider _systemTimeProvider = Substitute.For<SystemTimeProvider>();
@@ -23,7 +22,6 @@ public class DefaultScanFactoryTests : IDisposable
 
   public void Dispose()
   {
-    _options.ClearSubstitute();
     _scans.ClearSubstitute();
     _systemTimeProvider.ClearSubstitute();
     _logger.ClearSubstitute();
@@ -36,24 +34,23 @@ public class DefaultScanFactoryTests : IDisposable
   public async Task CreateScan_CreatesScan()
   {
     // arrange
-    _options.Name.ReturnsForAnyArgs(null as string);
-    _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(new Target("https://example.com"));
-    _options.Tests.Returns(new List<TestType>
+    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<TestType>
     {
       TestType.DomXss
     });
-
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
 
     // act
-    var result = await _sut.CreateScan(_options);
+    var result = await _sut.CreateScan(settings);
 
     // assert
-    result.Id.Should().Be(ScanId);
+    result.Should().BeEquivalentTo(new
+    {
+      Id = ScanId
+    });
     await _scans.Received(1).CreateScan(Arg.Is<ScanConfig>(x =>
-      x.Name == "GET example.com" &&
+      x.Name == "MyScan" &&
       x.FileId == FileId &&
       x.Module == Module.Dast &&
       x.Tests!.Contains(TestType.DomXss) &&
@@ -67,10 +64,7 @@ public class DefaultScanFactoryTests : IDisposable
   public async Task CreateScan_GeneratesUploadHarFile()
   {
     // arrange
-    _options.Name.ReturnsForAnyArgs(null as string);
-    _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(new Target("https://example.com"));
-    _options.Tests.Returns(new List<TestType>
+    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<TestType>
     {
       TestType.DomXss
     });
@@ -79,7 +73,7 @@ public class DefaultScanFactoryTests : IDisposable
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
 
     // act
-    await _sut.CreateScan(_options);
+    await _sut.CreateScan(settings);
 
     // assert
     await _scans.Received(1).UploadHar(Arg.Is<UploadHarOptions>(x =>
@@ -95,20 +89,17 @@ public class DefaultScanFactoryTests : IDisposable
   public async Task CreateScan_TruncatesHarFilename()
   {
     // arrange
-    _options.Name.ReturnsForAnyArgs(null as string);
-    _options.AttackParamLocations.ReturnsForAnyArgs(null as IEnumerable<AttackParamLocation>);
-    _options.Target.Returns(
-      new Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"));
-    _options.Tests.Returns(new List<TestType>
-    {
-      TestType.DomXss
-    });
+    var settings = new ScanSettings("MyScan", new Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"),
+      new List<TestType>
+      {
+        TestType.DomXss
+      });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
 
     // act
-    await _sut.CreateScan(_options);
+    await _sut.CreateScan(settings);
 
     // assert
     await _scans.Received(1).UploadHar(Arg.Is<UploadHarOptions>(x =>

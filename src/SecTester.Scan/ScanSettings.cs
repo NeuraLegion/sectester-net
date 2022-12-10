@@ -21,7 +21,7 @@ public record ScanSettings : ScanSettingsOptions
     AttackParamLocation.Body, AttackParamLocation.Query, AttackParamLocation.Fragment
   };
 
-  private readonly string? _name;
+  private readonly string _name;
   private readonly int? _poolSize = 10;
   private readonly TimeSpan? _slowEpTimeout = TimeSpan.FromSeconds(1000);
 
@@ -60,12 +60,12 @@ public record ScanSettings : ScanSettingsOptions
     init => _target = new Target(value ?? throw new ArgumentNullException(nameof(Target)));
   }
 
-  public string? Name
+  public string Name
   {
     get => _name;
     init
     {
-      if (string.IsNullOrWhiteSpace(value) || value!.Length > MaxNameLength)
+      if (string.IsNullOrWhiteSpace(value) || value.Length > MaxNameLength)
       {
         throw new ArgumentException($"Name must be less than {MaxNameLength} characters.");
       }
@@ -127,7 +127,14 @@ public record ScanSettings : ScanSettingsOptions
     get => _tests;
     init
     {
-      if (value is null || !value.All(x => Enum.IsDefined(typeof(TestType), x)))
+      if (value is null)
+      {
+        throw new ArgumentException("Tests must not be null.");
+      }
+
+      var validTests = Enum.GetValues(typeof(TestType)).Cast<TestType>().Except(value);
+
+      if (validTests.Any())
       {
         throw new ArgumentException("Unknown test type supplied.");
       }
@@ -148,7 +155,14 @@ public record ScanSettings : ScanSettingsOptions
     get => _attackParamLocations;
     init
     {
-      if (value is null || !value.All(x => Enum.IsDefined(typeof(AttackParamLocation), x)))
+      if (value is null)
+      {
+        throw new ArgumentException("Attack param locations must not be null.");
+      }
+
+      var validTests = Enum.GetValues(typeof(AttackParamLocation)).Cast<AttackParamLocation>().Except(value);
+
+      if (validTests.Any())
       {
         throw new ArgumentException("Unknown attack param location supplied.");
       }
@@ -159,6 +173,7 @@ public record ScanSettings : ScanSettingsOptions
       {
         throw new ArgumentException("Please provide at least one attack parameter location.");
       }
+
 
       _attackParamLocations = unique;
     }

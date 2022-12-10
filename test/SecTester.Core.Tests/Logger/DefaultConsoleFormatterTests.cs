@@ -14,22 +14,26 @@ public class DefaultConsoleFormatterTests
     new object[]
     {
       DateTime.Now,
-      new ConsoleFormatterOptions() { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = true, IncludeScopes = false }
+      new ConsoleFormatterOptions
+        { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = true, IncludeScopes = false }
     },
     new object[]
     {
       DateTime.UtcNow,
-      new ConsoleFormatterOptions() { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = true, IncludeScopes = false }
+      new ConsoleFormatterOptions
+        { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = true, IncludeScopes = false }
     },
     new object[]
     {
       DateTime.Now,
-      new ConsoleFormatterOptions() { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false }
+      new ConsoleFormatterOptions
+        { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false }
     },
     new object[]
     {
       DateTime.UtcNow,
-      new ConsoleFormatterOptions() { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false }
+      new ConsoleFormatterOptions
+        { TimestampFormat = "HH:mm:ss", UseUtcTimestamp = false, IncludeScopes = false }
     },
   };
 
@@ -83,7 +87,7 @@ public class DefaultConsoleFormatterTests
     var logEntry = CreateLogEntry(logLevel, "message");
 
     systemTimeProviderMock.Now.Returns(DateTime.Now);
-    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions
     {
       TimestampFormat = "  ",
       IncludeScopes = false,
@@ -109,7 +113,7 @@ public class DefaultConsoleFormatterTests
     var logEntry = CreateLogEntry(LogLevel.Critical, "");
 
     systemTimeProviderMock.Now.Returns(DateTime.Now);
-    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions
     {
       TimestampFormat = "  ",
       IncludeScopes = false,

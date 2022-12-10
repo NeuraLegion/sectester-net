@@ -18,7 +18,6 @@
     <Folder Include="CI"/>
     <Folder Include="Commands"/>
     <Folder Include="Extensions"/>
-    <Folder Include="Fixtures"/>
     <Folder Include="Mocks"/>
     <Folder Include="Models"/>
   </ItemGroup>

@@ -11,7 +11,7 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
 
-public class Scan : IAsyncDisposable
+public class Scan : IScan
 {
   private static readonly IReadOnlyCollection<ScanStatus> ActiveStatuses =
     new[]
@@ -26,14 +26,6 @@ public class Scan : IAsyncDisposable
     };
 
   private readonly ILogger _logger;
-
-  private static readonly IEnumerable<KeyValuePair<Severity, IEnumerable<Severity>>> SeverityRanges =
-    new Dictionary<Severity, IEnumerable<Severity>>()
-    {
-      { Severity.Low, new List<Severity>() { Severity.Low, Severity.Medium, Severity.High } },
-      { Severity.Medium, new List<Severity>() { Severity.Medium, Severity.High } },
-      { Severity.High, new List<Severity>() { Severity.High } }
-    };
 
   private readonly ScanOptions _options;
   private readonly Scans _scans;
@@ -116,11 +108,11 @@ public class Scan : IAsyncDisposable
 
   public async Task Expect(Severity expectation, CancellationToken cancellationToken = default)
   {
-    Task<bool> Predicate(Scan _) => Task.FromResult(IsInExpectedSeverityRange(expectation));
+    Task<bool> Predicate(IScan _) => Task.FromResult(IsInExpectedSeverityRange(expectation));
     await Expect(Predicate, cancellationToken).ConfigureAwait(false);
   }
 
-  public async Task Expect(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task Expect(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken = default)
   {
     if (predicate == null)
     {
@@ -130,7 +122,7 @@ public class Scan : IAsyncDisposable
     await ExpectCore(predicate, cancellationToken).ConfigureAwait(false);
   }
 
-  private async Task ExpectCore(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  private async Task ExpectCore(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
     using var cancellationTokenSource =
       CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -165,7 +157,7 @@ public class Scan : IAsyncDisposable
     }
   }
 
-  private async Task PollStatusUntil(Func<Scan, Task<bool>> predicate, CancellationToken cancellationToken)
+  private async Task PollStatusUntil(Func<IScan, Task<bool>> predicate, CancellationToken cancellationToken)
   {
     await Status(cancellationToken)
       .FirstOrDefaultAwaitAsync(
@@ -178,12 +170,12 @@ public class Scan : IAsyncDisposable
     return _state.IssuesBySeverity switch
     {
       null => false,
-      _ => _state.IssuesBySeverity.Any(x => SeverityRanges.Any(y => expectation == y.Key && y.Value.Contains(x.Type)))
+      _ => _state.IssuesBySeverity.Any(x => x.Type >= expectation)
     };
 
   }
 
-  private async Task<bool> ApplyPredicate(Func<Scan, Task<bool>> predicate)
+  private async Task<bool> ApplyPredicate(Func<IScan, Task<bool>> predicate)
   {
     try
     {

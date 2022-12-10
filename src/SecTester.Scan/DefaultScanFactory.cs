@@ -33,9 +33,9 @@ public class DefaultScanFactory : ScanFactory
     _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
   }
 
-  public async Task<Scan> CreateScan(ScanSettingsOptions settingsOptions, ScanOptions? options)
+  public async Task<IScan> CreateScan(ScanSettings settings, ScanOptions? options)
   {
-    var scanConfig = await BuildScanConfig(new ScanSettings(settingsOptions)).ConfigureAwait(false);
+    var scanConfig = await BuildScanConfig(settings).ConfigureAwait(false);
     var scanId = await _scans.CreateScan(scanConfig).ConfigureAwait(false);
 
     return new Scan(scanId, _scans, _loggerFactory.CreateLogger<Scan>(), options ?? new ScanOptions());
@@ -43,9 +43,9 @@ public class DefaultScanFactory : ScanFactory
 
   private async Task<ScanConfig> BuildScanConfig(ScanSettings scanSettings)
   {
-    var fileId = await CreateAndUploadHar((Target)scanSettings.Target).ConfigureAwait(false);
+    var fileId = await CreateAndUploadHar(scanSettings.Target).ConfigureAwait(false);
 
-    return new ScanConfig(scanSettings.Name!)
+    return new ScanConfig(scanSettings.Name)
     {
       FileId = fileId,
       Smart = scanSettings.Smart,

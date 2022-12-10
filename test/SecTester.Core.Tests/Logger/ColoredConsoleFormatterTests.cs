@@ -32,7 +32,7 @@ public class ColoredConsoleFormatterTests
     var logEntry = CreateLogEntry(logLevel, "message");
 
     systemTimeProviderMock.Now.Returns(DateTime.Now);
-    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions()
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions
     {
       TimestampFormat = "HH:mm:ss",
       UseUtcTimestamp = false,

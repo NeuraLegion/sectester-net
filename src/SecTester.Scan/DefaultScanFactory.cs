@@ -33,9 +33,9 @@ public class DefaultScanFactory : ScanFactory
     _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
   }
 
-  public async Task<Scan> CreateScan(ScanSettingsOptions settingsOptions, ScanOptions? options)
+  public async Task<Scan> CreateScan(ScanSettings settings, ScanOptions? options)
   {
-    var scanConfig = await BuildScanConfig(new ScanSettings(settingsOptions)).ConfigureAwait(false);
+    var scanConfig = await BuildScanConfig(settings).ConfigureAwait(false);
     var scanId = await _scans.CreateScan(scanConfig).ConfigureAwait(false);
 
     return new Scan(scanId, _scans, _loggerFactory.CreateLogger<Scan>(), options ?? new ScanOptions());

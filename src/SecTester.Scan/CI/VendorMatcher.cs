@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using System.Text.Json;
@@ -6,20 +7,20 @@ namespace SecTester.Scan.CI;
 
 internal class VendorMatcher
 {
-  private readonly IDictionary _env;
+  private readonly IDictionary _environment;
 
-  public VendorMatcher(IDictionary env)
+  public VendorMatcher(IDictionary environment)
   {
-    _env = env;
+    _environment = environment;
   }
 
   public bool MatchEnv(JsonElement element)
   {
     return element.ValueKind switch
     {
-      JsonValueKind.String => CheckStringValue(element),
-      JsonValueKind.Object => Any(element) || Includes(element) || HasOwnProperties(element),
-      JsonValueKind.Array => element.EnumerateArray().All(CheckStringValue),
+      JsonValueKind.String => HasValue(element),
+      JsonValueKind.Object => MatchObject(element),
+      JsonValueKind.Array => element.EnumerateArray().All(HasValue),
       _ => false
     };
   }
@@ -28,57 +29,63 @@ internal class VendorMatcher
   {
     return element.ValueKind switch
     {
-      JsonValueKind.String => CheckStringValue(element),
-      JsonValueKind.Object => NotEqual(element) || MatchEnv(element),
+      JsonValueKind.String => HasValue(element),
+      JsonValueKind.Object => NotEqual(element) || MatchObject(element),
       _ => false
     };
   }
 
-  private bool CheckStringValue(JsonElement element)
+  private bool MatchObject(JsonElement element)
   {
-    return element.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(element.GetString()) && _env.Contains(element.GetString()!);
+    return Any(element) || Includes(element) || HasOwnProperties(element);
+  }
+
+  private bool HasValue(JsonElement element)
+  {
+    return element.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(element.GetString()) && _environment.Contains(element.GetString()!);
   }
 
   private bool HasOwnProperties(JsonElement element)
   {
     return element.EnumerateObject().All(x =>
-      x.Value.ValueKind == JsonValueKind.String && _env.Contains(x.Name) &&
-      x.Value.ValueEquals(_env[x.Name]?.ToString()));
+      x.Value.ValueKind == JsonValueKind.String && _environment.Contains(x.Name) &&
+      x.Value.ValueEquals(_environment[x.Name]?.ToString()));
   }
 
   private bool Any(JsonElement element)
   {
     var any = element.EnumerateObject().FirstOrDefault(x => x.NameEquals("any"));
 
-    return any.Value.ValueKind == JsonValueKind.Array && any.Value.EnumerateArray().Any(CheckStringValue);
+    return any.Value.ValueKind == JsonValueKind.Array && any.Value.EnumerateArray().Any(HasValue);
   }
 
   private bool Includes(JsonElement element)
   {
-    var env = GetPropertyValue(element, "env");
-    var includes = GetPropertyValue(element, "includes");
-
-    if (string.IsNullOrEmpty(env) || string.IsNullOrEmpty(includes) || !_env.Contains(env))
-    {
-      return false;
-    }
-
-    var envVarValue = _env[env]?.ToString();
-    return envVarValue?.Contains(includes) ?? false;
+    return ApplyPredicate(element, "includes", (envVarValue, includesValue) =>
+      envVarValue?.Contains(includesValue) ?? false
+    );
   }
 
   private bool NotEqual(JsonElement element)
   {
-    var env = GetPropertyValue(element, "env");
-    var ne = GetPropertyValue(element, "ne");
+    return ApplyPredicate(element, "ne", (envVarValue, neValue) =>
+      neValue == "false" && !string.IsNullOrEmpty(envVarValue)
+    );
+  }
 
-    if (string.IsNullOrEmpty(env) || string.IsNullOrEmpty(ne) || !_env.Contains(env) || ne != "false")
+  private bool ApplyPredicate(JsonElement element, string propertyName, Func<string?, string, bool> predicate)
+  {
+    var env = GetPropertyValue(element, "env");
+    var property = GetPropertyValue(element, propertyName);
+
+    if (string.IsNullOrEmpty(env) || string.IsNullOrEmpty(property) || !_environment.Contains(env))
     {
       return false;
     }
 
-    var envVarValue = _env[env]?.ToString();
-    return !string.IsNullOrEmpty(envVarValue);
+    var envVarValue = _environment[env]?.ToString();
+
+    return predicate(envVarValue, property!);
   }
 
   private static string? GetPropertyValue(JsonElement element, string name)

@@ -7,11 +7,10 @@ namespace SecTester.Scan.CI;
 
 internal class DefaultCiDiscovery : CiDiscovery
 {
-  public const string VendorsResource = "SecTester.Scan.CI.vendors.json";
+  private const string VendorsResource = "SecTester.Scan.CI.vendors.json";
+
   public CiServer? Server { get; }
-
   public bool IsCi => Server != null;
-
   public bool IsPr { get; }
 
   public DefaultCiDiscovery(IDictionary? env = default)
@@ -36,7 +35,9 @@ internal class DefaultCiDiscovery : CiDiscovery
       return;
     }
 
-    Server = CiServer.From(vendor);
+    Server = CiServer.GetAll()
+               .FirstOrDefault(x => vendor.Constant.Equals(x.Id, StringComparison.OrdinalIgnoreCase))
+             ?? new CiServer(vendor.Constant, vendor.Name);
 
     IsPr = matcher.MatchPr(vendor.Pr);
   }

@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
 namespace SecTester.Scan.CI;
 
-[DebuggerDisplay("{Constant},{Name}")]
+[DebuggerDisplay("{Id},{Name}")]
 public sealed class CiServer : IEquatable<CiServer>
 {
   public static CiServer AppCenter { get; } = new("APPCENTER", "Visual Studio App Center");
@@ -55,29 +56,32 @@ public sealed class CiServer : IEquatable<CiServer>
   public static CiServer XcodeCloud { get; } = new("XCODE_CLOUD", "Xcode Cloud");
   public static CiServer XcodeServer { get; } = new("XCODE_SERVER", "Xcode Server");
 
-  private readonly string _constant;
-  private readonly string _name;
+  private static readonly IEnumerable<CiServer> All = typeof(CiServer)
+    .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+    .Select(x => x.GetValue(null))
+    .Cast<CiServer>();
+
   private readonly int _hashcode;
 
-  public string Constant => _constant;
-  public string Name => _name;
+  public string Id { get; }
+  public string Name { get; }
 
-  private CiServer(string constant, string name)
+  public CiServer(string id, string name)
   {
-    _constant = constant;
-    _name = name;
-    _hashcode = StringComparer.OrdinalIgnoreCase.GetHashCode(_constant);
+    if (string.IsNullOrEmpty(id))
+    {
+      throw new ArgumentException("Id must not be empty.");
+    }
+
+    Id = id;
+    Name = name;
+
+    _hashcode = StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
   }
 
-  public override int GetHashCode()
-  {
-    return _hashcode;
-  }
+  public override int GetHashCode() => _hashcode;
 
-  public override string ToString()
-  {
-    return _constant;
-  }
+  public override string ToString() => Name;
 
   public override bool Equals(object? obj)
   {
@@ -86,13 +90,10 @@ public sealed class CiServer : IEquatable<CiServer>
 
   public bool Equals(CiServer? other)
   {
-    if (other is null)
-    {
-      return false;
-    }
-
-    return ReferenceEquals(Constant, other.Constant) || Constant.Equals(other.Constant, StringComparison.OrdinalIgnoreCase);
+    return other is not null && Id.Equals(other.Id, StringComparison.OrdinalIgnoreCase);
   }
+
+  public static IEnumerable<CiServer> GetAll() => All;
 
   public static bool operator ==(CiServer? left, CiServer? right)
   {
@@ -102,24 +103,5 @@ public sealed class CiServer : IEquatable<CiServer>
   public static bool operator !=(CiServer? left, CiServer? right)
   {
     return !(left == right);
-  }
-
-  internal static CiServer From(Vendor vendor)
-  {
-    return From(vendor.Constant, vendor.Name);
-  }
-  public static CiServer From(string constant, string name)
-  {
-    if (string.IsNullOrEmpty(constant))
-    {
-      throw new ArgumentException("Constant value must not be empty.");
-    }
-
-    return typeof(CiServer)
-             .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-             .Select(x => x.GetValue(null))
-             .Cast<CiServer>()
-             .FirstOrDefault(x => x.Constant.Equals(constant, StringComparison.OrdinalIgnoreCase))
-           ?? new CiServer(constant, name);
   }
 }

@@ -2,7 +2,7 @@ namespace SecTester.Scan.Tests.CI;
 
 public class CiServerTests
 {
-  public static IEnumerable<object[]> FromInvalidInput = new List<object[]>
+  public static IEnumerable<object[]> ConstructorInvalidInput = new List<object[]>
   {
     new object[]
     {
@@ -50,7 +50,11 @@ public class CiServerTests
     },
     new object[]
     {
-      () => CiServer.From("constant1", "") ==  CiServer.From("CONSTANT1", ""), true,
+      () => new CiServer("id1", "") == new CiServer("ID1", ""), true,
+    },
+    new object[]
+    {
+      () => new CiServer("id1", "").GetHashCode() == new CiServer("ID1", "").GetHashCode(), true,
     }
   };
 
@@ -66,54 +70,31 @@ public class CiServerTests
   }
 
   [Fact]
-  public void ToString_ReturnsConstant()
+  public void ToString_ReturnsName()
   {
     // assert
-    CiServer.CodeBuild.ToString().Should().Be(CiServer.CodeBuild.Constant);
+    CiServer.CodeBuild.ToString().Should().Be(CiServer.CodeBuild.Name);
   }
 
   [Fact]
-  public void From_ReturnsPredefinedInstance()
+  public void Constructor_CreatesInstance()
   {
     // act
-    var result = CiServer.From(CiServer.Bamboo.Constant, "NAME");
-
-    // assert
-    result.Should().BeSameAs(CiServer.Bamboo);
-  }
-
-  [Fact]
-  public void From_CreatesInstance()
-  {
-    // act
-    var result = CiServer.From("CONSTANT", "NAME");
+    var result = new CiServer("ID", "NAME");
 
     // assert
     result.Name.Should().Be("NAME");
-    result.Constant.Should().Be("CONSTANT");
+    result.Id.Should().Be("ID");
   }
 
   [Theory]
-  [MemberData(nameof(FromInvalidInput))]
-  public void From_GivenInvalidInput_ThrowsError(string constantInput, string nameInput)
+  [MemberData(nameof(ConstructorInvalidInput))]
+  public void Constructor_GivenInvalidInput_ThrowsError(string idInput, string nameInput)
   {
     // act
-    var act = () => CiServer.From(constantInput, nameInput);
+    var act = () => new CiServer(idInput, nameInput);
 
     // assert
-    act.Should().Throw<ArgumentException>().WithMessage("Constant value must not be empty.");
-  }
-
-  [Fact]
-  public void From_GivenConstant_ReturnsInstanceWithSameHashCode()
-  {
-    // arrange
-    var ciServer = CiServer.From("constant1", "");
-
-    // act
-    var result = CiServer.From(ciServer.ToString().ToUpperInvariant(), "");
-
-    // assert
-    result.GetHashCode().Should().Be(ciServer.GetHashCode());
+    act.Should().Throw<ArgumentException>().WithMessage("Id must not be empty.");
   }
 }

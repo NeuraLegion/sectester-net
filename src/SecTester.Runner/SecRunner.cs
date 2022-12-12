@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Core;
 using SecTester.Repeater;
@@ -39,7 +40,7 @@ public class SecRunner : IAsyncDisposable
     GC.SuppressFinalize(this);
   }
 
-  public async Task Init(RepeaterOptions? options = default)
+  public async Task Init(RepeaterOptions? options = default, CancellationToken cancellationToken = default)
   {
     if (_repeater is not null)
     {
@@ -49,16 +50,16 @@ public class SecRunner : IAsyncDisposable
     await _configuration.LoadCredentials().ConfigureAwait(false);
 
     _repeater = await _repeaterFactory.CreateRepeater(options).ConfigureAwait(false);
-    await _repeater.Start().ConfigureAwait(false);
+    await _repeater.Start(cancellationToken).ConfigureAwait(false);
   }
 
-  public async Task Clear()
+  public async Task Clear(CancellationToken cancellationToken = default)
   {
     try
     {
       if (_repeater is not null)
       {
-        await _repeater.Stop().ConfigureAwait(false);
+        await _repeater.Stop(cancellationToken).ConfigureAwait(false);
         await _repeatersManager.DeleteRepeater(_repeater.RepeaterId).ConfigureAwait(false);
         await _repeater.DisposeAsync().ConfigureAwait(false);
       }

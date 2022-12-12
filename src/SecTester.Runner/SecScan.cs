@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Reporter;
 using SecTester.Scan;
@@ -23,14 +24,14 @@ public class SecScan
     _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
   }
 
-  public async Task Run(Target target)
+  public async Task Run(Target target, CancellationToken cancellationToken = default)
   {
     var scan = await CreateScan(target).ConfigureAwait(false);
     await using var _ = scan.ConfigureAwait(false);
 
     try
     {
-      await scan.Expect(_threshold).ConfigureAwait(false);
+      await scan.Expect(_threshold, cancellationToken).ConfigureAwait(false);
 
       await Assert(scan).ConfigureAwait(false);
     }

@@ -105,7 +105,7 @@ public class SecRunner : IAsyncDisposable
     }
 
     return new SecScan(
-      builder,
+      builder.WithRepeater(_repeater.RepeaterId),
       _scanFactory,
       _formatter
     );

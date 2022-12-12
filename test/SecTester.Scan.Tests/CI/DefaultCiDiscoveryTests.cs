@@ -9,9 +9,12 @@ public class DefaultCiDiscoveryTests
     var sut = new DefaultCiDiscovery(new Dictionary<string, string>());
 
     // assert
-    sut.Server.Should().BeNull();
-    sut.IsCi.Should().BeFalse();
-    sut.IsPr.Should().BeFalse();
+    sut.Should().BeEquivalentTo(new
+    {
+      Server = null as CiServer,
+      IsCi = false,
+      IsPr = false
+    });
   }
 
   [Fact]
@@ -21,9 +24,12 @@ public class DefaultCiDiscoveryTests
     var sut = new DefaultCiDiscovery(new Dictionary<string, string>() { { "GITHUB_ACTIONS", "" } });
 
     // assert
-    sut.Server.Should().BeSameAs(CiServer.GithubActions);
-    sut.IsCi.Should().BeTrue();
-    sut.IsPr.Should().BeFalse();
+    sut.Should().BeEquivalentTo(new
+    {
+      Server = CiServer.GithubActions,
+      IsCi = true,
+      IsPr = false
+    });
   }
 
   [Fact]
@@ -36,8 +42,11 @@ public class DefaultCiDiscoveryTests
     });
 
     // assert
-    sut.Server.Should().BeSameAs(CiServer.GithubActions);
-    sut.IsCi.Should().BeTrue();
-    sut.IsPr.Should().BeTrue();
+    sut.Should().BeEquivalentTo(new
+    {
+      Server = CiServer.GithubActions,
+      IsCi = true,
+      IsPr = true
+    });
   }
 }

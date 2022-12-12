@@ -2,7 +2,7 @@ namespace SecTester.Scan.Tests.CI;
 
 public class CiServerTests
 {
-  public static IEnumerable<object[]> ConstructorInvalidInput = new List<object[]>
+  public static readonly IEnumerable<object[]> ConstructorInvalidInput = new List<object[]>
   {
     new object[]
     {
@@ -14,59 +14,116 @@ public class CiServerTests
     }
   };
 
-  public static IEnumerable<object[]> EqualityInput = new List<object[]>
+  public static readonly IEnumerable<object[]> EqualityValidInput = new List<object[]>
   {
     new object[]
     {
-      () => CiServer.Appveyor == CiServer.Appveyor, true,
+      CiServer.Appveyor, CiServer.Appveyor
     },
     new object[]
     {
-      () => CiServer.Appveyor != CiServer.Appveyor, false,
+      new CiServer("id1", ""), new CiServer("ID1", "")
+    }
+  };
+
+  public static readonly IEnumerable<object[]> EqualityInvalidInput = new List<object[]>
+  {
+    new object[]
+    {
+      CiServer.Appveyor, CiServer.Bamboo
     },
     new object[]
     {
-      () => CiServer.Appveyor != CiServer.Bamboo, true,
-    },
-    new object[]
-    {
-      () => CiServer.Appveyor == CiServer.Bamboo, false,
-    },
-    new object[]
-    {
-      () => CiServer.Appveyor.Equals(CiServer.Appveyor), true,
-    },
-    new object[]
-    {
-      () => CiServer.Appveyor.Equals(null!), false,
-    },
-    new object[]
-    {
-      () => CiServer.Appveyor.Equals((object)CiServer.Appveyor), true,
-    },
-    new object[]
-    {
-      () => CiServer.Appveyor.Equals(null as object), false,
-    },
-    new object[]
-    {
-      () => new CiServer("id1", "") == new CiServer("ID1", ""), true,
-    },
-    new object[]
-    {
-      () => new CiServer("id1", "").GetHashCode() == new CiServer("ID1", "").GetHashCode(), true,
+      CiServer.Appveyor, null as CiServer
     }
   };
 
   [Theory]
-  [MemberData(nameof(EqualityInput))]
-  public void EqualityExpression_ReturnsExpected(Func<bool> actorFunc, bool expected)
+  [MemberData(nameof(EqualityValidInput))]
+  public void ObjectEquals_ReturnsTrue(CiServer inputLeft, CiServer inputRight)
   {
     // act
-    var result = actorFunc();
+    var result = inputLeft.Equals(inputRight as object);
 
     // assert
-    result.Should().Be(expected);
+    result.Should().BeTrue();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityInvalidInput))]
+  public void ObjectEquals_ReturnsFalse(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft.Equals(inputRight as object);
+
+    // assert
+    result.Should().BeFalse();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityValidInput))]
+  public void IEquitableEquals_ReturnsTrue(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft.Equals(inputRight);
+
+    // assert
+    result.Should().BeTrue();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityInvalidInput))]
+  public void IEquitableEquals_ReturnsFalse(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft.Equals(inputRight);
+
+    // assert
+    result.Should().BeFalse();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityValidInput))]
+  public void EqualityOperator_ReturnsTrue(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft == inputRight;
+
+    // assert
+    result.Should().BeTrue();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityInvalidInput))]
+  public void EqualityOperator_ReturnsFalse(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft == inputRight;
+
+    // assert
+    result.Should().BeFalse();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityInvalidInput))]
+  public void InequalityOperator_ReturnsTrue(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft != inputRight;
+
+    // assert
+    result.Should().BeTrue();
+  }
+
+  [Theory]
+  [MemberData(nameof(EqualityValidInput))]
+  public void InequalityOperator_ReturnsFalse(CiServer inputLeft, CiServer inputRight)
+  {
+    // act
+    var result = inputLeft != inputRight;
+
+    // assert
+    result.Should().BeFalse();
   }
 
   [Fact]
@@ -95,6 +152,29 @@ public class CiServerTests
     var act = () => new CiServer(idInput, nameInput);
 
     // assert
-    act.Should().Throw<ArgumentException>().WithMessage("Id must not be empty.");
+    act.Should().Throw<ArgumentNullException>().WithMessage("*id*");
+  }
+
+  [Fact]
+  public void GetHashCode_WithDifferentCaseId_ReturnsSameHashCode()
+  {
+    // arrange
+    var hashcode = new CiServer("id1", "").GetHashCode();
+
+    // act
+    var result = new CiServer("ID1", "").GetHashCode();
+
+    // assert
+    result.Should().Be(hashcode);
+  }
+
+  [Fact]
+  public void From_GivenExistingId_ReturnsExistingInstance()
+  {
+    // act
+    var result = CiServer.From(CiServer.Appveyor.Id);
+
+    // assert
+    result.Should().BeSameAs(CiServer.Appveyor);
   }
 }

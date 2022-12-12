@@ -35,9 +35,7 @@ internal class DefaultCiDiscovery : CiDiscovery
       return;
     }
 
-    Server = CiServer.GetAll()
-               .FirstOrDefault(x => vendor.Constant.Equals(x.Id, StringComparison.OrdinalIgnoreCase))
-             ?? new CiServer(vendor.Constant, vendor.Name);
+    Server = CiServer.From(vendor.Constant) ?? new CiServer(vendor.Constant, vendor.Name);
 
     IsPr = matcher.MatchPr(vendor.Pr);
   }

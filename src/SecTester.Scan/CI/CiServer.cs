@@ -56,11 +56,6 @@ public sealed class CiServer : IEquatable<CiServer>
   public static CiServer XcodeCloud { get; } = new("XCODE_CLOUD", "Xcode Cloud");
   public static CiServer XcodeServer { get; } = new("XCODE_SERVER", "Xcode Server");
 
-  private static readonly IEnumerable<CiServer> All = typeof(CiServer)
-    .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-    .Select(x => x.GetValue(null))
-    .Cast<CiServer>();
-
   private readonly int _hashcode;
 
   public string Id { get; }
@@ -70,7 +65,7 @@ public sealed class CiServer : IEquatable<CiServer>
   {
     if (string.IsNullOrEmpty(id))
     {
-      throw new ArgumentException("Id must not be empty.");
+      throw new ArgumentNullException(nameof(id));
     }
 
     Id = id;
@@ -83,17 +78,12 @@ public sealed class CiServer : IEquatable<CiServer>
 
   public override string ToString() => Name;
 
-  public override bool Equals(object? obj)
-  {
-    return Equals(obj as CiServer);
-  }
+  public override bool Equals(object? obj) => Equals(obj as CiServer);
 
   public bool Equals(CiServer? other)
   {
     return other is not null && Id.Equals(other.Id, StringComparison.OrdinalIgnoreCase);
   }
-
-  public static IEnumerable<CiServer> GetAll() => All;
 
   public static bool operator ==(CiServer? left, CiServer? right)
   {
@@ -103,5 +93,18 @@ public sealed class CiServer : IEquatable<CiServer>
   public static bool operator !=(CiServer? left, CiServer? right)
   {
     return !(left == right);
+  }
+
+  public static CiServer? From(string id)
+  {
+    return GetAll().FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+  }
+
+  public static IEnumerable<CiServer> GetAll()
+  {
+    return typeof(CiServer)
+      .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+      .Select(x => x.GetValue(null))
+      .Cast<CiServer>();
   }
 }

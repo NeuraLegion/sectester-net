@@ -149,7 +149,7 @@ public class VendorMatcherTests
 
   [Theory]
   [MemberData(nameof(MatchEnvInput))]
-  public void MatchEnvElement_ReturnsExpected(string vendorInput, IDictionary environmentInput, bool expected)
+  public void MatchEnv_ReturnsExpected(string vendorInput, IDictionary environmentInput, bool expected)
   {
     // arrange
     var sut = new VendorMatcher(environmentInput);
@@ -164,7 +164,7 @@ public class VendorMatcherTests
 
   [Theory]
   [MemberData(nameof(MatchPrInput))]
-  public void MatchPrElement_ReturnsExpected(string vendorInput, IDictionary environmentInput, bool expected)
+  public void MatchPr_ReturnsExpected(string vendorInput, IDictionary environmentInput, bool expected)
   {
     // arrange
     var sut = new VendorMatcher(environmentInput);

@@ -26,13 +26,9 @@ public class DefaultRepeaterFactory : RepeaterFactory
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
   }
 
-  public Task<Repeater> CreateRepeater()
+  public async Task<IRepeater> CreateRepeater(RepeaterOptions? options = default)
   {
-    return CreateRepeater(new RepeaterOptions());
-  }
-
-  public async Task<Repeater> CreateRepeater(RepeaterOptions options)
-  {
+    options ??= new RepeaterOptions();
     Version version = new(_configuration.Version);
 
     string repeaterId = await _repeaters.CreateRepeater($"{options.NamePrefix}-{Guid.NewGuid()}", options.Description).ConfigureAwait(false);

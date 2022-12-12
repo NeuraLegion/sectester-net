@@ -4,5 +4,5 @@ namespace SecTester.Repeater;
 
 public interface RepeaterFactory
 {
-  public Task<Repeater> CreateRepeater(RepeaterOptions options);
+  Task<IRepeater> CreateRepeater(RepeaterOptions? options = default);
 }

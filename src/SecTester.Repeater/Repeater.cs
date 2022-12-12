@@ -10,7 +10,7 @@ using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater;
 
-public class Repeater : IAsyncDisposable
+public class Repeater : IAsyncDisposable, IRepeater
 {
   private readonly EventBus _eventBus;
   private readonly TimerProvider _heartbeat;

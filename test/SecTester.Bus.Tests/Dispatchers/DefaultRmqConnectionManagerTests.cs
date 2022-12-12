@@ -5,23 +5,17 @@ namespace SecTester.Bus.Tests.Dispatchers;
 public class DefaultRmqConnectionManagerTests : IDisposable
 {
   private readonly RmqConnectionManager _manager;
-  private readonly IModel _channel;
-  private readonly IConnection _connection;
-  private readonly IConnectionFactory _connectionFactory;
-  private readonly ILogger _logger;
-  private readonly RetryStrategy _retryStrategy;
+  private readonly IModel _channel = Substitute.For<IModel>();
+  private readonly IConnection _connection = Substitute.For<IConnection>();
+  private readonly IConnectionFactory _connectionFactory = Substitute.For<IConnectionFactory>();
+  private readonly ILogger<DefaultRmqConnectionManager> _logger = Substitute.For<ILogger<DefaultRmqConnectionManager>>();
+  private readonly RetryStrategy _retryStrategy = Substitute.For<RetryStrategy>();
 
   public DefaultRmqConnectionManagerTests()
   {
-    _connectionFactory = Substitute.For<IConnectionFactory>();
-    _logger = Substitute.For<ILogger>();
-    _connection = Substitute.For<IConnection>();
-    _channel = Substitute.For<IModel>();
     _connectionFactory.CreateConnection().Returns(_connection);
     _connection.CreateModel().Returns(_channel);
-    _retryStrategy = Substitute.For<RetryStrategy>();
     _retryStrategy.Acquire(Arg.Any<Func<Task<IConnection>>>()).Returns(x => x.ArgAt<Func<Task<IConnection>>>(0).Invoke());
-
     _connection.Endpoint.Returns(new AmqpTcpEndpoint
     {
       HostName = "localhost"

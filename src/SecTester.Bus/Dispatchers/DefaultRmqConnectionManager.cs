@@ -15,7 +15,7 @@ public class DefaultRmqConnectionManager : RmqConnectionManager
   private readonly object _sync = new();
   private IConnection? _connection;
 
-  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger logger, RetryStrategy retryStrategy)
+  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger<DefaultRmqConnectionManager> logger, RetryStrategy retryStrategy)
   {
     _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));

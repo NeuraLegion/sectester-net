@@ -30,7 +30,7 @@ public class RmqEventBus : EventBus
   private readonly IServiceScopeFactory _scopeFactory;
   private IModel _channel;
 
-  public RmqEventBus(RmqEventBusOptions options, RmqConnectionManager connectionManager, ILogger logger,
+  public RmqEventBus(RmqEventBusOptions options, RmqConnectionManager connectionManager, ILogger<RmqEventBus> logger,
     IServiceScopeFactory scopeFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));

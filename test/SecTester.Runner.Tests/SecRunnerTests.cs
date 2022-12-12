@@ -28,6 +28,16 @@ public class SecRunnerTests
   }
 
   [Fact]
+  public async Task Create_CreatesCompositeRoot()
+  {
+    // act
+    await using var secRunner = await SecRunner.Create(_configuration);
+
+    // assert
+    secRunner.Should().BeOfType<SecRunner>();
+  }
+
+  [Fact]
   public async Task Init_StartsRepeater()
   {
     // act

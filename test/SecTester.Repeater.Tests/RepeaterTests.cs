@@ -33,7 +33,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   };
 
   private readonly EventBus _eventBus = Substitute.For<EventBus>();
-  private readonly MockLogger _logger = Substitute.For<MockLogger>();
+  private readonly MockLogger<Repeater> _logger = Substitute.For<MockLogger<Repeater>>();
   private readonly Repeater _sut;
   private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
 

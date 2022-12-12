@@ -13,20 +13,15 @@ public class RmqEventBusTests : IDisposable
 
   private readonly AsyncEventingBasicConsumer _basicConsumer;
   private readonly RmqEventBus _bus;
-  private readonly IModel _channel;
-  private readonly RmqConnectionManager _connectionManager;
-  private readonly ILogger _logger;
+  private readonly IModel _channel = Substitute.For<IModel>();
+  private readonly RmqConnectionManager _connectionManager = Substitute.For<RmqConnectionManager>();
+  private readonly ILogger<RmqEventBus> _logger = Substitute.For<ILogger<RmqEventBus>>();
   private readonly RmqEventBusOptions _options;
   private readonly AsyncEventingBasicConsumer _replyConsumer;
-  private readonly IServiceScopeFactory _scopeFactory;
+  private readonly IServiceScopeFactory _scopeFactory = Substitute.For<IServiceScopeFactory>();
 
   public RmqEventBusTests()
   {
-    _connectionManager = Substitute.For<RmqConnectionManager>();
-    _logger = Substitute.For<ILogger>();
-    _scopeFactory = Substitute.For<IServiceScopeFactory>();
-    _channel = Substitute.For<IModel>();
-
     _basicConsumer = new AsyncEventingBasicConsumer(_channel);
     _replyConsumer = new AsyncEventingBasicConsumer(_channel);
 

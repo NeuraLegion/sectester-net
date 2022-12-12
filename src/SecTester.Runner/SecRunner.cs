@@ -1,11 +1,17 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using SecTester.Bus.Extensions;
 using SecTester.Core;
+using SecTester.Core.Extensions;
 using SecTester.Repeater;
 using SecTester.Repeater.Api;
+using SecTester.Repeater.Extensions;
 using SecTester.Reporter;
 using SecTester.Scan;
+using SecTester.Scan.Extensions;
+using SecTester.Scan.Models;
 
 namespace SecTester.Runner;
 
@@ -38,6 +44,23 @@ public class SecRunner : IAsyncDisposable
     }
 
     GC.SuppressFinalize(this);
+  }
+
+  public static async Task<SecRunner> Create(Configuration configuration)
+  {
+    var collection = new ServiceCollection();
+    collection
+      .AddSecTesterConfig(configuration)
+      .AddSecTesterBus()
+      .AddSecTesterRepeater()
+      .AddSecTesterScan()
+      .AddScoped<SecRunner>()
+      .AddSingleton<Formatter, DummyFormatter>();
+
+    var sp = collection.BuildServiceProvider();
+    await using var _ = sp.ConfigureAwait(false);
+
+    return sp.GetRequiredService<SecRunner>();
   }
 
   public async Task Init(RepeaterOptions? options = default, CancellationToken cancellationToken = default)
@@ -86,5 +109,11 @@ public class SecRunner : IAsyncDisposable
       _scanFactory,
       _formatter
     );
+  }
+
+  // TODO: remove once https://github.com/NeuraLegion/sectester-net/issues/97 has been closed
+  private sealed class DummyFormatter : Formatter
+  {
+    public string Format(Issue issue) => throw new NotImplementedException();
   }
 }

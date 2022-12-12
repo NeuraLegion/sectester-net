@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
   {
     return collection
       .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
+      .AddScoped<RepeaterEventBusFactory, DefaultRepeaterEventBusFactory>()
       .AddScoped<RequestExecutingEventListener>()
       .AddScoped(_ => options)
       .AddScoped<Repeaters, DefaultRepeaters>()
@@ -74,6 +75,3 @@ public static class ServiceCollectionExtensions
     }
   }
 }
-
-
-

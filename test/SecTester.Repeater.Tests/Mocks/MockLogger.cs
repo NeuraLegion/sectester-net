@@ -1,6 +1,6 @@
 namespace SecTester.Repeater.Tests.Mocks;
 
-internal abstract class MockLogger : ILogger
+internal abstract class MockLogger<T> : ILogger<T> where T : class
 {
   void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
     Func<TState, Exception?, string> formatter)

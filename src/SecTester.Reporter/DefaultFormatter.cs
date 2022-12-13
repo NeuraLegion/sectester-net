@@ -7,10 +7,10 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Reporter;
 
-public class DefaultFormatter : Formatter
+internal class DefaultFormatter : Formatter
 {
+  public const char NewLine = '\n';
   private const char BulletPoint = '●';
-  private const char NewLine = '\n';
   private const char Tabulation = '\t';
   private const string TemplateBody = @"Issue in Bright UI:   {0}
 Name:                 {1}
@@ -43,7 +43,7 @@ Details:
       FormatList(resources)
     );
 
-    return message.Trim();
+    return message.Trim().Replace(Environment.NewLine, NewLine.ToString());
   }
 
   private static string GenerateTemplate(bool extraInfo, bool references)

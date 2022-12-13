@@ -1,3 +1,5 @@
+using System.Xml;
+
 namespace SecTester.Reporter.Tests;
 
 public class DefaultFormatterTests
@@ -61,7 +63,9 @@ References:
   public void Format_GivenIssue_ReturnsFormattedString(Issue issue, string expected)
   {
     // arrange
-    expected = expected.Replace("{TAB}", "\t", StringComparison.OrdinalIgnoreCase);
+    expected = expected.Replace("{TAB}", "\t", StringComparison.OrdinalIgnoreCase)
+      .ReplaceLineEndings(DefaultFormatter.NewLine.ToString());
+
 
     // act
     var result = _sut.Format(issue);

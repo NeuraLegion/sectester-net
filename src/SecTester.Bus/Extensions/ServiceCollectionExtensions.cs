@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using SecTester.Bus.Dispatchers;
@@ -10,44 +11,49 @@ namespace SecTester.Bus.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-  public static IServiceCollection AddSecTesterBus(this IServiceCollection collection)
-  {
+  public static IServiceCollection AddSecTesterBus(this IServiceCollection collection) =>
     collection
       .AddHttpCommandDispatcher()
-      .AddSingleton(_ => new ExponentialBackoffOptions())
+      .AddSingleton(new ExponentialBackoffOptions())
       .AddSingleton<RetryStrategy, ExponentialBackoffRetryStrategy>()
       .AddSingleton<RmqEventBusFactory, DefaultRmqEventBusFactory>();
 
-    return collection;
-  }
-
-  private static IServiceCollection AddHttpCommandDispatcher(this IServiceCollection collection)
-  {
-    return collection.AddScoped(sp =>
+  private static IServiceCollection AddHttpCommandDispatcher(this IServiceCollection collection) =>
+    collection
+      .AddScoped(sp =>
       {
         var config = sp.GetRequiredService<Configuration>();
         return new HttpCommandDispatcherConfig(config.Api, config.Credentials!.Token, TimeSpan.FromSeconds(10));
       })
       .AddScoped<HttpCommandDispatcher>()
       .AddScoped<CommandDispatcher>(sp => sp.GetRequiredService<HttpCommandDispatcher>())
-      .AddHttpClient();
+      .AddHttpClientForHttpCommandDispatcher();
+
+  private static IServiceCollection AddHttpClientForHttpCommandDispatcher(this IServiceCollection collection)
+  {
+    collection
+      .AddHttpClient(nameof(HttpCommandDispatcher), ConfigureHttpClient)
+      .ConfigurePrimaryHttpMessageHandler(CreateHttpMessageHandler);
+
+    return collection;
   }
 
-  private static IServiceCollection AddHttpClient(this IServiceCollection collection)
+  private static HttpMessageHandler CreateHttpMessageHandler()
   {
-    collection.AddHttpClient(nameof(HttpCommandDispatcher), (sp, client) =>
-      {
-        var config = sp.GetRequiredService<HttpCommandDispatcherConfig>();
-        client.Timeout = (TimeSpan)config.Timeout!;
-      })
-      .ConfigurePrimaryHttpMessageHandler(_ =>
-        new RateLimitedHandler(new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
-        {
-          Window = TimeSpan.FromSeconds(60),
-          SegmentsPerWindow = 6,
-          PermitLimit = 10
-        }))
-      );
-    return collection;
+    var options = new SlidingWindowRateLimiterOptions
+    {
+      Window = TimeSpan.FromSeconds(60),
+      SegmentsPerWindow = 6,
+      PermitLimit = 1000
+    };
+    var rateLimiter = new SlidingWindowRateLimiter(options);
+
+    return new RateLimitedHandler(rateLimiter);
+  }
+
+  private static void ConfigureHttpClient(IServiceProvider sp, HttpClient client)
+  {
+    var config = sp.GetRequiredService<HttpCommandDispatcherConfig>();
+    client.Timeout = (TimeSpan)config.Timeout!;
   }
 }

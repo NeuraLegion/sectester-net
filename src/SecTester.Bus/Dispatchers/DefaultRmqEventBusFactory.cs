@@ -10,22 +10,22 @@ namespace SecTester.Bus.Dispatchers;
 [ExcludeFromCodeCoverage]
 public class DefaultRmqEventBusFactory : RmqEventBusFactory
 {
-  private readonly ILogger _logger;
   private readonly RetryStrategy _retryStrategy;
   private readonly IServiceScopeFactory _serviceScopeFactory;
+  private readonly ILoggerFactory _loggerFactory;
 
   public DefaultRmqEventBusFactory(IServiceScopeFactory serviceScopeFactory, RetryStrategy retryStrategy,
-    ILogger logger)
+    ILoggerFactory loggerFactory)
   {
     _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
     _retryStrategy = retryStrategy ?? throw new ArgumentNullException(nameof(retryStrategy));
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
   }
 
   public RmqEventBus CreateEventBus(RmqEventBusOptions options)
   {
     var connectionManager = CreateConnectionManager(options);
-    return new RmqEventBus(options, connectionManager, _logger, _serviceScopeFactory);
+    return new RmqEventBus(options, connectionManager, _loggerFactory.CreateLogger<RmqEventBus>(), _serviceScopeFactory);
   }
 
   protected virtual RmqConnectionManager CreateConnectionManager(RmqEventBusOptions options)
@@ -40,6 +40,6 @@ public class DefaultRmqEventBusFactory : RmqEventBusFactory
       UserName = options.Username
     };
 
-    return new DefaultRmqConnectionManager(factory, _logger, _retryStrategy);
+    return new DefaultRmqConnectionManager(factory, _loggerFactory.CreateLogger<DefaultRmqConnectionManager>(), _retryStrategy);
   }
 }

@@ -20,9 +20,10 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, RequestRunnerOptions options)
   {
     return collection
-      .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
+      .AddSingleton(options)
+      .AddSingleton<RepeaterEventBusFactory, DefaultRepeaterEventBusFactory>()
       .AddScoped<RequestExecutingEventListener>()
-      .AddScoped(_ => options)
+      .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<Repeaters, DefaultRepeaters>()
       .AddScoped<TimerProvider, SystemTimerProvider>()
       .AddScoped<WebSocketFactory, DefaultWebSocketFactory>()
@@ -74,6 +75,3 @@ public static class ServiceCollectionExtensions
     }
   }
 }
-
-
-

@@ -32,7 +32,7 @@ public class Scan : IScan
   private readonly SemaphoreSlim _semaphore = new(1, 1);
   private ScanState _state = new(ScanStatus.Pending);
 
-  public Scan(string id, Scans scans, ILogger logger, ScanOptions options)
+  public Scan(string id, Scans scans, ILogger<Scan> logger, ScanOptions options)
   {
     Id = id ?? throw new ArgumentNullException(nameof(id));
     _scans = scans ?? throw new ArgumentNullException(nameof(scans));
@@ -223,6 +223,3 @@ public class Scan : IScan
     }
   }
 }
-
-
-

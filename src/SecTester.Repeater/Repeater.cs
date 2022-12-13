@@ -10,7 +10,7 @@ using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater;
 
-public class Repeater : IAsyncDisposable, IRepeater
+public class Repeater : IRepeater
 {
   private readonly EventBus _eventBus;
   private readonly TimerProvider _heartbeat;
@@ -18,7 +18,7 @@ public class Repeater : IAsyncDisposable, IRepeater
   private readonly SemaphoreSlim _semaphore = new(1, 1);
   private readonly Version _version;
 
-  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger logger, TimerProvider heartbeat)
+  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger<Repeater> logger, TimerProvider heartbeat)
   {
     RepeaterId = repeaterId ?? throw new ArgumentNullException(nameof(repeaterId));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));

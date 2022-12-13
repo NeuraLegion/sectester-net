@@ -29,7 +29,7 @@ public class ScanTests : IAsyncDisposable
     Cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
   };
 
-  private readonly MockLogger _logger = Substitute.For<MockLogger>();
+  private readonly MockLogger<Scan> _logger = Substitute.For<MockLogger<Scan>>();
   private readonly Func<IScan, Task<bool>> _predicate = Substitute.For<Func<IScan, Task<bool>>>();
   private readonly Scans _scans = Substitute.For<Scans>();
   private readonly Scan _sut;

@@ -3,7 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SecTester.Reporter\SecTester.Reporter.csproj" />
-    <ProjectReference Include="..\SecTester.Scan\SecTester.Scan.csproj" />
+    <ProjectReference Include="..\SecTester.Repeater\SecTester.Repeater.csproj"/>
+    <ProjectReference Include="..\SecTester.Reporter\SecTester.Reporter.csproj"/>
+    <ProjectReference Include="..\SecTester.Scan\SecTester.Scan.csproj"/>
   </ItemGroup>
 </Project>

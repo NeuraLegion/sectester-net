@@ -13,15 +13,15 @@ public class DefaultRepeaterFactory : RepeaterFactory
 {
   private readonly Configuration _configuration;
   private readonly RepeaterEventBusFactory _eventBusFactory;
-  private readonly ILogger _logger;
   private readonly Repeaters _repeaters;
-  private readonly IServiceScopeFactory _serviceScopeFactory;
+  private readonly IServiceScopeFactory _scopeFactory;
+  private readonly ILoggerFactory _loggerFactory;
 
-  public DefaultRepeaterFactory(IServiceScopeFactory serviceScopeFactory, Repeaters repeaters, RepeaterEventBusFactory eventBusFactory, Configuration configuration, ILogger logger)
+  public DefaultRepeaterFactory(IServiceScopeFactory scopeFactory, Repeaters repeaters, RepeaterEventBusFactory eventBusFactory, Configuration configuration, ILoggerFactory loggerFactory)
   {
-    _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+    _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     _repeaters = repeaters ?? throw new ArgumentNullException(nameof(repeaters));
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     _eventBusFactory = eventBusFactory ?? throw new ArgumentNullException(nameof(eventBusFactory));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
   }
@@ -29,15 +29,14 @@ public class DefaultRepeaterFactory : RepeaterFactory
   public async Task<IRepeater> CreateRepeater(RepeaterOptions? options = default)
   {
     options ??= new RepeaterOptions();
-    Version version = new(_configuration.Version);
 
     string repeaterId = await _repeaters.CreateRepeater($"{options.NamePrefix}-{Guid.NewGuid()}", options.Description).ConfigureAwait(false);
     var eventBus = _eventBusFactory.Create(repeaterId);
 
-    var scope = _serviceScopeFactory.CreateAsyncScope();
-    await using var _ = scope.ConfigureAwait(false);
+    var scope = _scopeFactory.CreateAsyncScope();
     var timerProvider = scope.ServiceProvider.GetRequiredService<TimerProvider>();
+    var version = new Version(_configuration.RepeaterVersion);
 
-    return new Repeater(repeaterId, eventBus, version, _logger, timerProvider);
+    return new Repeater(repeaterId, eventBus, version, _loggerFactory.CreateLogger<Repeater>(), timerProvider);
   }
 }

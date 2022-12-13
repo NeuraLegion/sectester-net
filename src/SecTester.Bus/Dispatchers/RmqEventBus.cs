@@ -62,7 +62,7 @@ public class RmqEventBus : EventBus
     var tcs = new TaskCompletionSource<string>();
     _pendingMessages[message.CorrelationId] = tcs;
     var ct = new CancellationTokenSource(message.Ttl);
-    using var register = ct.Token.Register(() => tcs.TrySetCanceled(), false);
+    using var _ = ct.Token.Register(() => tcs.TrySetCanceled(), false);
 
     SendMessage(new MessageParams<object>
     {

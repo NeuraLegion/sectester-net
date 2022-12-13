@@ -30,6 +30,7 @@ internal sealed class RateLimitedHandler
     await _rateLimiter.DisposeAsync().ConfigureAwait(false);
 
     Dispose(disposing: false);
+    GC.SuppressFinalize(this);
   }
 
   protected override async Task<HttpResponseMessage> SendAsync(

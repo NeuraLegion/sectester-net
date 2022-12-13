@@ -8,6 +8,7 @@ namespace SecTester.Reporter;
 
 public class DefaultFormatter : Formatter
 {
+  private const string CrLf = "\r\n";
   private const char NewLine = '\n';
   private const char BulletPoint = '●';
   private const char Tabulation = '\t';
@@ -39,7 +40,8 @@ Details:
       FormatList(resources)
     );
 
-    return message.Trim();
+    // ADHOC: adjust line endings respectively for OS environment
+    return message.Trim().Replace(NewLine.ToString(), Environment.NewLine);
   }
 
   private static string GenerateTemplate(bool extraInfo, bool references)
@@ -59,7 +61,8 @@ Details:
       templates = templates.Append(TemplateReferences);
     }
 
-    templates = templates.Select(x => x.Replace("\r\n", NewLine.ToString()));
+    // ADHOC: `DefaultFormatter` works with LF, replace possible CRLF in verbatim strings
+    templates = templates.Select(x => x.Replace(CrLf, NewLine.ToString()));
 
     return string.Join(NewLine.ToString(), templates);
   }
@@ -75,7 +78,8 @@ Details:
 
   private static string Indent(string x, int length = 1)
   {
-    var lines = x.Split(NewLine);
+    // ADHOC: `DefaultFormatter` works with LF, replace possible CRLF for consistent parsing
+    var lines = x.Replace(CrLf, NewLine.ToString()).Split(NewLine);
 
     return CombineList(
       lines.Select(line => $"{new string(Tabulation, length)}{line}")

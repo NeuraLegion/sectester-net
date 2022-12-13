@@ -107,6 +107,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
     await _sut.Start();
 
     // assert
+    _timerProvider.Interval.Should().BeGreaterOrEqualTo(10_000);
     _timerProvider.Elapsed += Raise.Event<ElapsedEventHandler>(new object(), elapsedEventArgs);
     await _eventBus.Received(2).Publish(Arg.Is<RepeaterStatusEvent>(x => x.Status == RepeaterStatus.Connected && x.RepeaterId == Id));
   }

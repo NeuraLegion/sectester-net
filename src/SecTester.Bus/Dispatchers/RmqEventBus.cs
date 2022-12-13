@@ -240,7 +240,7 @@ public class RmqEventBus : EventBus
     try
     {
       var scope = _scopeFactory.CreateAsyncScope();
-      await using var _ = scope.ConfigureAwait(false).ConfigureAwait(false);
+      await using var _ = scope.ConfigureAwait(false);
       var instance = scope.ServiceProvider.GetService(eventHandler);
       var eventType = GetEventType(consumedMessage.Name);
 
@@ -299,7 +299,7 @@ public class RmqEventBus : EventBus
 
   private void SendMessage<T>(IModel channel, MessageParams<T> messageParams)
   {
-    var properties = CreateMessageProperties(channel);
+    var properties = CreateMessageProperties(channel, messageParams.CreatedAt);
     properties.CorrelationId = messageParams.CorrelationId;
     properties.Type = messageParams.Type;
     properties.ReplyTo = messageParams.ReplyTo;

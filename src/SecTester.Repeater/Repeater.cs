@@ -94,7 +94,7 @@ public class Repeater : IRepeater
       throw new SecTesterException("Error registering repeater.");
     }
 
-    EnsureRegistrationStatus(res);
+    EnsureRegistrationStatus(res.Payload);
   }
 
   public async Task Stop(CancellationToken cancellationToken = default)
@@ -119,7 +119,7 @@ public class Repeater : IRepeater
     }
   }
 
-  private void EnsureRegistrationStatus(RegisterRepeaterResult result)
+  private void EnsureRegistrationStatus(RegisterRepeaterPayload result)
   {
     if (result.Error != RepeaterRegisteringError.None)
     {

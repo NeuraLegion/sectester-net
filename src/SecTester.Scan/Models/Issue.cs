@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SecTester.Scan.Models;
 
-public record Issue(string Id, string Details, string Name, string Remedy, Request OriginalRequest, Request Request, string Link,
+public record Issue(string Id, string Details, string Name, string Remedy, Request OriginalRequest, Request Request,
   int Order, Severity Severity, Protocol Protocol, DateTime Time)
 {
   public string Id { get; init; } = Id ?? throw new ArgumentNullException(nameof(Id));
@@ -12,7 +12,7 @@ public record Issue(string Id, string Details, string Name, string Remedy, Reque
   public string Remedy { get; init; } = Remedy ?? throw new ArgumentNullException(nameof(Remedy));
   public Request OriginalRequest { get; init; } = OriginalRequest ?? throw new ArgumentNullException(nameof(OriginalRequest));
   public Request Request { get; init; } = Request ?? throw new ArgumentNullException(nameof(Request));
-  public string Link { get; init; } = Link ?? throw new ArgumentNullException(nameof(Link));
+  public string? Link { get; init; }
   public string? Exposure { get; init; }
   public IEnumerable<string>? Resources { get; init; }
   public IEnumerable<Comment>? Comments { get; init; }

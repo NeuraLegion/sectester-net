@@ -9,10 +9,8 @@ using SecTester.Repeater;
 using SecTester.Repeater.Api;
 using SecTester.Repeater.Extensions;
 using SecTester.Reporter;
-using SecTester.Reporter.Extensions;
 using SecTester.Scan;
 using SecTester.Scan.Extensions;
-using SecTester.Scan.Models;
 
 namespace SecTester.Runner;
 
@@ -54,7 +52,7 @@ public class SecRunner : IAsyncDisposable
       .AddSecTesterBus()
       .AddSecTesterRepeater()
       .AddSecTesterScan()
-      .AddSecTesterReporter()
+      .AddScoped<Formatter, DefaultFormatter>()
       .AddScoped<SecRunner>();
 
     var sp = collection.BuildServiceProvider();

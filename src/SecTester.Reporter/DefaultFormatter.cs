@@ -7,9 +7,9 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Reporter;
 
-internal class DefaultFormatter : Formatter
+public class DefaultFormatter : Formatter
 {
-  public const char NewLine = '\n';
+  private const char NewLine = '\n';
   private const char BulletPoint = '●';
   private const char Tabulation = '\t';
   private const string TemplateBody = @"Issue in Bright UI:   {0}
@@ -19,16 +19,13 @@ Remediation:
 {3}
 Details:
 {4}";
-  private const string TemplateExtraDetails = "\nExtra Details:\n{5}";
-  private const string TemplateReferences = "\nReferences:\n{6}";
-
-  private static readonly IEnumerable<Comment> EmptyComments = new List<Comment>();
-  private static readonly IEnumerable<string> EmptyResources = new List<string>();
+  private const string TemplateExtraDetails = "Extra Details:";
+  private const string TemplateReferences = "References:";
 
   public string Format(Issue issue)
   {
-    var comments = issue.Comments ?? EmptyComments;
-    var resources = issue.Resources ?? EmptyResources;
+    var comments = issue.Comments ?? Array.Empty<Comment>();
+    var resources = issue.Resources ?? Array.Empty<string>();
 
     var template = GenerateTemplate(comments.Any(), resources.Any());
 
@@ -43,7 +40,7 @@ Details:
       FormatList(resources)
     );
 
-    return message.Trim().Replace(Environment.NewLine, NewLine.ToString());
+    return message.Trim();
   }
 
   private static string GenerateTemplate(bool extraInfo, bool references)
@@ -52,12 +49,20 @@ Details:
 
     if (extraInfo)
     {
-      stringBuilder.Append(TemplateExtraDetails);
+      stringBuilder
+        .Append(NewLine)
+        .Append(TemplateExtraDetails)
+        .Append(NewLine)
+        .Append("{5}");
     }
 
     if (references)
     {
-      stringBuilder.Append(TemplateReferences);
+      stringBuilder
+        .Append(NewLine)
+        .Append(TemplateReferences)
+        .Append(NewLine)
+        .Append("{6}");
     }
 
     return stringBuilder.ToString();
@@ -66,7 +71,7 @@ Details:
   private static string FormatExtraInfo(Comment comment)
   {
     var footer = comment.Links is not null && comment.Links.Any() ? CombineList(comment.Links.Prepend("Links:")) : String.Empty;
-    var blocks = new List<string> { comment.Text ?? string.Empty, footer }.Select(x => Indent(x));
+    var blocks = new List<string> { comment.Text ?? "", footer }.Select(x => Indent(x));
     var document = CombineList(blocks);
 
     return CombineList(new List<string> { comment.Headline, document });
@@ -84,15 +89,17 @@ Details:
   private static string FormatList<T>(IEnumerable<T> list, Func<T, string>? map = default)
     where T : class
   {
+    var formatItem = map ?? (x => x.ToString());
+
     var items = list.Select(
-      x => $"{BulletPoint} {map?.Invoke(x) ?? x.ToString()}"
+      x => $"{BulletPoint} {formatItem(x)}"
     );
 
     return CombineList(items);
   }
 
-  private static string CombineList(IEnumerable<string> list, string? sep = default)
+  private static string CombineList(IEnumerable<string> list, char sep = NewLine)
   {
-    return string.Join(sep ?? NewLine.ToString(), list);
+    return string.Join(sep.ToString(), list);
   }
 }

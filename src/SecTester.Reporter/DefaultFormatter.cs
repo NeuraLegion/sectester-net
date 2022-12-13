@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using SecTester.Scan.Models;
 
 namespace SecTester.Reporter;
@@ -19,8 +18,8 @@ Remediation:
 {3}
 Details:
 {4}";
-  private const string TemplateExtraDetails = "Extra Details:";
-  private const string TemplateReferences = "References:";
+  private const string TemplateExtraDetails = "Extra Details:\n{5}";
+  private const string TemplateReferences = "References:\n{6}";
 
   public string Format(Issue issue)
   {
@@ -45,32 +44,27 @@ Details:
 
   private static string GenerateTemplate(bool extraInfo, bool references)
   {
-    var stringBuilder = new StringBuilder(TemplateBody);
+    IEnumerable<string> templates = new List<string>
+    {
+      TemplateBody
+    };
 
     if (extraInfo)
     {
-      stringBuilder
-        .Append(NewLine)
-        .Append(TemplateExtraDetails)
-        .Append(NewLine)
-        .Append("{5}");
+      templates = templates.Append(TemplateExtraDetails);
     }
 
     if (references)
     {
-      stringBuilder
-        .Append(NewLine)
-        .Append(TemplateReferences)
-        .Append(NewLine)
-        .Append("{6}");
+      templates = templates.Append(TemplateReferences);
     }
 
-    return stringBuilder.ToString();
+    return string.Join(NewLine.ToString(), templates);
   }
 
   private static string FormatExtraInfo(Comment comment)
   {
-    var footer = comment.Links is not null && comment.Links.Any() ? CombineList(comment.Links.Prepend("Links:")) : String.Empty;
+    var footer = comment.Links is not null && comment.Links.Any() ? CombineList(comment.Links.Prepend("Links:")) : "";
     var blocks = new List<string> { comment.Text ?? "", footer }.Select(x => Indent(x));
     var document = CombineList(blocks);
 

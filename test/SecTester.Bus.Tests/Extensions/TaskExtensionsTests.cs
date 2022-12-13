@@ -45,4 +45,30 @@ public class TaskExtensionsTests
     // assert
     result.Should().BeOfType(typeof(Task<object?>));
   }
+
+  [Fact]
+  public void Cast_NullPassed_ThrowsException()
+  {
+    // arrange
+    var task = null as Task;
+
+    // act
+    var act = () => task!.Cast<FooBar?>();
+
+    // assert
+    act.Should().ThrowAsync<ArgumentNullException>().WithMessage("*task*");
+  }
+
+  [Fact]
+  public void Cast_NonGenericReturnType_ThrowsException()
+  {
+    // arrange
+    var task = Task.CompletedTask;
+
+    // act
+    var act = () => task.Cast<FooBar?>();
+
+    // assert
+    act.Should().ThrowAsync<ArgumentException>().WithMessage("An argument of type 'Task<T>' was expected");
+  }
 }

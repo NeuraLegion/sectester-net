@@ -11,24 +11,24 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   {
     new object[]
     {
-      new RegisterRepeaterResult(Error: RepeaterRegisteringError.Busy), $"There is an already running Repeater with ID {Id}"
+      new RegisterRepeaterResult(new RegisterRepeaterPayload(Error: RepeaterRegisteringError.Busy)), $"There is an already running Repeater with ID {Id}"
     },
     new object[]
     {
-      new RegisterRepeaterResult(Error: RepeaterRegisteringError.NotActive), "The current Repeater is not active"
+      new RegisterRepeaterResult(new RegisterRepeaterPayload(Error: RepeaterRegisteringError.NotActive)), "The current Repeater is not active"
     },
     new object[]
     {
-      new RegisterRepeaterResult(Error: RepeaterRegisteringError.NotFound), "Unauthorized access"
+      new RegisterRepeaterResult(new RegisterRepeaterPayload(Error: RepeaterRegisteringError.NotFound)), "Unauthorized access"
     },
     new object[]
     {
-      new RegisterRepeaterResult(Error: RepeaterRegisteringError.RequiresToBeUpdated),
+      new RegisterRepeaterResult(new RegisterRepeaterPayload(Error: RepeaterRegisteringError.RequiresToBeUpdated)),
       "The current running version is no longer supported"
     },
     new object[]
     {
-      new RegisterRepeaterResult(Error: (RepeaterRegisteringError)(-100)), "Something went wrong. Unknown error."
+      new RegisterRepeaterResult(new RegisterRepeaterPayload(Error: (RepeaterRegisteringError)(-100))), "Something went wrong. Unknown error."
     }
   };
 
@@ -40,7 +40,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   public RepeaterTests()
   {
     var version = new Version(Version);
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(Version));
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(new RegisterRepeaterPayload(Version)));
     _sut = new Repeater(Id, _eventBus, version, _logger, _timerProvider);
   }
 
@@ -51,6 +51,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
     GC.SuppressFinalize(this);
   }
 
+  [Fact]
   public void Dispose()
   {
     _logger.ClearSubstitute();
@@ -139,7 +140,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   public async Task Start_AbortedByError_Restarts()
   {
     // arrange
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(null, new RegisterRepeaterResult(Version));
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(null, new RegisterRepeaterResult(new RegisterRepeaterPayload(Version)));
 
     // act
     var act = () => _sut.Start();
@@ -168,7 +169,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   {
     // arrange
     var newVersion = new Regex(@"(\d+)").Replace(Version, x => $"{int.Parse(x.Groups[0].Value) + 1}");
-    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(newVersion));
+    _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(new RegisterRepeaterPayload(newVersion)));
 
     // act
     await _sut.Start();

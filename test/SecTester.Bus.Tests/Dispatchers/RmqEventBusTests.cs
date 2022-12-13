@@ -56,7 +56,7 @@ public class RmqEventBusTests : IDisposable
   {
     // assert
     _connectionManager.Received().CreateConsumer(Arg.Any<IModel>());
-    _channel.Received().BasicConsume(_options.ClientQueue, false, _basicConsumer);
+    _channel.Received().BasicConsume(_options.ClientQueue, true, _basicConsumer);
   }
 
   [Fact]
@@ -64,7 +64,7 @@ public class RmqEventBusTests : IDisposable
   {
     // assert
     _connectionManager.Received().CreateConsumer(Arg.Any<IModel>());
-    _channel.Received().BasicConsume("amq.rabbitmq.reply-to", false, _replyConsumer);
+    _channel.Received().BasicConsume("amq.rabbitmq.reply-to", true, _replyConsumer);
   }
 
   [Fact]
@@ -288,6 +288,27 @@ public class RmqEventBusTests : IDisposable
 
     // assert
     result.Should().BeOfType<FooBar>();
+  }
+
+  [Fact]
+  public async Task Execute_UsesSameChannelForBothPublishingAndConsuming()
+  {
+    // arrange
+    var command = new ConcreteCommand2("foo");
+    var reply = new FooBar("bar");
+    var json = JsonSerializer.Serialize(reply, JsonSerializerOptions);
+    var body = Encoding.UTF8.GetBytes(json);
+    var basicProperties = Substitute.For<IBasicProperties>();
+    basicProperties.Type = nameof(ConcreteCommand2);
+    basicProperties.CorrelationId = command.CorrelationId;
+
+    // act
+    var task = _bus.Execute(command);
+    await _replyConsumer.HandleBasicDeliver(default, default, false, default, default, basicProperties, body);
+    await task;
+
+    // assert
+    _connectionManager.Received(1).CreateChannel();
   }
 
   [Fact]

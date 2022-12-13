@@ -64,7 +64,7 @@ public class RmqEventBus : EventBus
     var ct = new CancellationTokenSource(message.Ttl);
     using var _ = ct.Token.Register(() => tcs.TrySetCanceled(), false);
 
-    SendMessage(new MessageParams<object>
+    SendMessage(_channel, new MessageParams<object>
     {
       Payload = message,
       Type = message.Type,
@@ -87,45 +87,45 @@ public class RmqEventBus : EventBus
   public void Register<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
   {
     var eventName = MessageUtils.GetMessageType<TEvent>();
+    var handlerType = typeof(THandler);
+    var eventType = typeof(TEvent);
 
     if (!_handlers.ContainsKey(eventName))
     {
-      _eventTypes.Add(typeof(TEvent));
+      _eventTypes.Add(eventType);
       _handlers.Add(eventName, new List<Type>());
       BindQueue(eventName);
     }
 
-    _handlers[eventName].Add(typeof(THandler));
+    _handlers[eventName].Add(handlerType);
   }
 
   public void Unregister<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
   {
     var eventName = MessageUtils.GetMessageType<TEvent>();
+    var handlerType = typeof(THandler);
+    var eventType = typeof(TEvent);
 
     if (!_handlers.ContainsKey(eventName))
     {
       throw new NoSubscriptionFoundException(eventName);
     }
 
-    _handlers[eventName].Remove(typeof(THandler));
+    _handlers[eventName].Remove(handlerType);
 
     if (_handlers[eventName] is { Count: 0 })
     {
-      _eventTypes.Remove(typeof(TEvent));
+      _eventTypes.Remove(eventType);
       _handlers.Remove(eventName);
       UnBindQueue(eventName);
     }
   }
 
-  public void Register<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event
-  {
+  public void Register<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event =>
     Register<THandler, TEvent, Unit>();
-  }
 
-  public void Unregister<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event
-  {
+  public void Unregister<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event =>
     Unregister<THandler, TEvent, Unit>();
-  }
 
   public void Dispose()
   {
@@ -174,16 +174,15 @@ public class RmqEventBus : EventBus
   {
     var consumer = _connectionManager.CreateConsumer(channel);
     consumer.Received += ReceiverHandler;
-    channel.BasicConsume(_options.ClientQueue, false, consumer);
+    channel.BasicConsume(_options.ClientQueue, true, consumer);
   }
 
   private void StartReplyQueueConsume(IModel channel)
   {
     var consumer = _connectionManager.CreateConsumer(channel);
     consumer.Received += (_, args) => ReplyReceiverHandler(args);
-    channel.BasicConsume(ReplyQueueName, false, consumer);
+    channel.BasicConsume(ReplyQueueName, true, consumer);
   }
-
 
   private void BindQueueToExchange(IModel channel)
   {
@@ -288,19 +287,21 @@ public class RmqEventBus : EventBus
     });
   }
 
-  private void SendMessage<T>(MessageParams<T> messageParams)
+  private static IBasicProperties CreateMessageProperties(IModel channel, DateTime? createdAt = default)
   {
-    using var channel = _connectionManager.CreateChannel();
-    var json = MessageSerializer.Serialize(messageParams.Payload);
-    var body = Encoding.UTF8.GetBytes(json);
     var properties = channel.CreateBasicProperties();
-    var timestamp = new DateTimeOffset(messageParams.CreatedAt ?? DateTime.UtcNow).ToUnixTimeMilliseconds();
-
-    properties.CorrelationId = messageParams.CorrelationId;
-    properties.Type = messageParams.Type;
-    properties.Timestamp = new AmqpTimestamp(timestamp);
+    var timestamp = new DateTimeOffset(createdAt ?? DateTime.UtcNow);
+    properties.Timestamp = new AmqpTimestamp(timestamp.ToUnixTimeMilliseconds());
     properties.Persistent = true;
     properties.ContentType = "application/json";
+    return properties;
+  }
+
+  private void SendMessage<T>(IModel channel, MessageParams<T> messageParams)
+  {
+    var properties = CreateMessageProperties(channel, messageParams.CreatedAt);
+    properties.CorrelationId = messageParams.CorrelationId;
+    properties.Type = messageParams.Type;
     properties.ReplyTo = messageParams.ReplyTo;
 
     _logger.LogDebug("Send a message with following parameters: {Params}", messageParams);
@@ -309,7 +310,13 @@ public class RmqEventBus : EventBus
       messageParams.RoutingKey,
       true,
       properties,
-      body);
+      messageParams.ToBytes());
+  }
+
+  private void SendMessage<T>(MessageParams<T> messageParams)
+  {
+    using var channel = _connectionManager.CreateChannel();
+    SendMessage(channel, messageParams);
   }
 
   private void BindQueue(string eventName)
@@ -330,8 +337,5 @@ public class RmqEventBus : EventBus
       eventName);
   }
 
-  private Type? GetEventType(string eventName)
-  {
-    return _eventTypes.SingleOrDefault(x => MessageUtils.GetMessageType(x) == eventName);
-  }
+  private Type? GetEventType(string eventName) => _eventTypes.SingleOrDefault(x => MessageUtils.GetMessageType(x) == eventName);
 }

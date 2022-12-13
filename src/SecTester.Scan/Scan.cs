@@ -170,7 +170,7 @@ public class Scan : IScan
     return _state.IssuesBySeverity switch
     {
       null => false,
-      _ => _state.IssuesBySeverity.Any(x => x.Type >= expectation)
+      _ => _state.IssuesBySeverity.Any(x => x.Type >= expectation && x.Number > 0)
     };
 
   }

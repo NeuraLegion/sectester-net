@@ -4,21 +4,20 @@ using Microsoft.Extensions.Logging.Console;
 using SecTester.Core.Logger;
 using SecTester.Core.Utils;
 
-namespace SecTester.Core.Extensions
-{
-  public static class ServiceCollectionExtensions
-  {
-    public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, string hostname)
-    {
-      collection.AddSecTesterConfig(new Configuration(hostname));
-      return collection;
-    }
+namespace SecTester.Core.Extensions;
 
-    public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, Configuration configuration)
-    {
-      collection.AddSingleton(configuration);
-      collection.AddSingleton<SystemTimeProvider>(new UtcSystemTimeProvider());
-      collection.AddLogging(builder =>
+public static class ServiceCollectionExtensions
+{
+  public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, string hostname)
+  {
+    return collection.AddSecTesterConfig(new Configuration(hostname));
+  }
+
+  public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, Configuration configuration) =>
+    collection
+      .AddSingleton(configuration)
+      .AddSingleton<SystemTimeProvider>(new UtcSystemTimeProvider())
+      .AddLogging(builder =>
       {
         builder.SetMinimumLevel(configuration.LogLevel)
           .AddConsole(options =>
@@ -35,8 +34,4 @@ namespace SecTester.Core.Extensions
             }
           );
       });
-
-      return collection;
-    }
-  }
 }

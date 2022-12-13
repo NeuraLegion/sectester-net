@@ -38,14 +38,14 @@ public class HttpCommandDispatcher : CommandDispatcher
   public async Task<TResult?> Execute<TResult>(Command<TResult> message)
   {
     using var cts = new CancellationTokenSource(message.Ttl);
-    var res = await _retryStrategy.Acquire(() => PerformHttpRequest((HttpRequest<TResult>)message, cts.Token), cts.Token).ConfigureAwait(false);
+    using var res = await _retryStrategy.Acquire(() => PerformHttpRequest((HttpRequest<TResult>)message, cts.Token), cts.Token).ConfigureAwait(false);
+    using var _ = res.Content;
 
     if (message.ExpectReply)
     {
       return await ParserResponse<TResult>(res).ConfigureAwait(false);
     }
 
-    res.Content.Dispose();
     return default;
   }
 

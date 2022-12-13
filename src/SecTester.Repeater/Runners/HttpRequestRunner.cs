@@ -41,7 +41,9 @@ internal sealed class HttpRequestRunner : RequestRunner
     {
       var options = CreateHttpRequestMessage(request);
       using var cts = new CancellationTokenSource(_options.Timeout);
-      var response = await Request(options, cts.Token).ConfigureAwait(false);
+      using var response = await Request(options, cts.Token).ConfigureAwait(false);
+      using var _ = response.Content;
+
       return await CreateRequestExecutingResult(response).ConfigureAwait(false);
     }
     catch (Exception err)

@@ -31,7 +31,7 @@ public class SecRunnerTests
   public async Task Create_CreatesCompositeRoot()
   {
     // act
-    await using var secRunner = await SecRunner.Create(_configuration);
+    await using var secRunner = SecRunner.Create(_configuration);
 
     // assert
     secRunner.Should().BeOfType<SecRunner>();

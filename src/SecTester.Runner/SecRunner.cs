@@ -46,10 +46,9 @@ public class SecRunner : IAsyncDisposable
     GC.SuppressFinalize(this);
   }
 
-  public static async Task<SecRunner> Create(Configuration configuration)
+  public static SecRunner Create(Configuration configuration)
   {
-    var collection = new ServiceCollection();
-    collection
+    var collection = new ServiceCollection()
       .AddSecTesterConfig(configuration)
       .AddSecTesterBus()
       .AddSecTesterRepeater()
@@ -58,7 +57,6 @@ public class SecRunner : IAsyncDisposable
       .AddSingleton<Formatter, DummyFormatter>();
 
     var sp = collection.BuildServiceProvider();
-    await using var _ = sp.ConfigureAwait(false);
 
     return sp.GetRequiredService<SecRunner>();
   }

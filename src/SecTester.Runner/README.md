@@ -40,7 +40,7 @@ using SecTester.Core;
 using SecTester.Runner;
 
 var config = new Configuration("app.neuralegion.com");
-await using var runner = await SecRunner.Create(configuration);
+await using var runner = SecRunner.Create(configuration);
 ```
 
 After that, you have to initialize a `SecRunner` instance:

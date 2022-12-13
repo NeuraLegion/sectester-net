@@ -12,6 +12,7 @@ namespace SecTester.Repeater;
 
 public class Repeater : IRepeater
 {
+  private static readonly TimeSpan DefaultPingInterval = TimeSpan.FromSeconds(10);
   private readonly EventBus _eventBus;
   private readonly TimerProvider _heartbeat;
   private readonly ILogger _logger;
@@ -72,6 +73,7 @@ public class Repeater : IRepeater
   private async Task SchedulePing()
   {
     await SendStatus(RepeaterStatus.Connected).ConfigureAwait(false);
+    _heartbeat.Interval = DefaultPingInterval.TotalMilliseconds;
     _heartbeat.Elapsed += async (_, _) => await SendStatus(RepeaterStatus.Connected).ConfigureAwait(false);
     _heartbeat.Start();
   }

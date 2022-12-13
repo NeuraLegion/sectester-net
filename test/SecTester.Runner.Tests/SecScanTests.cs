@@ -8,8 +8,7 @@ public class SecScanTests : IDisposable
   private readonly Issue _issue = new("pDzxcEXQC8df1fcz1QwPf9", "Cross-site request forgery is a type of malicious website exploit.",
     "Database connection crashed",
     "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
-    new Request("https://brokencrystals.com/"), new Request("https://brokencrystals.com/"),
-    "http://app.neuralegion.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9", 1, Severity.Medium, Protocol.Http,
+    new Request("https://brokencrystals.com/"), new Request("https://brokencrystals.com/"), 1, Severity.Medium, Protocol.Http,
     DateTime.Today);
   private readonly IScan _scan = Substitute.For<IScan>();
   private readonly ScanFactory _scanFactory = Substitute.For<ScanFactory>();

@@ -12,7 +12,6 @@ public class IssueTests
   private const Severity Severity = SecTester.Scan.Models.Severity.Low;
   private const Protocol Protocol = SecTester.Scan.Models.Protocol.Http;
   private const string Remedy = "remedy";
-  private const string Link = "link";
   private readonly Request _originalRequest = new("https://example.com");
   private readonly Request _request = new("https://example.com");
   private readonly DateTime _time = DateTime.Now;
@@ -22,7 +21,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, Details, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, Details, Name, Remedy, _originalRequest, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().NotThrow();
@@ -40,7 +39,7 @@ public class IssueTests
     var response = new Response();
 
     // act
-    var issue = new Issue(Id, Details, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time)
+    var issue = new Issue(Id, Details, Name, Remedy, _originalRequest, _request, Order, Severity, Protocol, _time)
     {
       Exposure = Exposure,
       Resources = resources,
@@ -63,7 +62,6 @@ public class IssueTests
       Severity,
       Protocol,
       Remedy,
-      Link,
       Exposure,
       Cvss,
       Cwe,
@@ -84,7 +82,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(null!, Details, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(null!, Details, Name, Remedy, _originalRequest, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Id*");
@@ -95,7 +93,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, null!, Name, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, null!, Name, Remedy, _originalRequest, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Details*");
@@ -106,7 +104,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, Details, null!, Remedy, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, Details, null!, Remedy, _originalRequest, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Name*");
@@ -117,7 +115,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, Details, Name, null!, _originalRequest, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, Details, Name, null!, _originalRequest, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Remedy*");
@@ -128,7 +126,7 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, Details, Name, Remedy, null!, _request, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, Details, Name, Remedy, null!, _request, Order, Severity, Protocol, _time);
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*OriginalRequest*");
@@ -139,22 +137,10 @@ public class IssueTests
   {
     // act
     var act = () =>
-      new Issue(Id, Details, Name, Remedy, _originalRequest, null!, Link, Order, Severity, Protocol, _time);
+      new Issue(Id, Details, Name, Remedy, _originalRequest, null!, Order, Severity, Protocol, _time);
 
 
     // assert
     act.Should().Throw<ArgumentNullException>().WithMessage("*Request*");
-  }
-
-  [Fact]
-  public void Constructor_GivenNullLink_ThrowError()
-  {
-    // act
-    var act = () =>
-      new Issue(Id, Details, Name, Remedy, _originalRequest, _request, null!, Order, Severity, Protocol, _time);
-
-
-    // assert
-    act.Should().Throw<ArgumentNullException>().WithMessage("*Link*");
   }
 }

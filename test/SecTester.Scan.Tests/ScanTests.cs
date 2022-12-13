@@ -4,7 +4,6 @@ namespace SecTester.Scan.Tests;
 
 public class ScanTests : IAsyncDisposable
 {
-  private const string BaseUrl = "https://example.com/api/v1";
   private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
   private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
 
@@ -20,7 +19,6 @@ public class ScanTests : IAsyncDisposable
     {
       Method = HttpMethod.Get
     },
-    $"{BaseUrl}/scans/{ScanId}/issues/{IssueId}",
     1,
     Severity.Medium,
     Protocol.Http,

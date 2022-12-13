@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SecTester.Core;
 using SecTester.Core.Bus;
@@ -31,9 +32,14 @@ public class DefaultScans : Scans
     return result.Id;
   }
 
-  public Task<IEnumerable<Issue>> ListIssues(string id)
+  public async Task<IEnumerable<Issue>> ListIssues(string id)
   {
-    return SendCommand(new ListIssues(id));
+    var issues = await SendCommand(new ListIssues(id)).ConfigureAwait(false);
+
+    return issues.Select(x => x with
+    {
+      Link = $"{_configuration.Api}/scans/{id}/issues/{x.Id}"
+    });
   }
 
   public async Task StopScan(string id)

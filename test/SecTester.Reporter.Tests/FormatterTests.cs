@@ -20,7 +20,7 @@ public class FormatterTests
       "Database connection crashed",
       "The best way to protect against those kind of issues is making sure the Database resources are sufficient",
       new Request("https://brokencrystals.com/"), new Request("https://brokencrystals.com/"),
-      "http://app.neuralegion.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9", 1, Severity.Medium, Protocol.Http,
+      1, Severity.Medium, Protocol.Http,
       DateTime.Today);
     _sut.Format(issue).Returns(Expected);
 

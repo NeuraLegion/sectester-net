@@ -2,8 +2,8 @@ namespace SecTester.Scan.Tests;
 
 public class DefaultScansTests : IDisposable
 {
+  private const string Hostname = "app.neuralegion.com";
   private const string NullResultMessage = "Something went wrong. Please try again later.";
-  private const string BaseUrl = "https://example.com/api/v1";
   private const string ScanName = "Scan Name";
   private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";
   private const string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
@@ -12,10 +12,10 @@ public class DefaultScansTests : IDisposable
   private const string IssueId = "pDzxcEXQC8df1fcz1QwPf9";
   private const string HarId = "gwycPnxzQihoeGP141pvDe";
   private const string HarFileName = "filename.har";
+
   private readonly CiDiscovery _ciDiscovery = Substitute.For<CiDiscovery>();
   private readonly CommandDispatcher _commandDispatcher = Substitute.For<CommandDispatcher>();
-
-  private readonly Configuration _configuration = new("app.neuralegion.com");
+  private readonly Configuration _configuration = new(Hostname);
 
   private readonly Har _har = new(
     new Log(
@@ -35,7 +35,6 @@ public class DefaultScansTests : IDisposable
     {
       Method = HttpMethod.Get
     },
-    $"{BaseUrl}/scans/{ScanId}/issues/{IssueId}",
     1,
     Severity.Medium,
     Protocol.Http,
@@ -98,7 +97,7 @@ public class DefaultScansTests : IDisposable
     _commandDispatcher.Execute(Arg.Any<CreateScan>())
       .Returns(new Identifiable<string>(ScanId));
 
-    // act 
+    // act
     var result = await _sut.CreateScan(_scanConfig);
 
     // assert
@@ -114,7 +113,7 @@ public class DefaultScansTests : IDisposable
     _commandDispatcher.Execute(Arg.Any<CreateScan>())
       .Returns(null as Identifiable<string>);
 
-    // act 
+    // act
     var act = () => _sut.CreateScan(_scanConfig);
 
     // assert
@@ -129,13 +128,20 @@ public class DefaultScansTests : IDisposable
     {
       _issue
     };
+    var expected = new List<Issue>
+    {
+      _issue with
+      {
+        Link = $"{_configuration.Api}/scans/{ScanId}/issues/{IssueId}"
+      }
+    };
     _commandDispatcher.Execute(Arg.Any<ListIssues>()).Returns(issues);
 
     // act
     var result = await _sut.ListIssues(ScanId);
 
     // assert
-    result.Should().BeEquivalentTo(issues);
+    result.Should().BeEquivalentTo(expected);
     await _commandDispatcher.Received(1)
       .Execute(Arg.Any<ListIssues>());
   }
@@ -147,7 +153,7 @@ public class DefaultScansTests : IDisposable
     _commandDispatcher.Execute(Arg.Any<ListIssues>())
       .Returns(Task.FromResult<IEnumerable<Issue>?>(null));
 
-    // act 
+    // act
     var act = () => _sut.ListIssues(ScanId);
 
     // assert
@@ -201,7 +207,7 @@ public class DefaultScansTests : IDisposable
     _commandDispatcher.Execute(Arg.Any<GetScan>())
       .Returns(Task.FromResult<ScanState?>(null));
 
-    // act 
+    // act
     var act = () => _sut.GetScan(ScanId);
 
     // assert
@@ -235,7 +241,7 @@ public class DefaultScansTests : IDisposable
     _commandDispatcher.Execute(Arg.Any<UploadHar>())
       .Returns(null as Identifiable<string>);
 
-    // act 
+    // act
     var act = () => _sut.UploadHar(options);
 
     // assert

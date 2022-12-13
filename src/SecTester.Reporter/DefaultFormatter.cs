@@ -59,6 +59,8 @@ Details:
       templates = templates.Append(TemplateReferences);
     }
 
+    templates = templates.Select(x => x.Replace("\r\n", NewLine.ToString()));
+
     return string.Join(NewLine.ToString(), templates);
   }
 

@@ -64,6 +64,6 @@ References:
     var result = _sut.Format(issue);
 
     // assert
-    result.Should().Be(expected);
+    result.Should().Be(expected.ReplaceLineEndings(NewLine.ToString()));
   }
 }

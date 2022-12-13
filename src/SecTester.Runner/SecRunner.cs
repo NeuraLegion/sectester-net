@@ -9,6 +9,7 @@ using SecTester.Repeater;
 using SecTester.Repeater.Api;
 using SecTester.Repeater.Extensions;
 using SecTester.Reporter;
+using SecTester.Reporter.Extensions;
 using SecTester.Scan;
 using SecTester.Scan.Extensions;
 using SecTester.Scan.Models;
@@ -53,8 +54,8 @@ public class SecRunner : IAsyncDisposable
       .AddSecTesterBus()
       .AddSecTesterRepeater()
       .AddSecTesterScan()
-      .AddScoped<SecRunner>()
-      .AddSingleton<Formatter, DummyFormatter>();
+      .AddSecTesterReporter()
+      .AddScoped<SecRunner>();
 
     var sp = collection.BuildServiceProvider();
 
@@ -107,11 +108,5 @@ public class SecRunner : IAsyncDisposable
       _scanFactory,
       _formatter
     );
-  }
-
-  // TODO: remove once https://github.com/NeuraLegion/sectester-net/issues/97 has been closed
-  private sealed class DummyFormatter : Formatter
-  {
-    public string Format(Issue issue) => throw new NotImplementedException();
   }
 }

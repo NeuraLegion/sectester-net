@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -242,7 +244,7 @@ public class RmqEventBus : EventBus
       var scope = _scopeFactory.CreateAsyncScope();
       await using var _ = scope.ConfigureAwait(false);
       var instance = scope.ServiceProvider.GetService(eventHandler);
-      var eventType = GetEventType(consumedMessage.Name);
+      var eventType = GetEventType(consumedMessage.Name!);
 
       if (instance == null || eventType == null)
       {
@@ -250,13 +252,11 @@ public class RmqEventBus : EventBus
       }
 
       var concreteType = eventHandler.GetConcreteEventListenerType();
-      var payload = MessageSerializer.Deserialize(consumedMessage.Payload, eventType);
-      var method = concreteType.GetMethod("Handle");
-      var task = (Task)method!.Invoke(instance, new[]
+      var payload = MessageSerializer.Deserialize(consumedMessage.Payload!, eventType);
+      var task = (Task)concreteType.InvokeMember(nameof(EventListener<Event>.Handle), BindingFlags.InvokeMethod, null, instance, new[]
       {
         payload
-      });
-
+      }, CultureInfo.InvariantCulture);
       var response = await task.Cast<object?>().ConfigureAwait(false);
 
       if (response != null && !string.IsNullOrEmpty(consumedMessage.ReplyTo))

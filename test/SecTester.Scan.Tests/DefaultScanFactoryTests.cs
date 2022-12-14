@@ -7,9 +7,9 @@ public class DefaultScanFactoryTests : IDisposable
 
   private readonly Configuration _configuration = new("app.neuralegion.com");
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly Scans _scans = Substitute.For<Scans>();
-  private readonly SystemTimeProvider _systemTimeProvider = Substitute.For<SystemTimeProvider>();
-  private readonly ScanFactory _sut;
+  private readonly IScans _scans = Substitute.For<IScans>();
+  private readonly ISystemTimeProvider _systemTimeProvider = Substitute.For<ISystemTimeProvider>();
+  private readonly IScanFactory _sut;
 
   public DefaultScanFactoryTests()
   {

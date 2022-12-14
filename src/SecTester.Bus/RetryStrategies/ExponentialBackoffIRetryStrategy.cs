@@ -8,11 +8,11 @@ using SecTester.Core.Bus;
 
 namespace SecTester.Bus.RetryStrategies;
 
-public class ExponentialBackoffRetryStrategy : RetryStrategy
+public class ExponentialBackoffIRetryStrategy : IRetryStrategy
 {
   private readonly ExponentialBackoffOptions _options;
 
-  public ExponentialBackoffRetryStrategy(ExponentialBackoffOptions options)
+  public ExponentialBackoffIRetryStrategy(ExponentialBackoffOptions options)
   {
     _options = options;
   }

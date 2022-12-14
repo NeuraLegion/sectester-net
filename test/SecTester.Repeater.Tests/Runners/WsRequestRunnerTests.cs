@@ -5,7 +5,7 @@ namespace SecTester.Repeater.Tests.Runners;
 public class WsRequestRunnerTests : IClassFixture<TestServerApplicationFixture<Startup>>, IAsyncDisposable
 {
   private readonly TestServerApplicationFixture<Startup> _fixture;
-  private readonly WebSocketFactory _mockWebSocketFactory = Substitute.For<WebSocketFactory>();
+  private readonly IWebSocketFactory _mockWebSocketFactory = Substitute.For<IWebSocketFactory>();
   private readonly WebSocket _mockWsClient = Substitute.For<WebSocket>();
 
   public WsRequestRunnerTests(TestServerApplicationFixture<Startup> fixture)

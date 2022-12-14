@@ -40,12 +40,12 @@ public class TestServerApplicationFixture<TStartup> : IDisposable, IAsyncDisposa
     Dispose();
   }
 
-  public RequestRunner CreateWsRequestRunner(WebSocketFactory clientFactory, RequestRunnerOptions? options = default)
+  public IRequestRunner CreateWsRequestRunner(IWebSocketFactory clientFactory, RequestRunnerOptions? options = default)
   {
     return new WsRequestRunner(options ?? new RequestRunnerOptions(), clientFactory);
   }
 
-  public RequestRunner CreateWsRequestRunner(RequestRunnerOptions? options = default)
+  public IRequestRunner CreateWsRequestRunner(RequestRunnerOptions? options = default)
   {
     return CreateWsRequestRunner(new MockWebSocketFactory(_factory.Server), options);
   }

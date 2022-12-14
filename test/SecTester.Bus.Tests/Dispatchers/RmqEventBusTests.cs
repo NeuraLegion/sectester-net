@@ -14,7 +14,7 @@ public class RmqEventBusTests : IDisposable
   private readonly AsyncEventingBasicConsumer _basicConsumer;
   private readonly RmqEventBus _bus;
   private readonly IModel _channel = Substitute.For<IModel>();
-  private readonly RmqConnectionManager _connectionManager = Substitute.For<RmqConnectionManager>();
+  private readonly IRmqConnectionManager _connectionManager = Substitute.For<IRmqConnectionManager>();
   private readonly ILogger<RmqEventBus> _logger = Substitute.For<ILogger<RmqEventBus>>();
   private readonly RmqEventBusOptions _options;
   private readonly AsyncEventingBasicConsumer _replyConsumer;
@@ -231,7 +231,7 @@ public class RmqEventBusTests : IDisposable
   public async Task ReceiverHandler_RedeliveredEvent_SkipsMessage()
   {
     // act
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent>>();
     _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
@@ -338,7 +338,7 @@ public class RmqEventBusTests : IDisposable
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
 
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent>>();
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
     // act
@@ -376,7 +376,7 @@ public class RmqEventBusTests : IDisposable
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
 
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent>>();
     var exception = new Exception("something went wrong");
     eventHandler.Handle(Arg.Any<ConcreteEvent>()).ThrowsAsync(exception);
     _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
@@ -401,7 +401,7 @@ public class RmqEventBusTests : IDisposable
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteEvent);
 
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent>>();
     _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
@@ -423,7 +423,7 @@ public class RmqEventBusTests : IDisposable
 
     var basicProperties = Substitute.For<IBasicProperties>();
 
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent>>();
     _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteSecondHandler)).Returns(eventHandler);
     _bus.Register<ConcreteSecondHandler, ConcreteEvent>();
 
@@ -448,7 +448,7 @@ public class RmqEventBusTests : IDisposable
     basicProperties.ReplyTo = "reply";
     basicProperties.CorrelationId = "1";
 
-    var eventHandler = Substitute.For<EventListener<ConcreteEvent, FooBar>>();
+    var eventHandler = Substitute.For<IEventListener<ConcreteEvent, FooBar>>();
     eventHandler.Handle(Arg.Any<ConcreteEvent>()).Returns(Task.FromResult(new FooBar("bar")));
     _scopeFactory.CreateScope().ServiceProvider.GetService(typeof(ConcreteFirstHandler)).Returns(eventHandler);
     _bus.Register<ConcreteFirstHandler, ConcreteEvent, FooBar>();

@@ -1,6 +1,6 @@
 namespace SecTester.Bus.Dispatchers;
 
-public interface RmqEventBusFactory
+public interface IRmqEventBusFactory
 {
   RmqEventBus CreateEventBus(RmqEventBusOptions options);
 }

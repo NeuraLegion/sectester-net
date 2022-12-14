@@ -14,7 +14,7 @@ public class DefaultScansTests : IDisposable
   private const string HarFileName = "filename.har";
 
   private readonly CiDiscovery _ciDiscovery = Substitute.For<CiDiscovery>();
-  private readonly CommandDispatcher _commandDispatcher = Substitute.For<CommandDispatcher>();
+  private readonly ICommandDispatcher _commandDispatcher = Substitute.For<ICommandDispatcher>();
   private readonly Configuration _configuration = new(Hostname);
 
   private readonly Har _har = new(
@@ -75,7 +75,7 @@ public class DefaultScansTests : IDisposable
     SlowEpTimeout = 20
   };
 
-  private readonly Scans _sut;
+  private readonly IScans _sut;
 
   public DefaultScansTests()
   {

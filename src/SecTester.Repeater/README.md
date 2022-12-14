@@ -135,7 +135,7 @@ Under the hood `Repeater` register `RequestExecutingEventHandler` in bus,
 which in turn uses the `RequestRunner` to proceed with request:
 
 ```csharp
-public interface RequestRunner
+public interface IRequestRunner
 {
   Protocol Protocol
 {

@@ -23,7 +23,7 @@ public class ServiceCollectionExtensionsTests
 
     // assert
     using var provider = _services.BuildServiceProvider();
-    var result = provider.GetRequiredService<CommandDispatcher>();
+    var result = provider.GetRequiredService<ICommandDispatcher>();
     result.Should().BeOfType<HttpCommandDispatcher>();
   }
 
@@ -73,7 +73,7 @@ public class ServiceCollectionExtensionsTests
 
     // assert
     using var provider = _services.BuildServiceProvider();
-    Func<CommandDispatcher> act = () => provider.GetRequiredService<CommandDispatcher>();
+    Func<ICommandDispatcher> act = () => provider.GetRequiredService<ICommandDispatcher>();
     act.Should().Throw<Exception>();
   }
 }

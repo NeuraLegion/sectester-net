@@ -5,18 +5,18 @@ using SecTester.Core.Bus;
 
 namespace SecTester.Repeater.Bus;
 
-public class DefaultRepeaterEventBusFactory : RepeaterEventBusFactory
+public class DefaultRepeaterEventBusFactory : IRepeaterEventBusFactory
 {
   private readonly Configuration _config;
-  private readonly RmqEventBusFactory _rmqEventBusFactory;
+  private readonly IRmqEventBusFactory _rmqEventBusFactory;
 
-  public DefaultRepeaterEventBusFactory(Configuration config, RmqEventBusFactory rmqEventBusFactory)
+  public DefaultRepeaterEventBusFactory(Configuration config, IRmqEventBusFactory rmqEventBusFactory)
   {
     _config = config ?? throw new ArgumentNullException(nameof(config));
     _rmqEventBusFactory = rmqEventBusFactory ?? throw new ArgumentNullException(nameof(rmqEventBusFactory));
   }
 
-  public EventBus Create(string repeaterId)
+  public IEventBus Create(string repeaterId)
   {
     if (_config.Credentials == null)
     {

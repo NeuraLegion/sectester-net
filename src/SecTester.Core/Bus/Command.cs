@@ -34,7 +34,7 @@ public record Command<TResponse> : Message
     Ttl = ttl;
   }
 
-  public Task<TResponse?> Execute(CommandDispatcher dispatcher)
+  public Task<TResponse?> Execute(ICommandDispatcher dispatcher)
   {
     return dispatcher.Execute(this);
   }

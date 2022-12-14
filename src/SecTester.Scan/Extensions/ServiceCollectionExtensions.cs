@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
   {
     return collection
       .AddSingleton<CiDiscovery, DefaultCiDiscovery>()
-      .AddScoped<Scans, DefaultScans>()
-      .AddScoped<ScanFactory, DefaultScanFactory>();
+      .AddScoped<IScans, DefaultScans>()
+      .AddScoped<IScanFactory, DefaultScanFactory>();
   }
 }

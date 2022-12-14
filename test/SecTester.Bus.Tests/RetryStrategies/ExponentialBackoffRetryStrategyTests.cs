@@ -4,14 +4,14 @@ namespace SecTester.Bus.Tests.RetryStrategies;
 
 public class ExponentialBackoffRetryStrategyTests : IDisposable
 {
-  private readonly ExponentialBackoffRetryStrategy _sut;
-  private readonly MockInterface _mockInterface;
+  private readonly ExponentialBackoffIRetryStrategy _sut;
+  private readonly IMockInterface _mockInterface;
 
   public ExponentialBackoffRetryStrategyTests()
   {
     var options = new ExponentialBackoffOptions(2, 1);
-    _sut = new ExponentialBackoffRetryStrategy(options);
-    _mockInterface = Substitute.For<MockInterface>();
+    _sut = new ExponentialBackoffIRetryStrategy(options);
+    _mockInterface = Substitute.For<IMockInterface>();
   }
 
   public void Dispose()

@@ -16,8 +16,8 @@ public static class ServiceCollectionExtensions
   public static IServiceCollection AddSecTesterConfig(this IServiceCollection collection, Configuration configuration) =>
     collection
       .AddSingleton(configuration)
-      .AddSingleton<SystemTimeProvider>(new UtcSystemTimeProvider())
-      .AddSingleton<AnsiCodeColorizer>(new DefaultAnsiCodeColorizer(ConsoleUtils.IsColored))
+      .AddSingleton<ISystemTimeProvider>(new UtcSystemTimeProvider())
+      .AddSingleton<IAnsiCodeColorizer>(new DefaultAnsiCodeColorizer(ConsoleUtils.IsColored))
       .AddLogging(builder =>
       {
         builder.SetMinimumLevel(configuration.LogLevel)

@@ -4,7 +4,7 @@ using RabbitMQ.Client.Events;
 
 namespace SecTester.Bus.Dispatchers;
 
-public interface RmqConnectionManager : IDisposable
+public interface IRmqConnectionManager : IDisposable
 {
   bool IsConnected { get; }
 

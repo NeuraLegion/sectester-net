@@ -32,15 +32,15 @@ public class DefaultConsoleFormatter : ConsoleFormatter, IDisposable
   private readonly IDisposable _optionsReloadToken;
   private ConsoleFormatterOptions _formatterOptions;
 
-  private readonly SystemTimeProvider _systemTimeProvider;
+  private readonly ISystemTimeProvider _systemTimeProvider;
 
   public DefaultConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options,
-    SystemTimeProvider systemTimeProvider)
+    ISystemTimeProvider systemTimeProvider)
     : this(nameof(DefaultConsoleFormatter), options, systemTimeProvider)
   {
   }
 
-  public DefaultConsoleFormatter(string name, IOptionsMonitor<ConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider)
+  public DefaultConsoleFormatter(string name, IOptionsMonitor<ConsoleFormatterOptions> options, ISystemTimeProvider systemTimeProvider)
     : base(name)
   {
     _optionsReloadToken = options.OnChange(ReloadLoggerOptions);

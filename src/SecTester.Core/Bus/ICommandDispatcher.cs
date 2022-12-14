@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Core.Bus;
 
-public interface CommandDispatcher
+public interface ICommandDispatcher
 {
   Task<TResult?> Execute<TResult>(Command<TResult> message);
 }

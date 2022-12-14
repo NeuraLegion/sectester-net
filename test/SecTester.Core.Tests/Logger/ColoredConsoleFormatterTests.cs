@@ -12,7 +12,7 @@ public class ColoredConsoleFormatterTests : IDisposable
   };
 
   private readonly IExternalScopeProvider _externalScopeProviderMock = Substitute.For<IExternalScopeProvider>();
-  private readonly AnsiCodeColorizer _ansiCodeColorizer = Substitute.For<AnsiCodeColorizer>();
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer = Substitute.For<IAnsiCodeColorizer>();
 
   private static LogEntry<Tuple<string, object[]>> CreateLogEntry(LogLevel logLevel, string message,
     params object[] args)
@@ -36,7 +36,7 @@ public class ColoredConsoleFormatterTests : IDisposable
   {
     // arrange
     var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
-    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var systemTimeProviderMock = Substitute.For<ISystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(logLevel, "message");
 
@@ -68,7 +68,7 @@ public class ColoredConsoleFormatterTests : IDisposable
   {
     // arrange
     var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
-    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var systemTimeProviderMock = Substitute.For<ISystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(logLevel, "message");
 

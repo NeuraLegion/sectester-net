@@ -54,7 +54,7 @@ public class ConfigurationTests
     const string hostname = "app.neuralegion.com";
 
     // act
-    var act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<CredentialProvider>());
+    var act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<ICredentialProvider>());
 
     // assert
     act.Should().Throw<Exception>();
@@ -89,9 +89,9 @@ public class ConfigurationTests
   public async Task LoadCredentials_GivenProvider_LoadCredentials()
   {
     // arrange
-    var сredentialProvider = Substitute.For<CredentialProvider>();
+    var сredentialProvider = Substitute.For<ICredentialProvider>();
     var credentials = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
-    var credentialProviders = new List<CredentialProvider> { сredentialProvider };
+    var credentialProviders = new List<ICredentialProvider> { сredentialProvider };
     var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
 
     сredentialProvider.Get()!.Returns(Task.FromResult(credentials));
@@ -107,8 +107,8 @@ public class ConfigurationTests
   public async Task LoadCredentials_NoOneProviderFindCredentials_ThrowError()
   {
     // arrange
-    var сredentialProvider = Substitute.For<CredentialProvider>();
-    var credentialProviders = new List<CredentialProvider> { сredentialProvider };
+    var сredentialProvider = Substitute.For<ICredentialProvider>();
+    var credentialProviders = new List<ICredentialProvider> { сredentialProvider };
     var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
 
     // act
@@ -122,10 +122,10 @@ public class ConfigurationTests
   public async Task LoadCredentials_MultipleProviders_SetCredentialsFromFirst()
   {
     // arrange
-    var сredentialProvider = Substitute.For<CredentialProvider>();
+    var сredentialProvider = Substitute.For<ICredentialProvider>();
     var credentials1 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
     var credentials2 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj1");
-    var credentialProviders = new List<CredentialProvider> { сredentialProvider, сredentialProvider, сredentialProvider };
+    var credentialProviders = new List<ICredentialProvider> { сredentialProvider, сredentialProvider, сredentialProvider };
     var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
 
     сredentialProvider.Get()!.Returns(Task.FromResult<Credentials?>(null)!, Task.FromResult(credentials1), Task.FromResult(credentials2));

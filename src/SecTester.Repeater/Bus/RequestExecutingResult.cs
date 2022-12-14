@@ -4,7 +4,7 @@ using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;
 
-public record RequestExecutingResult : Response
+public record RequestExecutingResult : IResponse
 {
   [JsonPropertyName("status_code")] public int? StatusCode { get; init; }
 

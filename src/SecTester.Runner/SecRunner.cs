@@ -17,14 +17,14 @@ namespace SecTester.Runner;
 public class SecRunner : IAsyncDisposable
 {
   private readonly Configuration _configuration;
-  private readonly Formatter _formatter;
-  private readonly RepeaterFactory _repeaterFactory;
-  private readonly Repeaters _repeatersManager;
-  private readonly ScanFactory _scanFactory;
+  private readonly IFormatter _formatter;
+  private readonly IRepeaterFactory _repeaterFactory;
+  private readonly IRepeaters _repeatersManager;
+  private readonly IScanFactory _scanFactory;
   private IRepeater? _repeater;
 
-  public SecRunner(Configuration configuration, RepeaterFactory repeaterFactory, ScanFactory scanFactory, Repeaters repeatersManager,
-    Formatter formatter)
+  public SecRunner(Configuration configuration, IRepeaterFactory repeaterFactory, IScanFactory scanFactory, IRepeaters repeatersManager,
+    IFormatter formatter)
   {
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     _repeaterFactory = repeaterFactory ?? throw new ArgumentNullException(nameof(repeaterFactory));
@@ -52,7 +52,7 @@ public class SecRunner : IAsyncDisposable
       .AddSecTesterBus()
       .AddSecTesterRepeater()
       .AddSecTesterScan()
-      .AddScoped<Formatter, DefaultFormatter>()
+      .AddScoped<IFormatter, DefaultFormatter>()
       .AddScoped<SecRunner>();
 
     var sp = collection.BuildServiceProvider();

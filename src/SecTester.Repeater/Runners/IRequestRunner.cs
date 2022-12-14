@@ -2,12 +2,12 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Runners;
 
-public interface RequestRunner
+public interface IRequestRunner
 {
   Protocol Protocol
   {
     get;
   }
 
-  Task<Response> Run(Request request);
+  Task<IResponse> Run(IRequest request);
 }

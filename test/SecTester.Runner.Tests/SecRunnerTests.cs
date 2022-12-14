@@ -12,12 +12,12 @@ public class SecRunnerTests
   private const string RepeaterId = "123";
 
   private readonly Configuration _configuration = new(Hostname, new Credentials(Token));
-  private readonly Formatter _formatter = Substitute.For<Formatter>();
+  private readonly IFormatter _formatter = Substitute.For<IFormatter>();
   private readonly RepeaterOptions _options = new();
   private readonly IRepeater _repeater = Substitute.For<IRepeater>();
-  private readonly RepeaterFactory _repeaterFactory = Substitute.For<RepeaterFactory>();
-  private readonly Repeaters _repeatersManager = Substitute.For<Repeaters>();
-  private readonly ScanFactory _scanFactory = Substitute.For<ScanFactory>();
+  private readonly IRepeaterFactory _repeaterFactory = Substitute.For<IRepeaterFactory>();
+  private readonly IRepeaters _repeatersManager = Substitute.For<IRepeaters>();
+  private readonly IScanFactory _scanFactory = Substitute.For<IScanFactory>();
   private readonly SecRunner _sut;
 
   public SecRunnerTests()

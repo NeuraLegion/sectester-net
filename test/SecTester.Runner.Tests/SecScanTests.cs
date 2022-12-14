@@ -3,7 +3,7 @@ namespace SecTester.Runner.Tests;
 public class SecScanTests : IDisposable
 {
   private const string Url = "https://example.com";
-  private readonly Formatter _formatter = Substitute.For<Formatter>();
+  private readonly IFormatter _formatter = Substitute.For<IFormatter>();
 
   private readonly Issue _issue = new("pDzxcEXQC8df1fcz1QwPf9", "Cross-site request forgery is a type of malicious website exploit.",
     "Database connection crashed",
@@ -11,7 +11,7 @@ public class SecScanTests : IDisposable
     new Request("https://brokencrystals.com/"), new Request("https://brokencrystals.com/"), 1, Severity.Medium, Protocol.Http,
     DateTime.Today);
   private readonly IScan _scan = Substitute.For<IScan>();
-  private readonly ScanFactory _scanFactory = Substitute.For<ScanFactory>();
+  private readonly IScanFactory _scanFactory = Substitute.For<IScanFactory>();
   private readonly SecScan _sut;
 
   private readonly Target _target = new(Url);

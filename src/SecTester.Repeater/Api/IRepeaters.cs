@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Api;
 
-public interface Repeaters
+public interface IRepeaters
 {
   Task<string> CreateRepeater(string name, string? description = default);
 

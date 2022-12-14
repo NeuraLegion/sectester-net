@@ -10,16 +10,16 @@ using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater;
 
-public class DefaultRepeaterFactory : RepeaterFactory
+public class DefaultRepeaterFactory : IRepeaterFactory
 {
   private readonly Configuration _configuration;
-  private readonly RepeaterEventBusFactory _eventBusFactory;
-  private readonly Repeaters _repeaters;
+  private readonly IRepeaterEventBusFactory _eventBusFactory;
+  private readonly IRepeaters _repeaters;
   private readonly IServiceScopeFactory _scopeFactory;
   private readonly ILoggerFactory _loggerFactory;
-  private readonly AnsiCodeColorizer _ansiCodeColorizer;
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer;
 
-  public DefaultRepeaterFactory(IServiceScopeFactory scopeFactory, Repeaters repeaters, RepeaterEventBusFactory eventBusFactory, Configuration configuration, ILoggerFactory loggerFactory, AnsiCodeColorizer ansiCodeColorizer)
+  public DefaultRepeaterFactory(IServiceScopeFactory scopeFactory, IRepeaters repeaters, IRepeaterEventBusFactory eventBusFactory, Configuration configuration, ILoggerFactory loggerFactory, IAnsiCodeColorizer ansiCodeColorizer)
   {
     _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     _repeaters = repeaters ?? throw new ArgumentNullException(nameof(repeaters));
@@ -37,7 +37,7 @@ public class DefaultRepeaterFactory : RepeaterFactory
     var eventBus = _eventBusFactory.Create(repeaterId);
 
     var scope = _scopeFactory.CreateAsyncScope();
-    var timerProvider = scope.ServiceProvider.GetRequiredService<TimerProvider>();
+    var timerProvider = scope.ServiceProvider.GetRequiredService<ITimerProvider>();
     var version = new Version(_configuration.RepeaterVersion);
 
     return new Repeater(repeaterId, eventBus, version, _loggerFactory.CreateLogger<Repeater>(), timerProvider, _ansiCodeColorizer);

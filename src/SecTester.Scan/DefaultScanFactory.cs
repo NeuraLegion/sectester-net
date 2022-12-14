@@ -9,7 +9,7 @@ using SecTester.Scan.Models.HarSpec;
 
 namespace SecTester.Scan;
 
-public class DefaultScanFactory : ScanFactory
+public class DefaultScanFactory : IScanFactory
 {
   internal const int MaxSlugLength = 200;
 
@@ -21,11 +21,11 @@ public class DefaultScanFactory : ScanFactory
   private readonly Configuration _configuration;
   private readonly ILoggerFactory _loggerFactory;
 
-  private readonly Scans _scans;
-  private readonly SystemTimeProvider _systemTimeProvider;
+  private readonly IScans _scans;
+  private readonly ISystemTimeProvider _systemTimeProvider;
 
-  public DefaultScanFactory(Configuration configuration, Scans scans, ILoggerFactory loggerFactory,
-    SystemTimeProvider systemTimeProvider)
+  public DefaultScanFactory(Configuration configuration, IScans scans, ILoggerFactory loggerFactory,
+    ISystemTimeProvider systemTimeProvider)
   {
     _scans = scans ?? throw new ArgumentNullException(nameof(scans));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

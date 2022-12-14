@@ -17,7 +17,7 @@ public class ServiceCollectionExtensionsTests : IDisposable
     _sut.AddSecTesterRepeater();
 
     // assert
-    _sut.Received().AddScoped<RepeaterFactory, DefaultRepeaterFactory>();
+    _sut.Received().AddScoped<IRepeaterFactory, DefaultRepeaterFactory>();
   }
 
   [Fact]
@@ -27,7 +27,7 @@ public class ServiceCollectionExtensionsTests : IDisposable
     _sut.AddSecTesterRepeater();
 
     // assert
-    _sut.Received().AddScoped<Repeaters, DefaultRepeaters>();
+    _sut.Received().AddScoped<IRepeaters, DefaultRepeaters>();
   }
 
   [Fact]
@@ -37,7 +37,7 @@ public class ServiceCollectionExtensionsTests : IDisposable
     _sut.AddSecTesterRepeater();
 
     // assert
-    _sut.Received().AddScoped<TimerProvider, SystemTimerProvider>();
+    _sut.Received().AddScoped<ITimerProvider, SystemTimerProvider>();
   }
 
   [Fact]

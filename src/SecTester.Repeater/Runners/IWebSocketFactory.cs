@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Runners;
 
-public interface WebSocketFactory
+public interface IWebSocketFactory
 {
   public Task<WebSocket> CreateWebSocket(Uri uri, CancellationToken cancellationToken = default);
 }

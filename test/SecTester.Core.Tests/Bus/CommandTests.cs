@@ -4,11 +4,11 @@ namespace SecTester.Core.Tests.Bus;
 
 public class CommandTests : IDisposable
 {
-  private readonly CommandDispatcher _dispatcher;
+  private readonly ICommandDispatcher _dispatcher;
 
   public CommandTests()
   {
-    _dispatcher = Substitute.For<CommandDispatcher>();
+    _dispatcher = Substitute.For<ICommandDispatcher>();
   }
 
   public void Dispose()

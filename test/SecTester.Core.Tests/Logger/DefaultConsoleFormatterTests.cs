@@ -56,7 +56,7 @@ public class DefaultConsoleFormatterTests
   {
     // arrange
     var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
-    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var systemTimeProviderMock = Substitute.For<ISystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(LogLevel.Critical, "message");
 
@@ -82,7 +82,7 @@ public class DefaultConsoleFormatterTests
   {
     // arrange
     var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
-    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var systemTimeProviderMock = Substitute.For<ISystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(logLevel, "message");
 
@@ -108,7 +108,7 @@ public class DefaultConsoleFormatterTests
   {
     // arrange
     var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
-    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var systemTimeProviderMock = Substitute.For<ISystemTimeProvider>();
     var outStringWriter = new StringWriter();
     var logEntry = CreateLogEntry(LogLevel.Critical, "");
 

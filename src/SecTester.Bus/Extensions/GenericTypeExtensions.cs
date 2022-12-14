@@ -9,7 +9,7 @@ internal static class GenericTypeExtensions
   public static Type GetConcreteEventListenerType(this Type type)
   {
     var (input, output) = GetEventListenerGenericTypes(type);
-    var interfaceType = typeof(EventListener<,>);
+    var interfaceType = typeof(IEventListener<,>);
 
     return interfaceType.MakeGenericType(input, output);
   }
@@ -33,6 +33,6 @@ internal static class GenericTypeExtensions
 
   private static Type GetEventListenerType()
   {
-    return typeof(EventListener<,>);
+    return typeof(IEventListener<,>);
   }
 }

@@ -14,15 +14,15 @@ namespace SecTester.Repeater;
 public class Repeater : IRepeater
 {
   private static readonly TimeSpan DefaultPingInterval = TimeSpan.FromSeconds(10);
-  private readonly EventBus _eventBus;
-  private readonly TimerProvider _heartbeat;
+  private readonly IEventBus _eventBus;
+  private readonly ITimerProvider _heartbeat;
   private readonly ILogger _logger;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
   private readonly Version _version;
-  private readonly AnsiCodeColorizer _ansiCodeColorizer;
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer;
 
-  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger<Repeater> logger, TimerProvider heartbeat,
-    AnsiCodeColorizer ansiCodeColorizer)
+  public Repeater(string repeaterId, IEventBus eventBus, Version version, ILogger<Repeater> logger, ITimerProvider heartbeat,
+    IAnsiCodeColorizer ansiCodeColorizer)
   {
     RepeaterId = repeaterId ?? throw new ArgumentNullException(nameof(repeaterId));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));

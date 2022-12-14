@@ -7,19 +7,19 @@ public class DefaultRepeaterFactoryTests : IDisposable
   private const string Hostname = "app.neuralegion.com";
 
   private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-  private readonly RepeaterEventBusFactory _eventBusFactory = Substitute.For<RepeaterEventBusFactory>();
+  private readonly IRepeaterEventBusFactory _eventBusFactory = Substitute.For<IRepeaterEventBusFactory>();
   private readonly Configuration _configuration = new(Hostname);
 
-  private readonly Repeaters _repeaters = Substitute.For<Repeaters>();
+  private readonly IRepeaters _repeaters = Substitute.For<IRepeaters>();
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
-  private readonly AnsiCodeColorizer _ansiCodeColorizer = Substitute.For<AnsiCodeColorizer>();
+  private readonly ITimerProvider _timerProvider = Substitute.For<ITimerProvider>();
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer = Substitute.For<IAnsiCodeColorizer>();
   private readonly DefaultRepeaterFactory _sut;
 
   public DefaultRepeaterFactoryTests()
   {
     // ADHOC: since GetRequiredService is part of extension we should explicitly mock an instance method
-    _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(TimerProvider)).Returns(_timerProvider);
+    _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(ITimerProvider)).Returns(_timerProvider);
     _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory, _ansiCodeColorizer );
   }
 

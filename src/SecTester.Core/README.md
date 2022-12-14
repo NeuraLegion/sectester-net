@@ -42,7 +42,7 @@ public void ConfigureServices(IServiceCollection services)
 Configuration can be customized using the following options:
 
 ```csharp
-public interface ConfigurationOptions {
+public interface IConfigurationOptions {
   string hostname
   {
     get;

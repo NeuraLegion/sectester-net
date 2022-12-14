@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Runners;
 
-public class DefaultWebSocketFactory : WebSocketFactory
+public class DefaultWebSocketFactory : IWebSocketFactory
 {
   private readonly RequestRunnerOptions _options;
 

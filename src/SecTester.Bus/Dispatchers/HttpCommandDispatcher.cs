@@ -12,7 +12,7 @@ using SecTester.Core.Utils;
 
 namespace SecTester.Bus.Dispatchers;
 
-public class HttpCommandDispatcher : CommandDispatcher
+public class HttpCommandDispatcher : ICommandDispatcher
 {
   private const string AuthScheme = "api-key";
   private const string CorrelationIdHeaderField = "x-correlation-id";
@@ -26,9 +26,9 @@ public class HttpCommandDispatcher : CommandDispatcher
       HttpMethod.Head, HttpMethod.Options, HttpMethod.Get, HttpMethod.Trace
     };
 
-  private readonly RetryStrategy _retryStrategy;
+  private readonly IRetryStrategy _retryStrategy;
 
-  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config, RetryStrategy retryStrategy)
+  public HttpCommandDispatcher(IHttpClientFactory httpClientFactory, HttpCommandDispatcherConfig config, IRetryStrategy retryStrategy)
   {
     _config = config ?? throw new ArgumentNullException(nameof(config));
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

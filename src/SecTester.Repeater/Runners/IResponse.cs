@@ -1,16 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.RegularExpressions;
 
 namespace SecTester.Repeater.Runners;
 
-public interface Request
+public interface IResponse
 {
+  int? StatusCode { get; init; }
   string? Body { get; init; }
-  Regex? CorrelationIdRegex { get; init; }
-  HttpMethod Method { get; init; }
+  string? Message { get; init; }
+  string? ErrorCode { get; init; }
   Protocol Protocol { get; init; }
-  Uri Url { get; init; }
   IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; init; }
 }

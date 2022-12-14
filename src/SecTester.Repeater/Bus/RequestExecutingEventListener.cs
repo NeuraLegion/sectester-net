@@ -5,9 +5,9 @@ using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;
 
-public delegate RequestRunner? RequestRunnerResolver(Protocol key);
+public delegate IRequestRunner? RequestRunnerResolver(Protocol key);
 
-public class RequestExecutingEventListener : EventListener<RequestExecutingEvent, RequestExecutingResult>
+public class RequestExecutingEventListener : IEventListener<RequestExecutingEvent, RequestExecutingResult>
 {
   private readonly RequestRunnerResolver _requestRunnersAccessor;
 

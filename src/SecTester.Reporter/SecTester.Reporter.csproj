@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SecTester.Scan\SecTester.Scan.csproj"/>
+    <ProjectReference Include="..\SecTester.Scan\SecTester.Scan.csproj" />
   </ItemGroup>
 </Project>

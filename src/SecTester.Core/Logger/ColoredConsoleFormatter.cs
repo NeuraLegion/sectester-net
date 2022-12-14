@@ -9,33 +9,35 @@ namespace SecTester.Core.Logger;
 
 public class ColoredConsoleFormatter : DefaultConsoleFormatter
 {
-  const string DefaultForegroundColor = "\x1B[39m\x1B[22m";
+  private readonly AnsiCodeColorizer _ansiCodeColorizer;
 
-
-  public ColoredConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider)
+  public ColoredConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider,
+    AnsiCodeColorizer ansiCodeColorizer)
     : base(nameof(ColoredConsoleFormatter), options, systemTimeProvider)
   {
+    _ansiCodeColorizer = ansiCodeColorizer;
   }
 
   protected override void WriteHeader<TState>(
     in LogEntry<TState> logEntry,
     TextWriter textWriter)
   {
-    textWriter.Write(GetForegroundColorAnsiCode(logEntry.LogLevel));
-    textWriter.Write(FormatHeader(logEntry.LogLevel));
-    textWriter.Write(DefaultForegroundColor);
+    textWriter.Write(
+      _ansiCodeColorizer.Colorize(
+        GetForegroundColor(logEntry.LogLevel),
+        FormatHeader(logEntry.LogLevel)));
   }
 
-  static string GetForegroundColorAnsiCode(LogLevel level) =>
+  static AnsiCodeColor GetForegroundColor(LogLevel level) =>
     level switch
     {
-      LogLevel.Critical => "\x1B[1m\x1B[31m",  // ConsoleColor.Red
-      LogLevel.Error => "\x1B[31m",             // ConsoleColor.DarkRed
-      LogLevel.Warning => "\x1B[1m\x1B[33m",    // ConsoleColor.Yellow
-      LogLevel.Information => "\x1B[32m",       // ConsoleColor.DarkGreen
-      LogLevel.Debug => "\x1B[1m\x1B[37m",     // ConsoleColor.White
-      LogLevel.Trace => "\x1B[1m\x1B[36m",     // ConsoleColor.Cyan
+      LogLevel.Critical => AnsiCodeColor.Red,
+      LogLevel.Error => AnsiCodeColor.DarkRed,
+      LogLevel.Warning => AnsiCodeColor.Yellow,
+      LogLevel.Information => AnsiCodeColor.DarkGreen,
+      LogLevel.Debug => AnsiCodeColor.White,
+      LogLevel.Trace => AnsiCodeColor.Cyan,
 
-      _ => DefaultForegroundColor
+      _ => AnsiCodeColor.DefaultForeground
     };
 }

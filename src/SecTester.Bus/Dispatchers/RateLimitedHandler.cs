@@ -29,7 +29,7 @@ internal sealed class RateLimitedHandler
   {
     await _rateLimiter.DisposeAsync().ConfigureAwait(false);
 
-    Dispose(disposing: false);
+    Dispose(false);
     GC.SuppressFinalize(this);
   }
 
@@ -44,7 +44,11 @@ internal sealed class RateLimitedHandler
       return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
-    var response = new HttpResponseMessage((HttpStatusCode)429);
+    var response = new HttpResponseMessage((HttpStatusCode)429)
+    {
+      Content = new StringContent("Rate limit exceeded.")
+    };
+
     if (lease.TryGetMetadata(
           MetadataName.RetryAfter, out var retryAfter))
     {

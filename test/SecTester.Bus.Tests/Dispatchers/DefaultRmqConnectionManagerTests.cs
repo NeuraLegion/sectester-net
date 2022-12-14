@@ -1,5 +1,3 @@
-using System.Net.Sockets;
-
 namespace SecTester.Bus.Tests.Dispatchers;
 
 public class DefaultRmqConnectionManagerTests : IDisposable

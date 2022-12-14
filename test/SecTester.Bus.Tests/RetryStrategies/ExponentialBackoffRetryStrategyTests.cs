@@ -1,6 +1,3 @@
-using System.Net.Sockets;
-using RabbitMQ.Client.Exceptions;
-using SecTester.Bus.RetryStrategies;
 using SecTester.Bus.Tests.Fixtures;
 
 namespace SecTester.Bus.Tests.RetryStrategies;
@@ -86,7 +83,7 @@ public class ExponentialBackoffRetryStrategyTests : IDisposable
   public async Task Acquire_MaxDepthIsNotReached_ReturnsResult()
   {
     // arrange
-    var error = new HttpRequestException("Unhandled error", null, HttpStatusCode.NotModified);
+    var error = new HttpStatusException("Unhandled error", HttpStatusCode.InternalServerError);
     _mockInterface.Execute().Returns(_ => throw error, _ => throw error,
       _ => "result");
 
@@ -109,7 +106,7 @@ public class ExponentialBackoffRetryStrategyTests : IDisposable
       };
       list.AddRange(Enumerable.Repeat(500, 12).Select(x => new[]
       {
-        new HttpRequestException($"Status code: {x + 1}", null, (HttpStatusCode)(x + 1))
+        new HttpStatusException($"Status code: {x + 1}", (HttpStatusCode)(x + 1))
       }));
 
       return list;

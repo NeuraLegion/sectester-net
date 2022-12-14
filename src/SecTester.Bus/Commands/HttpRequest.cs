@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using SecTester.Core.Bus;
@@ -12,7 +13,7 @@ public record HttpRequest<TResult> : Command<TResult>
   public string Url { get; protected init; }
 
   public HttpRequest(string? url, HttpMethod? method = null, IEnumerable<KeyValuePair<string, string>>? @params = null,
-    HttpContent? body = null, bool? expectReply = null, int? ttl = null) : base(expectReply, ttl)
+    HttpContent? body = null, bool? expectReply = null, TimeSpan? ttl = null) : base(expectReply, ttl)
   {
     Url = url ?? "/";
     Method = method ?? HttpMethod.Get;

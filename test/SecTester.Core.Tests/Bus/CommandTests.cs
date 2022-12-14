@@ -29,7 +29,7 @@ public class CommandTests : IDisposable
       CreatedAt = DateTime.Now,
       CorrelationId = Guid.Empty.ToString(),
       ExpectReply = true,
-      Ttl = 10000
+      Ttl = TimeSpan.FromMinutes(1)
     };
 
     // act
@@ -46,7 +46,7 @@ public class CommandTests : IDisposable
   {
     // arrange
     const string payload = "text";
-    const int ttl = 1;
+    var ttl = TimeSpan.FromMilliseconds(1);
     var expected = new
     {
       Ttl = ttl
@@ -60,21 +60,16 @@ public class CommandTests : IDisposable
   }
 
   [Fact]
-  public void Command_TtlIsLessThan0_IgnoreOption()
+  public void Command_TtlIsLessThan0_ThrowsError()
   {
     // arrange
     const string payload = "text";
-    const int ttl = -1;
-    var expected = new
-    {
-      Ttl = 10000
-    };
 
     // act
-    var message = new TestCommandWithTtl(payload, ttl);
+    var act = () => new TestCommandWithTtl(payload, TimeSpan.Zero);
 
     // assert
-    message.Should().BeEquivalentTo(expected);
+    act.Should().Throw<ArgumentException>().WithMessage("*ttl*");
   }
 
   [Fact]

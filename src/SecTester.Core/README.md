@@ -51,7 +51,7 @@ public interface IConfigurationOptions {
   {
     get;
   }
-  List<CredentialProvider>? credentialProviders
+  List<ICredentialProvider>? credentialProviders
   {
     get;
   }
@@ -62,7 +62,7 @@ The default configuration is as follows:
 
 ```csharp
 {
-  credentialProviders = new List<CredentialProvider> { new EnvCredentialProvider() }
+  credentialProviders = new List<ICredentialProvider> { new EnvCredentialProvider() }
 }
 ```
 
@@ -92,7 +92,7 @@ More info about [setting up an API key](https://docs.brightsec.com/docs/manage-y
 
 #### credentialProviders
 
-- type: `CredentialProvider[]`
+- type: `ICredentialProvider[]`
 
 Allows you to provide credentials and load it in runtime. The configuration will invoke one provider at a time and only
 continue to the next if no credentials have been located. For example, if the process finds values defined via
@@ -108,7 +108,7 @@ If the `BRIGHT_TOKEN` environment variable is not set or contains a falsy value,
 var credentialsProvider = new EnvCredentialProvider();
 var config = new Configuration(
   // ...
-  credentialProviders: new List<CredentialProvider> { credentialsProvider });
+  credentialProviders: new List<ICredentialProvider> { credentialsProvider });
 ```
 
 ### Messages

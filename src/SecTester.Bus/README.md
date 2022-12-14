@@ -27,7 +27,7 @@ var serviceProvider = new ServiceCollection()
   .AddSecTesterBus(repeaterId)
   .BuildServiceProvider();
 
-var bus = serviceProvider.GetService<EventBus>();
+var bus = serviceProvider.GetService<IEventBus>();
 ```
 
 The options are specific to the chosen transporter, the package distributes the `RabbitMQ` implementation by default.
@@ -67,7 +67,7 @@ public record IssueDetected(Issue Payload) : Event
   public Issue Payload = Payload;
 }
 
-public class IssueDetectedHandler: EventListener<Issue>
+public class IssueDetectedHandler: IEventListener<Issue>
 {
   public Task Handle(IssueDetected @event)
   {
@@ -102,7 +102,7 @@ await bus.Unregister<IssueDetectedHandler, IssueDetected>();
 
 #### Publishing events through the event bus
 
-The `EventBus` exposes a `Publish()` method. This method publishes an event to the message broker.
+The `IEventBus` exposes a `Publish()` method. This method publishes an event to the message broker.
 
 ```csharp
 public record StatusChanged(string Status): Event
@@ -124,7 +124,7 @@ For more information, please see `SecTester.Core`.
 
 #### Executing RPC methods
 
-The `EventBus` exposes a `Execute()` method. This method is intended to perform a command to the application and returns
+The `IEventBus` exposes a `Execute()` method. This method is intended to perform a command to the application and returns
 an `Task` with its response.
 
 ```csharp
@@ -221,7 +221,7 @@ retry an action when errors like `SocketException` appear.
 You can implement your own to match the business requirements and the nature of the failure:
 
 ```csharp
-public class CustomRetryStrategy: RetryStrategy
+public class CustomRetryStrategy: IRetryStrategy
 {
   public async Task<TResult> Acquire<TResult>(task: Func<Task<TResult>>) {
     var times = 0;
@@ -247,7 +247,7 @@ public class CustomRetryStrategy: RetryStrategy
 Once a retry strategy is implemented, you can register it in the IoC container:
 
 ```csharp
-collection.AddSingleton<RetryStrategy, CustomRetryStrategy>();
+collection.AddSingleton<IRetryStrategy, CustomRetryStrategy>();
 ```
 
 ## License

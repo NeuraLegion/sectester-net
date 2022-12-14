@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -31,7 +32,8 @@ namespace SecTester.Core
     public string Version { get; } = "0.0.1";
     public string RepeaterVersion { get; } = "9.0.0";
 
-    public Configuration(string? hostname, Credentials? credentials = null, List<ICredentialProvider>? credentialProviders = null, LogLevel logLevel = LogLevel.Error)
+    public Configuration(string? hostname, Credentials? credentials = null, IEnumerable<ICredentialProvider>? credentialProviders = null,
+      LogLevel logLevel = LogLevel.Error)
     {
       LogLevel = logLevel;
       credentialProviders ??= new List<ICredentialProvider> { new EnvCredentialProvider() };
@@ -48,7 +50,12 @@ namespace SecTester.Core
       }
 
       Credentials = credentials;
-      _credentialProviders = credentialProviders;
+      _credentialProviders = credentialProviders.ToList();
+    }
+
+    public Configuration(IConfiguration options)
+      : this(options.Hostname, options.Credentials, options.CredentialProviders, options.LogLevel)
+    {
     }
 
     public async Task LoadCredentials()
@@ -79,6 +86,7 @@ namespace SecTester.Core
     private void ResolveUrls(Uri uri)
     {
       var host = uri.Host;
+
       if (_loopbackAddresses.Any(address => address == host))
       {
         Bus = $"amqp://{host}:5672";

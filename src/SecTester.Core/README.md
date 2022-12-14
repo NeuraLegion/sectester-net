@@ -42,17 +42,20 @@ public void ConfigureServices(IServiceCollection services)
 Configuration can be customized using the following options:
 
 ```csharp
-public interface IConfigurationOptions {
-  string hostname
+public interface IConfiguration {
+  string Hostname
   {
     get;
   }
-  Credentials? credentials
+  Credentials? Credentials
   {
     get;
   }
-  List<ICredentialProvider>? credentialProviders
+  IEnumerable<ICredentialProvider>? CredentialProviders
   {
+    get;
+  }
+  LogLevel LogLevel {
     get;
   }
 }

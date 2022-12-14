@@ -21,16 +21,16 @@ public static class ServiceCollectionExtensions
   {
     return collection
       .AddSingleton(options)
-      .AddSingleton<RepeaterEventBusFactory, DefaultRepeaterEventBusFactory>()
+      .AddSingleton<IRepeaterEventBusFactory, DefaultRepeaterEventBusFactory>()
       .AddScoped<RequestExecutingEventListener>()
-      .AddScoped<RepeaterFactory, DefaultRepeaterFactory>()
-      .AddScoped<Repeaters, DefaultRepeaters>()
-      .AddScoped<TimerProvider, SystemTimerProvider>()
-      .AddScoped<WebSocketFactory, DefaultWebSocketFactory>()
-      .AddScoped<RequestRunner, HttpRequestRunner>()
-      .AddScoped<RequestRunner, WsRequestRunner>()
+      .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
+      .AddScoped<IRepeaters, DefaultRepeaters>()
+      .AddScoped<ITimerProvider, SystemTimerProvider>()
+      .AddScoped<IWebSocketFactory, DefaultWebSocketFactory>()
+      .AddScoped<IRequestRunner, HttpRequestRunner>()
+      .AddScoped<IRequestRunner, WsRequestRunner>()
       .AddScoped<RequestRunnerResolver>(sp =>
-        protocol => sp.GetServices<RequestRunner>().FirstOrDefault(x => x.Protocol == protocol)
+        protocol => sp.GetServices<IRequestRunner>().FirstOrDefault(x => x.Protocol == protocol)
       )
       .AddHttpClientForHttpRequestRunner();
   }

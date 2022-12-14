@@ -7,15 +7,15 @@ using SecTester.Core.Bus;
 
 namespace SecTester.Bus.Dispatchers;
 
-public class DefaultRmqConnectionManager : RmqConnectionManager
+public class DefaultRmqConnectionManager : IRmqConnectionManager
 {
   private readonly IConnectionFactory _connectionFactory;
   private readonly ILogger _logger;
-  private readonly RetryStrategy _retryStrategy;
+  private readonly IRetryStrategy _retryStrategy;
   private readonly object _sync = new();
   private IConnection? _connection;
 
-  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger<DefaultRmqConnectionManager> logger, RetryStrategy retryStrategy)
+  public DefaultRmqConnectionManager(IConnectionFactory connectionFactory, ILogger<DefaultRmqConnectionManager> logger, IRetryStrategy retryStrategy)
   {
     _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));

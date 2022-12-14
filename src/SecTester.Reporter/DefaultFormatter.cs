@@ -6,7 +6,7 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Reporter;
 
-public class DefaultFormatter : Formatter
+public class DefaultFormatter : IFormatter
 {
   private const string CrLf = "\r\n";
   private const char NewLine = '\n';

@@ -10,13 +10,13 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
 
-public class DefaultScans : Scans
+public class DefaultScans : IScans
 {
   private readonly CiDiscovery _ciDiscovery;
-  private readonly CommandDispatcher _commandDispatcher;
+  private readonly ICommandDispatcher _commandDispatcher;
   private readonly Configuration _configuration;
 
-  public DefaultScans(Configuration configuration, CommandDispatcher commandDispatcher, CiDiscovery ciDiscovery)
+  public DefaultScans(Configuration configuration, ICommandDispatcher commandDispatcher, CiDiscovery ciDiscovery)
   {
     _configuration = configuration;
     _commandDispatcher = commandDispatcher;

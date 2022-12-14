@@ -99,7 +99,7 @@ await scan.Run(target);
 
 The `Run` method takes a single argument (for details, see [here](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Scan#defining-a-target-for-attack)), and returns promise that is resolved if scan finishes without any vulnerability found, and is rejected otherwise (on founding issue that meets threshold, on timeout, on scanning error).
 
-If any vulnerabilities are found, they will be pretty-printed to stderr (depending on the testing framework) and formatted depending on chosen [`Formatter`](https://github.com/NeuraLegion/sectester-net/blob/master/src/SecTester.Reporter/Formatter.cs).
+If any vulnerabilities are found, they will be pretty-printed to stderr (depending on the testing framework) and formatted depending on chosen [`Formatter`](https://github.com/NeuraLegion/sectester-net/blob/master/src/SecTester.Reporter/IFormatter.cs).
 
 By default, each found issue will cause the scan to stop. To control this behavior you can set a severity threshold using the `Threshold` method:
 

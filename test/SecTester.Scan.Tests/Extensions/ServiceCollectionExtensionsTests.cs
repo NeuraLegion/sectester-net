@@ -26,7 +26,7 @@ public class ServiceCollectionExtensionsTests
 
     // assert
     using var provider = _services.BuildServiceProvider();
-    var result = provider.GetRequiredService<Scans>();
+    var result = provider.GetRequiredService<IScans>();
     result.Should().BeOfType<DefaultScans>();
   }
 
@@ -58,7 +58,7 @@ public class ServiceCollectionExtensionsTests
 
     // assert
     using var provider = _services.BuildServiceProvider();
-    var result = provider.GetRequiredService<ScanFactory>();
+    var result = provider.GetRequiredService<IScanFactory>();
     result.Should().BeOfType<DefaultScanFactory>();
   }
 }

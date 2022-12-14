@@ -9,10 +9,10 @@ namespace SecTester.Core.Logger;
 
 public class ColoredConsoleFormatter : DefaultConsoleFormatter
 {
-  private readonly AnsiCodeColorizer _ansiCodeColorizer;
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer;
 
-  public ColoredConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options, SystemTimeProvider systemTimeProvider,
-    AnsiCodeColorizer ansiCodeColorizer)
+  public ColoredConsoleFormatter(IOptionsMonitor<ConsoleFormatterOptions> options, ISystemTimeProvider systemTimeProvider,
+    IAnsiCodeColorizer ansiCodeColorizer)
     : base(nameof(ColoredConsoleFormatter), options, systemTimeProvider)
   {
     _ansiCodeColorizer = ansiCodeColorizer;

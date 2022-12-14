@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Core.CredentialProviders;
 
-public class EnvCredentialProvider : CredentialProvider
+public class EnvCredentialProvider : ICredentialProvider
 {
   public const string BrightToken = "BRIGHT_TOKEN";
 

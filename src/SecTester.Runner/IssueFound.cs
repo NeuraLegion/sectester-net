@@ -8,7 +8,7 @@ public class IssueFound : SecTesterException
 {
   public Issue Issue { get; }
 
-  public IssueFound(Issue issue, Formatter formatter) :
+  public IssueFound(Issue issue, IFormatter formatter) :
     base($"Target is vulnerable\n\n{formatter.Format(issue)}")
   {
     this.Issue = issue;

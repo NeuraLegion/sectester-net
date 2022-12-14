@@ -19,11 +19,11 @@ using SecTester.Core.Utils;
 
 namespace SecTester.Bus.Dispatchers;
 
-public class RmqEventBus : EventBus
+public class RmqEventBus : IEventBus
 {
   private const string ReplyQueueName = "amq.rabbitmq.reply-to";
 
-  private readonly RmqConnectionManager _connectionManager;
+  private readonly IRmqConnectionManager _connectionManager;
   private readonly List<Type> _eventTypes = new();
   private readonly Dictionary<string, List<Type>> _handlers = new();
   private readonly ILogger _logger;
@@ -32,7 +32,7 @@ public class RmqEventBus : EventBus
   private readonly IServiceScopeFactory _scopeFactory;
   private IModel _channel;
 
-  public RmqEventBus(RmqEventBusOptions options, RmqConnectionManager connectionManager, ILogger<RmqEventBus> logger,
+  public RmqEventBus(RmqEventBusOptions options, IRmqConnectionManager connectionManager, ILogger<RmqEventBus> logger,
     IServiceScopeFactory scopeFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -86,7 +86,7 @@ public class RmqEventBus : EventBus
     return MessageSerializer.Deserialize<TResult>(result);
   }
 
-  public void Register<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
+  public void Register<THandler, TEvent, TResult>() where THandler : IEventListener<TEvent, TResult> where TEvent : Event
   {
     var eventName = MessageUtils.GetMessageType<TEvent>();
     var handlerType = typeof(THandler);
@@ -102,7 +102,7 @@ public class RmqEventBus : EventBus
     _handlers[eventName].Add(handlerType);
   }
 
-  public void Unregister<THandler, TEvent, TResult>() where THandler : EventListener<TEvent, TResult> where TEvent : Event
+  public void Unregister<THandler, TEvent, TResult>() where THandler : IEventListener<TEvent, TResult> where TEvent : Event
   {
     var eventName = MessageUtils.GetMessageType<TEvent>();
     var handlerType = typeof(THandler);
@@ -123,10 +123,10 @@ public class RmqEventBus : EventBus
     }
   }
 
-  public void Register<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event =>
+  public void Register<THandler, TEvent>() where THandler : IEventListener<TEvent> where TEvent : Event =>
     Register<THandler, TEvent, Unit>();
 
-  public void Unregister<THandler, TEvent>() where THandler : EventListener<TEvent> where TEvent : Event =>
+  public void Unregister<THandler, TEvent>() where THandler : IEventListener<TEvent> where TEvent : Event =>
     Unregister<THandler, TEvent, Unit>();
 
   public void Dispose()
@@ -253,7 +253,7 @@ public class RmqEventBus : EventBus
 
       var concreteType = eventHandler.GetConcreteEventListenerType();
       var payload = MessageSerializer.Deserialize(consumedMessage.Payload!, eventType);
-      var task = (Task)concreteType.InvokeMember(nameof(EventListener<Event>.Handle), BindingFlags.InvokeMethod, null, instance, new[]
+      var task = (Task)concreteType.InvokeMember(nameof(IEventListener<Event>.Handle), BindingFlags.InvokeMethod, null, instance, new[]
       {
         payload
       }, CultureInfo.InvariantCulture);

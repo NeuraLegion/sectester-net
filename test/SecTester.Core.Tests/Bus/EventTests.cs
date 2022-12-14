@@ -4,11 +4,11 @@ namespace SecTester.Core.Tests.Bus;
 
 public class EventTests : IDisposable
 {
-  private readonly EventDispatcher _dispatcher;
+  private readonly IEventDispatcher _dispatcher;
 
   public EventTests()
   {
-    _dispatcher = Substitute.For<EventDispatcher>();
+    _dispatcher = Substitute.For<IEventDispatcher>();
   }
 
   public void Dispose()

@@ -13,7 +13,7 @@ using SecTester.Repeater.Extensions;
 
 namespace SecTester.Repeater.Runners;
 
-internal sealed class HttpRequestRunner : RequestRunner
+internal sealed class HttpRequestRunner : IRequestRunner
 {
   private const string DefaultMimeType = "text/plain";
 
@@ -35,7 +35,7 @@ internal sealed class HttpRequestRunner : RequestRunner
 
   public Protocol Protocol => Protocol.Http;
 
-  public async Task<Response> Run(Request request)
+  public async Task<IResponse> Run(IRequest request)
   {
     try
     {
@@ -117,7 +117,7 @@ internal sealed class HttpRequestRunner : RequestRunner
     return body;
   }
 
-  private HttpRequestMessage CreateHttpRequestMessage(Request request)
+  private HttpRequestMessage CreateHttpRequestMessage(IRequest request)
   {
     var content = request.Body != null ? CreateHttpContent(request) : null;
     var options = new HttpRequestMessage
@@ -134,7 +134,7 @@ internal sealed class HttpRequestRunner : RequestRunner
     return options;
   }
 
-  private static StringContent? CreateHttpContent(Request request)
+  private static StringContent? CreateHttpContent(IRequest request)
   {
     var values = request.Headers
       .Where(header => header.Key.Equals(ContentTypeFieldName, StringComparison.OrdinalIgnoreCase))

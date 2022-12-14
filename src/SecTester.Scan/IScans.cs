@@ -4,7 +4,7 @@ using SecTester.Scan.Models;
 
 namespace SecTester.Scan;
 
-public interface Scans
+public interface IScans
 {
   Task<string> CreateScan(ScanConfig config);
 

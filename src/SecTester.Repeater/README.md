@@ -21,7 +21,7 @@ $ dotnet add package SecTester.Repeater
 To establish a secure connection between the Bright cloud engine and a target on a local network, you just need to use the `RepeaterFactory` constructed with [`Configuration` instance](https://github.com/NeuraLegion/sectester-js/tree/master/packages/core#configuration).
 
 ```csharp
-var repeaterFactory = serviceProvider.GetService<RepeaterFactory>();
+var repeaterFactory = serviceProvider.GetService<IRepeaterFactory>();
 ```
 
 The factory exposes the `CreateRepeater` method that returns a new `Repeater` instance:
@@ -105,7 +105,7 @@ public class ScanTests: IAsyncDisposable, IAsyncLifetime
   public ScanTests()
   {
     // ...
-    var repeaterFactory = serviceProvider.GetService<RepeaterFactory>();
+    var repeaterFactory = serviceProvider.GetService<IRepeaterFactory>();
     _repeater = repeaterFactory.CreateRepeater();
   }
 
@@ -135,14 +135,14 @@ Under the hood `Repeater` register `RequestExecutingEventHandler` in bus,
 which in turn uses the `RequestRunner` to proceed with request:
 
 ```csharp
-public interface RequestRunner
+public interface IRequestRunner
 {
   Protocol Protocol
 {
   get;
 }
 
-Task<Response> Run(Request request);
+Task<IResponse> Run(IRequest request);
 }
 ```
 
@@ -151,7 +151,7 @@ Package contains `RequestRunner` implementations for both HTTP and WS protocols.
 To support other protocol new class implementation of `RequestRunner` should be registered in the IoC container:
 
 ```csharp
-collection.AddScoped<RequestRunner, CustomProtocolRequestRunner>();
+collection.AddScoped<IRequestRunner, CustomProtocolRequestRunner>();
 ```
 
 ## Limitations

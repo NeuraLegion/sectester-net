@@ -15,8 +15,8 @@ public static class ServiceCollectionExtensions
     collection
       .AddHttpCommandDispatcher()
       .AddSingleton(new ExponentialBackoffOptions())
-      .AddSingleton<RetryStrategy, ExponentialBackoffRetryStrategy>()
-      .AddSingleton<RmqEventBusFactory, DefaultRmqEventBusFactory>();
+      .AddSingleton<IRetryStrategy, ExponentialBackoffIRetryStrategy>()
+      .AddSingleton<IRmqEventBusFactory, DefaultRmqEventBusFactory>();
 
   private static IServiceCollection AddHttpCommandDispatcher(this IServiceCollection collection) =>
     collection
@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
         return new HttpCommandDispatcherConfig(config.Api, config.Credentials!.Token, TimeSpan.FromSeconds(10));
       })
       .AddScoped<HttpCommandDispatcher>()
-      .AddScoped<CommandDispatcher>(sp => sp.GetRequiredService<HttpCommandDispatcher>())
+      .AddScoped<ICommandDispatcher>(sp => sp.GetRequiredService<HttpCommandDispatcher>())
       .AddHttpClientForHttpCommandDispatcher();
 
   private static IServiceCollection AddHttpClientForHttpCommandDispatcher(this IServiceCollection collection)

@@ -15,12 +15,12 @@ $ dotnet add package SecTester.Reporter
 
 ## Usage
 
-The package exposes a `PlainTextFormatter` that implements a `Formatter` interface:
+The package exposes a `DefaultFormatter` that implements a `IFormatter` interface:
 
 ```csharp
 using SecTester.Reporter;
 
-var formatter = new PlainTextFormatter();
+var formatter = new DefaultFormatter();
 ```
 
 To convert an issue into text, you just need to call the `Format` method:

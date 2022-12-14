@@ -8,7 +8,7 @@ public class DefaultRepeaterEventBusFactoryTests : IDisposable
   private const string Hostname = "app.neuralegion.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 
-  private readonly RmqEventBusFactory _eventBusFactory = Substitute.For<RmqEventBusFactory>();
+  private readonly IRmqEventBusFactory _eventBusFactory = Substitute.For<IRmqEventBusFactory>();
 
   public void Dispose()
   {

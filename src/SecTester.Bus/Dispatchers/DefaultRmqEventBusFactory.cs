@@ -8,13 +8,13 @@ using SecTester.Core.Bus;
 namespace SecTester.Bus.Dispatchers;
 
 [ExcludeFromCodeCoverage]
-public class DefaultRmqEventBusFactory : RmqEventBusFactory
+public class DefaultRmqEventBusFactory : IRmqEventBusFactory
 {
-  private readonly RetryStrategy _retryStrategy;
+  private readonly IRetryStrategy _retryStrategy;
   private readonly IServiceScopeFactory _serviceScopeFactory;
   private readonly ILoggerFactory _loggerFactory;
 
-  public DefaultRmqEventBusFactory(IServiceScopeFactory serviceScopeFactory, RetryStrategy retryStrategy,
+  public DefaultRmqEventBusFactory(IServiceScopeFactory serviceScopeFactory, IRetryStrategy retryStrategy,
     ILoggerFactory loggerFactory)
   {
     _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -28,7 +28,7 @@ public class DefaultRmqEventBusFactory : RmqEventBusFactory
     return new RmqEventBus(options, connectionManager, _loggerFactory.CreateLogger<RmqEventBus>(), _serviceScopeFactory);
   }
 
-  protected virtual RmqConnectionManager CreateConnectionManager(RmqEventBusOptions options)
+  protected virtual IRmqConnectionManager CreateConnectionManager(RmqEventBusOptions options)
   {
     var factory = new ConnectionFactory
     {

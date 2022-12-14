@@ -291,7 +291,7 @@ public class HttpRequestRunnerTests : IDisposable
     {
       ErrorCode = "ConnectionRefused"
     },
-      options => options.Using<Response>(ctx => ctx.Subject.Should().BeOfType<string>())
+      options => options.Using<IResponse>(ctx => ctx.Subject.Should().BeOfType<string>())
         .When(info => info.Path.EndsWith(nameof(RequestExecutingResult.Message))));
   }
 

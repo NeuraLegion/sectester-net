@@ -1,6 +1,6 @@
 namespace SecTester.Core.Logger;
 
-public interface AnsiCodeColorizer
+public interface IAnsiCodeColorizer
 {
   string Colorize(AnsiCodeColor ansiCodeColor, string input);
 }

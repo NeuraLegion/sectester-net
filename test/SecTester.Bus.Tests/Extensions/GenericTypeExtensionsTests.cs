@@ -14,7 +14,7 @@ public class GenericTypeExtensionsTests
     var result = type.GetConcreteEventListenerType();
 
     // assert
-    result.Should().Be(typeof(EventListener<ConcreteEvent, FooBar>));
+    result.Should().Be(typeof(IEventListener<ConcreteEvent, FooBar>));
   }
 
   [Fact]
@@ -27,6 +27,6 @@ public class GenericTypeExtensionsTests
     var result = type.GetConcreteEventListenerType();
 
     // assert
-    result.Should().Be(typeof(EventListener<ConcreteEvent, Unit>));
+    result.Should().Be(typeof(IEventListener<ConcreteEvent, Unit>));
   }
 }

@@ -1,6 +1,6 @@
 namespace SecTester.Bus.Tests.Fixtures;
 
-internal class ConcreteSecondHandler : EventListener<ConcreteEvent>
+internal class ConcreteSecondHandler : IEventListener<ConcreteEvent>
 {
   public Task<Unit> Handle(ConcreteEvent message)
   {

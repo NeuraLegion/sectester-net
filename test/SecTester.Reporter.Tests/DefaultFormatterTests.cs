@@ -57,7 +57,7 @@ References:
     }
   };
 
-  private readonly Formatter _sut = new DefaultFormatter();
+  private readonly IFormatter _sut = new DefaultFormatter();
 
   [Theory]
   [MemberData(nameof(FormatInput))]

@@ -5,12 +5,12 @@ public class DefaultRepeatersTests : IDisposable
   const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
   const string AnotherId = "220baaac-b7ec-46a7-ab5e-ff1e96b0785e";
 
-  private readonly CommandDispatcher _commandDispatcher;
+  private readonly ICommandDispatcher _commandDispatcher;
   private readonly DefaultRepeaters _sut;
 
   public DefaultRepeatersTests()
   {
-    _commandDispatcher = Substitute.For<CommandDispatcher>();
+    _commandDispatcher = Substitute.For<ICommandDispatcher>();
     _sut = new DefaultRepeaters(_commandDispatcher);
   }
 

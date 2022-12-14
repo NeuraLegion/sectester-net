@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Scan;
 
-public interface ScanFactory
+public interface IScanFactory
 {
   Task<IScan> CreateScan(ScanSettings settings, ScanOptions? options = default);
 }

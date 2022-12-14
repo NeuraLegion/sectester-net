@@ -2,12 +2,12 @@ namespace SecTester.Bus.Tests.Dispatchers;
 
 public class DefaultRmqConnectionManagerTests : IDisposable
 {
-  private readonly RmqConnectionManager _manager;
+  private readonly IRmqConnectionManager _manager;
   private readonly IModel _channel = Substitute.For<IModel>();
   private readonly IConnection _connection = Substitute.For<IConnection>();
   private readonly IConnectionFactory _connectionFactory = Substitute.For<IConnectionFactory>();
   private readonly ILogger<DefaultRmqConnectionManager> _logger = Substitute.For<ILogger<DefaultRmqConnectionManager>>();
-  private readonly RetryStrategy _retryStrategy = Substitute.For<RetryStrategy>();
+  private readonly IRetryStrategy _retryStrategy = Substitute.For<IRetryStrategy>();
 
   public DefaultRmqConnectionManagerTests()
   {

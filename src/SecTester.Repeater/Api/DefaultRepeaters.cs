@@ -6,11 +6,11 @@ using SecTester.Core.Exceptions;
 
 namespace SecTester.Repeater.Api;
 
-public class DefaultRepeaters : Repeaters
+public class DefaultRepeaters : IRepeaters
 {
-  private readonly CommandDispatcher _commandDispatcher;
+  private readonly ICommandDispatcher _commandDispatcher;
 
-  public DefaultRepeaters(CommandDispatcher commandDispatcher)
+  public DefaultRepeaters(ICommandDispatcher commandDispatcher)
   {
     _commandDispatcher = commandDispatcher;
   }

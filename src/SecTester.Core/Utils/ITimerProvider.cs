@@ -2,7 +2,7 @@ using System.Timers;
 
 namespace SecTester.Core.Utils;
 
-public interface TimerProvider
+public interface ITimerProvider
 {
   void Start();
   void Stop();

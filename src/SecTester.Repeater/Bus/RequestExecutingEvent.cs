@@ -9,7 +9,7 @@ using SecTester.Repeater.Runners;
 namespace SecTester.Repeater.Bus;
 
 [MessageType(name: "ExecuteScript")]
-public record RequestExecutingEvent(Uri Url) : Event, Request
+public record RequestExecutingEvent(Uri Url) : Event, IRequest
 {
   public string? Body { get; init; }
   [JsonPropertyName("correlation_id_regex")]

@@ -12,16 +12,16 @@ using SecTester.Repeater.Bus;
 
 namespace SecTester.Repeater.Runners;
 
-internal sealed class WsRequestRunner : RequestRunner
+internal sealed class WsRequestRunner : IRequestRunner
 {
   private const WebSocketCloseStatus DefaultStatusCode = WebSocketCloseStatus.NormalClosure;
   private const int MaxBufferSize = 1024 * 4;
   private readonly SemaphoreSlim _lock = new(1, 1);
 
   private readonly RequestRunnerOptions _options;
-  private readonly WebSocketFactory _webSocketFactory;
+  private readonly IWebSocketFactory _webSocketFactory;
 
-  public WsRequestRunner(RequestRunnerOptions options, WebSocketFactory webSocketFactory)
+  public WsRequestRunner(RequestRunnerOptions options, IWebSocketFactory webSocketFactory)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _webSocketFactory = webSocketFactory ?? throw new ArgumentNullException(nameof(webSocketFactory));
@@ -29,7 +29,7 @@ internal sealed class WsRequestRunner : RequestRunner
 
   public Protocol Protocol => Protocol.Ws;
 
-  public async Task<Response> Run(Request request)
+  public async Task<IResponse> Run(IRequest request)
   {
     using var cts = new CancellationTokenSource(_options.Timeout);
 
@@ -56,7 +56,7 @@ internal sealed class WsRequestRunner : RequestRunner
     }
   }
 
-  private async Task<WebSocketResponseBody> SendAndRetrieve(WebSocket client, Request request, CancellationToken cancellationToken)
+  private async Task<WebSocketResponseBody> SendAndRetrieve(WebSocket client, IRequest request, CancellationToken cancellationToken)
   {
     var message = BuildMessage(request);
 
@@ -113,7 +113,7 @@ internal sealed class WsRequestRunner : RequestRunner
     }
   }
 
-  private static ValueTask<WebSocketResponseBody> Consume(Request request, WebSocket client,
+  private static ValueTask<WebSocketResponseBody> Consume(IRequest request, WebSocket client,
     CancellationToken cancellationToken)
   {
     return ConsumeMessage(client, cancellationToken)
@@ -156,7 +156,7 @@ internal sealed class WsRequestRunner : RequestRunner
     };
   }
 
-  private static ArraySegment<byte> BuildMessage(Request message)
+  private static ArraySegment<byte> BuildMessage(IRequest message)
   {
     var buffer = Encoding.Default.GetBytes(message.Body ?? "");
     return new ArraySegment<byte>(buffer);

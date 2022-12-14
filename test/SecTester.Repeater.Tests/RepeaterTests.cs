@@ -30,11 +30,11 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
     }
   };
 
-  private readonly EventBus _eventBus = Substitute.For<EventBus>();
+  private readonly IEventBus _eventBus = Substitute.For<IEventBus>();
   private readonly MockLogger<Repeater> _logger = Substitute.For<MockLogger<Repeater>>();
   private readonly Repeater _sut;
-  private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
-  private readonly AnsiCodeColorizer _ansiCodeColorizer = Substitute.For<AnsiCodeColorizer>();
+  private readonly ITimerProvider _timerProvider = Substitute.For<ITimerProvider>();
+  private readonly IAnsiCodeColorizer _ansiCodeColorizer = Substitute.For<IAnsiCodeColorizer>();
 
   public RepeaterTests()
   {

@@ -9,13 +9,13 @@ public class HttpCommandDispatcherTests : IDisposable
   private readonly HttpCommandDispatcher _dispatcher;
   private readonly IHttpClientFactory _httpClientFactory;
   private readonly MockHttpMessageHandler _mockHttp;
-  private readonly RetryStrategy _retryStrategy;
+  private readonly IRetryStrategy _retryStrategy;
 
   public HttpCommandDispatcherTests()
   {
     _mockHttp = new MockHttpMessageHandler();
     _httpClientFactory = Substitute.For<IHttpClientFactory>();
-    _retryStrategy = Substitute.For<RetryStrategy>();
+    _retryStrategy = Substitute.For<IRetryStrategy>();
     _retryStrategy.Acquire(Arg.Any<Func<Task<HttpResponseMessage>>>(), Arg.Any<CancellationToken>())
       .Returns(x => x.ArgAt<Func<Task<HttpResponseMessage>>>(0).Invoke());
     _httpClientFactory.CreateClient(Arg.Any<string>()).Returns(_mockHttp.ToHttpClient());

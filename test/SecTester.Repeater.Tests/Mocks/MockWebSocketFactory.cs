@@ -1,6 +1,6 @@
 namespace SecTester.Repeater.Tests.Mocks;
 
-public class MockWebSocketFactory : WebSocketFactory, IDisposable
+public class MockWebSocketFactory : IWebSocketFactory, IDisposable
 {
   private readonly TestServer _server;
 

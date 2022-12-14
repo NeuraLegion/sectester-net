@@ -10,14 +10,14 @@ namespace SecTester.Runner;
 
 public class SecScan
 {
-  private readonly Formatter _formatter;
-  private readonly ScanFactory _scanFactory;
+  private readonly IFormatter _formatter;
+  private readonly IScanFactory _scanFactory;
 
   private readonly ScanSettingsBuilder _builder;
   private Severity _threshold = Severity.Low;
   private TimeSpan _timeout = TimeSpan.FromMinutes(10);
 
-  public SecScan(ScanSettingsBuilder builder, ScanFactory scanFactory, Formatter formatter)
+  public SecScan(ScanSettingsBuilder builder, IScanFactory scanFactory, IFormatter formatter)
   {
     _builder = builder ?? throw new ArgumentNullException(nameof(builder));
     _scanFactory = scanFactory ?? throw new ArgumentNullException(nameof(scanFactory));

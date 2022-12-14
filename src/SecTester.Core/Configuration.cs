@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace SecTester.Core
     private readonly Regex _schemaRegex = new(@"^.+:\/\/");
     private readonly Regex _hostnameNormalizationRegex = new(@"^(?!(?:\w+:)?\/\/)|^\/\/");
     private readonly string[] _loopbackAddresses = { "localhost", "127.0.0.1" };
-    private readonly List<CredentialProvider> _credentialProviders;
+    private readonly List<ICredentialProvider> _credentialProviders;
 
     public string Bus { get; private set; }
 
@@ -24,17 +25,18 @@ namespace SecTester.Core
 
     public LogLevel LogLevel { get; private set; }
 
-    public IReadOnlyCollection<CredentialProvider> CredentialProviders => _credentialProviders.AsReadOnly();
+    public IReadOnlyCollection<ICredentialProvider> CredentialProviders => _credentialProviders.AsReadOnly();
 
     // TODO: provide a more convenient way of setting these properties
     public string Name { get; } = "sectester-net";
     public string Version { get; } = "0.0.1";
     public string RepeaterVersion { get; } = "9.0.0";
 
-    public Configuration(string? hostname, Credentials? credentials = null, List<CredentialProvider>? credentialProviders = null, LogLevel logLevel = LogLevel.Error)
+    public Configuration(string? hostname, Credentials? credentials = null, IEnumerable<ICredentialProvider>? credentialProviders = null,
+      LogLevel logLevel = LogLevel.Error)
     {
       LogLevel = logLevel;
-      credentialProviders ??= new List<CredentialProvider> { new EnvCredentialProvider() };
+      credentialProviders ??= new List<ICredentialProvider> { new EnvCredentialProvider() };
       hostname = hostname?.Trim();
       hostname = hostname ?? throw new ArgumentNullException(nameof(hostname), "Please provide 'hostname' option.");
 
@@ -48,7 +50,12 @@ namespace SecTester.Core
       }
 
       Credentials = credentials;
-      _credentialProviders = credentialProviders;
+      _credentialProviders = credentialProviders.ToList();
+    }
+
+    public Configuration(IConfiguration options)
+      : this(options.Hostname, options.Credentials, options.CredentialProviders, options.LogLevel)
+    {
     }
 
     public async Task LoadCredentials()
@@ -79,6 +86,7 @@ namespace SecTester.Core
     private void ResolveUrls(Uri uri)
     {
       var host = uri.Host;
+
       if (_loopbackAddresses.Any(address => address == host))
       {
         Bus = $"amqp://{host}:5672";

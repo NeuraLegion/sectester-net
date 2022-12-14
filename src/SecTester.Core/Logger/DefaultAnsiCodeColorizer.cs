@@ -1,6 +1,6 @@
 namespace SecTester.Core.Logger;
 
-public class DefaultAnsiCodeColorizer : AnsiCodeColorizer
+public class DefaultAnsiCodeColorizer : IAnsiCodeColorizer
 {
   private readonly bool _enabled;
 

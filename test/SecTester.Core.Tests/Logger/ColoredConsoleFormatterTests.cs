@@ -83,8 +83,7 @@ public class ColoredConsoleFormatterTests : IDisposable
     _ansiCodeColorizer.Colorize(Arg.Any<AnsiCodeColor>(), Arg.Any<string>())
       .Returns(x => x.ArgAt<string>(1));
 
-    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock,
-      new DefaultAnsiCodeColorizer(false));
+    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock, _ansiCodeColorizer);
 
     // act
     sut.Write(logEntry, _externalScopeProviderMock, outStringWriter);

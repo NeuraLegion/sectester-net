@@ -315,7 +315,7 @@ public class RmqEventBusTests : IDisposable
   public async Task Execute_NoReplyForGivenTime_ThrowsError()
   {
     // arrange
-    var command = new ConcreteCommand2("foo", true, 1);
+    var command = new ConcreteCommand2("foo", true, TimeSpan.FromMilliseconds(1));
     var basicProperties = Substitute.For<IBasicProperties>();
     basicProperties.Type = nameof(ConcreteCommand2);
     basicProperties.CorrelationId = command.CorrelationId;

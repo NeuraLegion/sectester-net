@@ -198,7 +198,7 @@ public class HttpCommandDispatcherTests : IDisposable
   {
     // arrange
     const string path = "/api/test";
-    var command = new HttpRequest<BazQux>(path, ttl: 1);
+    var command = new HttpRequest<BazQux>(path, ttl: TimeSpan.FromMilliseconds(1));
 
     _mockHttp.Expect($"{BaseUrl}{path}")
       .Respond(async () =>
@@ -253,4 +253,3 @@ public class HttpCommandDispatcherTests : IDisposable
     _mockHttp.VerifyNoOutstandingExpectation();
   }
 }
-

@@ -1,9 +1,9 @@
 using System;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using RabbitMQ.Client.Exceptions;
+using SecTester.Bus.Exceptions;
 using SecTester.Core.Bus;
 
 namespace SecTester.Bus.RetryStrategies;
@@ -46,6 +46,6 @@ public class ExponentialBackoffRetryStrategy : RetryStrategy
 
   private static bool ShouldRetry(Exception err)
   {
-    return err is SocketException or BrokerUnreachableException or TaskCanceledException or HttpRequestException;
+    return err is SocketException or BrokerUnreachableException or TaskCanceledException or HttpStatusException { Retryable: true };
   }
 }

@@ -40,13 +40,13 @@ public static class ServiceCollectionExtensions
 
   private static HttpMessageHandler CreateHttpMessageHandler()
   {
-    var options = new SlidingWindowRateLimiterOptions
+    var options = new FixedWindowRateLimiterOptions
     {
       Window = TimeSpan.FromSeconds(60),
-      SegmentsPerWindow = 6,
-      PermitLimit = 1000
+      PermitLimit = 10,
+      QueueLimit = 5
     };
-    var rateLimiter = new SlidingWindowRateLimiter(options);
+    var rateLimiter = new FixedWindowRateLimiter(options);
 
     return new RateLimitedHandler(rateLimiter);
   }

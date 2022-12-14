@@ -5,23 +5,30 @@ namespace SecTester.Core.Bus;
 
 public record Command<TResponse> : Message
 {
-  private readonly int _ttl;
-  private const int DefaultTtl = 10000;
+  private readonly TimeSpan _ttl;
   public bool ExpectReply { get; protected init; }
 
-  public int Ttl
+  public TimeSpan Ttl
   {
     get => _ttl;
-    protected init => _ttl = value > 0 ? value : DefaultTtl;
+    protected init
+    {
+      if (value <= TimeSpan.Zero)
+      {
+        throw new ArgumentException($"{nameof(Ttl)} must be greater than 0.");
+      }
+
+      _ttl = value;
+    }
   }
 
-  public Command(bool? expectReply = null, int? ttl = null)
+  public Command(bool? expectReply = null, TimeSpan? ttl = null)
   {
     ExpectReply = expectReply ?? true;
-    Ttl = ttl ?? DefaultTtl;
+    Ttl = ttl ?? TimeSpan.FromMinutes(1);
   }
 
-  public Command(string type, string correlationId, DateTime createdAt, bool expectReply, int ttl) : base(type, correlationId, createdAt)
+  public Command(string type, string correlationId, DateTime createdAt, bool expectReply, TimeSpan ttl) : base(type, correlationId, createdAt)
   {
     ExpectReply = expectReply;
     Ttl = ttl;

@@ -54,8 +54,12 @@ internal static class ConsoleUtils
       return false;
     }
 
-    return AnsiColorRequiredMode == (outConsoleMode & AnsiColorRequiredMode) ||
-           SetConsoleMode(handle, outConsoleMode | AnsiColorRequiredMode);
+    if ((outConsoleMode & AnsiColorRequiredMode) == AnsiColorRequiredMode)
+    {
+      return true;
+    }
+
+    return SetConsoleMode(handle, outConsoleMode | AnsiColorRequiredMode);
   }
 }
 

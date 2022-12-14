@@ -1,6 +1,3 @@
-using SecTester.Core.Logger;
-using SecTester.Repeater.Tests.Mocks;
-
 namespace SecTester.Repeater.Tests;
 
 public class RepeaterTests : IDisposable, IAsyncDisposable

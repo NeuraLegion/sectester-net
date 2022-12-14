@@ -1,5 +1,3 @@
-using SecTester.Core.Logger;
-
 namespace SecTester.Repeater.Tests;
 
 public class DefaultRepeaterFactoryTests : IDisposable

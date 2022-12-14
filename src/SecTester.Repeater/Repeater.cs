@@ -150,7 +150,7 @@ public class Repeater : IRepeater
       RepeaterRegisteringError.Busy => new SecTesterException(
         $"Access Refused: There is an already running Repeater with ID {RepeaterId}"),
       RepeaterRegisteringError.RequiresToBeUpdated => new SecTesterException(
-        "(!) CRITICAL: The current running version is no longer supported, please update SecTester."),
+        $"{_ansiCodeColorizer.Colorize(AnsiCodeColor.Red, "(!) CRITICAL")}: The current running version is no longer supported, please update SecTester."),
       _ => new ArgumentOutOfRangeException(nameof(error), error, "Something went wrong. Unknown error.")
     };
   }

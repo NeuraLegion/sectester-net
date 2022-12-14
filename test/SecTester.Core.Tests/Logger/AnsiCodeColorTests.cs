@@ -36,7 +36,7 @@ public class AnsiCodeColorTests
     },
     new object[]
     {
-      AnsiCodeColor.White, null as AnsiCodeColor
+      AnsiCodeColor.White, null!
     }
   };
 

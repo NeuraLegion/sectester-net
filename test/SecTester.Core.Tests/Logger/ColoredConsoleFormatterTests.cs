@@ -1,6 +1,6 @@
 namespace SecTester.Core.Tests.Logger;
 
-public class ColoredConsoleFormatterTests
+public class ColoredConsoleFormatterTests : IDisposable
 {
   const string DefaultForegroundColor = "\x1B[39m\x1B[22m";
 
@@ -21,6 +21,13 @@ public class ColoredConsoleFormatterTests
       (state, exception) => exception?.ToString() ?? string.Format(state.Item1, state.Item2));
   }
 
+  public void Dispose()
+  {
+    _externalScopeProviderMock.ClearSubstitute();
+
+    GC.SuppressFinalize(this);
+  }
+
   [Theory]
   [MemberData(nameof(HeaderColors))]
   public void Write_GivenLogLevel_LogColorSequence(LogLevel logLevel, string foregroundAnsiColor)
@@ -39,7 +46,8 @@ public class ColoredConsoleFormatterTests
       IncludeScopes = false
     });
 
-    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock);
+
+    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock, new DefaultAnsiCodeColorizer(true));
 
     // act
     sut.Write(logEntry, _externalScopeProviderMock, outStringWriter);
@@ -47,5 +55,66 @@ public class ColoredConsoleFormatterTests
     // assert
     outStringWriter.ToString().Should().StartWith(foregroundAnsiColor);
     outStringWriter.ToString().Should().EndWith($"{DefaultForegroundColor} message{Environment.NewLine}");
+  }
+
+  [Theory]
+  [MemberData(nameof(HeaderColors))]
+  public void Write_GivenLogLevel_LogsColorSequence(LogLevel logLevel, string foregroundAnsiColor)
+  {
+    // arrange
+    var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
+    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var outStringWriter = new StringWriter();
+    var logEntry = CreateLogEntry(logLevel, "message");
+
+    systemTimeProviderMock.Now.Returns(DateTime.Now);
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions
+    {
+      TimestampFormat = "HH:mm:ss",
+      UseUtcTimestamp = false,
+      IncludeScopes = false
+    });
+
+
+    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock,
+                            new DefaultAnsiCodeColorizer(true));
+
+    // act
+    sut.Write(logEntry, _externalScopeProviderMock, outStringWriter);
+
+    // assert
+    outStringWriter.ToString().Should().StartWith(foregroundAnsiColor);
+    outStringWriter.ToString().Should().EndWith($"{DefaultForegroundColor} message{Environment.NewLine}");
+  }
+
+  [Theory]
+  [MemberData(nameof(HeaderColors))]
+  public void Write_GivenLogLevel_DoesNotLogColorSequence(LogLevel logLevel, string foregroundAnsiColor)
+  {
+    // arrange
+    var optionsMonitorMock = Substitute.For<IOptionsMonitor<ConsoleFormatterOptions>>();
+    var systemTimeProviderMock = Substitute.For<SystemTimeProvider>();
+    var outStringWriter = new StringWriter();
+    var logEntry = CreateLogEntry(logLevel, "message");
+
+    systemTimeProviderMock.Now.Returns(DateTime.Now);
+    optionsMonitorMock.CurrentValue.Returns(new ConsoleFormatterOptions
+    {
+      TimestampFormat = "HH:mm:ss",
+      UseUtcTimestamp = false,
+      IncludeScopes = false
+    });
+
+
+    using var sut = new ColoredConsoleFormatter(optionsMonitorMock, systemTimeProviderMock,
+      new DefaultAnsiCodeColorizer(false));
+
+    // act
+    sut.Write(logEntry, _externalScopeProviderMock, outStringWriter);
+
+    // assert
+    outStringWriter.ToString().Should().NotContain(foregroundAnsiColor);
+    outStringWriter.ToString().Should().NotContain(DefaultForegroundColor);
+    outStringWriter.ToString().Should().EndWith($" message{Environment.NewLine}");
   }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SecTester.Core.Bus;
 using SecTester.Core.Exceptions;
 using SecTester.Core.Extensions;
+using SecTester.Core.Logger;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Bus;
 
@@ -18,14 +19,17 @@ public class Repeater : IRepeater
   private readonly ILogger _logger;
   private readonly SemaphoreSlim _semaphore = new(1, 1);
   private readonly Version _version;
+  private readonly AnsiCodeColorizer _ansiCodeColorizer;
 
-  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger<Repeater> logger, TimerProvider heartbeat)
+  public Repeater(string repeaterId, EventBus eventBus, Version version, ILogger<Repeater> logger, TimerProvider heartbeat,
+    AnsiCodeColorizer ansiCodeColorizer)
   {
     RepeaterId = repeaterId ?? throw new ArgumentNullException(nameof(repeaterId));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _version = version ?? throw new ArgumentNullException(nameof(version));
     _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
     _heartbeat = heartbeat ?? throw new ArgumentNullException(nameof(heartbeat));
+    _ansiCodeColorizer = ansiCodeColorizer ?? throw new ArgumentNullException(nameof(ansiCodeColorizer));
   }
 
   public RunningStatus Status { get; private set; } = RunningStatus.Off;
@@ -43,6 +47,7 @@ public class Repeater : IRepeater
   public async Task Start(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+
     try
     {
       if (Status != RunningStatus.Off)
@@ -100,6 +105,7 @@ public class Repeater : IRepeater
   public async Task Stop(CancellationToken cancellationToken = default)
   {
     using var _ = await _semaphore.LockAsync(cancellationToken).ConfigureAwait(false);
+
     try
     {
       if (Status != RunningStatus.Running)
@@ -129,11 +135,8 @@ public class Repeater : IRepeater
     {
       if (new Version(result.Version!).CompareTo(_version) != 0)
       {
-        // TODO: colorize an output in the same manner like sectester-js does
-        _logger.LogWarning(
-          "(!) IMPORTANT: A new Repeater version ({Version}) is available, please update SecTester.",
-          result.Version
-        );
+        _logger.LogWarning("{Prefix}: A new Repeater version ({Version}) is available, please update SecTester",
+          _ansiCodeColorizer.Colorize(AnsiCodeColor.Yellow, "(!) IMPORTANT"), result.Version);
       }
     }
   }

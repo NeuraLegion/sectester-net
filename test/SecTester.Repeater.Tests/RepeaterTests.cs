@@ -1,3 +1,4 @@
+using SecTester.Core.Logger;
 using SecTester.Repeater.Tests.Mocks;
 
 namespace SecTester.Repeater.Tests;
@@ -36,12 +37,13 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   private readonly MockLogger<Repeater> _logger = Substitute.For<MockLogger<Repeater>>();
   private readonly Repeater _sut;
   private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
+  private readonly AnsiCodeColorizer _ansiCodeColorizer = Substitute.For<AnsiCodeColorizer>();
 
   public RepeaterTests()
   {
     var version = new Version(Version);
     _eventBus.Execute(Arg.Any<RegisterRepeaterCommand>()).Returns(new RegisterRepeaterResult(new RegisterRepeaterPayload(Version)));
-    _sut = new Repeater(Id, _eventBus, version, _logger, _timerProvider);
+    _sut = new Repeater(Id, _eventBus, version, _logger, _timerProvider, _ansiCodeColorizer);
   }
 
   public async ValueTask DisposeAsync()
@@ -54,6 +56,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   [Fact]
   public void Dispose()
   {
+    _ansiCodeColorizer.ClearSubstitute();
     _logger.ClearSubstitute();
     _eventBus.ClearSubstitute();
     _timerProvider.ClearSubstitute();

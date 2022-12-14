@@ -1,3 +1,5 @@
+using SecTester.Core.Logger;
+
 namespace SecTester.Repeater.Tests;
 
 public class DefaultRepeaterFactoryTests : IDisposable
@@ -13,17 +15,19 @@ public class DefaultRepeaterFactoryTests : IDisposable
   private readonly Repeaters _repeaters = Substitute.For<Repeaters>();
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
   private readonly TimerProvider _timerProvider = Substitute.For<TimerProvider>();
+  private readonly AnsiCodeColorizer _ansiCodeColorizer = Substitute.For<AnsiCodeColorizer>();
   private readonly DefaultRepeaterFactory _sut;
 
   public DefaultRepeaterFactoryTests()
   {
     // ADHOC: since GetRequiredService is part of extension we should explicitly mock an instance method
     _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(TimerProvider)).Returns(_timerProvider);
-    _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory);
+    _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory, _ansiCodeColorizer );
   }
 
   public void Dispose()
   {
+    _ansiCodeColorizer.ClearSubstitute();
     _timerProvider.ClearSubstitute();
     _serviceScopeFactory.ClearSubstitute();
     _eventBusFactory.ClearSubstitute();

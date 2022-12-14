@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
     collection
       .AddSingleton(configuration)
       .AddSingleton<SystemTimeProvider>(new UtcSystemTimeProvider())
+      .AddSingleton<AnsiCodeColorizer>(new DefaultAnsiCodeColorizer(ConsoleUtils.IsColored))
       .AddLogging(builder =>
       {
         builder.SetMinimumLevel(configuration.LogLevel)

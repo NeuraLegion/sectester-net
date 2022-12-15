@@ -156,4 +156,14 @@ public class ConfigurationTests
     // assert
     configuration.LogLevel.Should().Be(LogLevel.Trace);
   }
+
+  [Fact]
+  public void Version_ReturnsSemVerProductVersion()
+  {
+    // act
+    var configuration = new Configuration(hostname: "app.neuralegion.com", logLevel: LogLevel.Trace);
+
+    // assert
+    configuration.Version.Should().MatchRegex(@"^\d+\.\d+\.\d+$");
+  }
 }

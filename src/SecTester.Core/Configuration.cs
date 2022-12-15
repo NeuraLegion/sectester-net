@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -29,13 +30,15 @@ namespace SecTester.Core
 
     // TODO: provide a more convenient way of setting these properties
     public string Name { get; } = "sectester-net";
-    public string Version { get; } = "0.0.1";
+    public string Version { get; }
     public string RepeaterVersion { get; } = "9.0.0";
 
     public Configuration(string? hostname, Credentials? credentials = null, IEnumerable<ICredentialProvider>? credentialProviders = null,
       LogLevel logLevel = LogLevel.Error)
     {
+      Version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location).ProductVersion;
       LogLevel = logLevel;
+
       credentialProviders ??= new List<ICredentialProvider> { new EnvCredentialProvider() };
       hostname = hostname?.Trim();
       hostname = hostname ?? throw new ArgumentNullException(nameof(hostname), "Please provide 'hostname' option.");

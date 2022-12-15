@@ -18,6 +18,8 @@ public class SecRunnerTests
   private readonly IRepeaterFactory _repeaterFactory = Substitute.For<IRepeaterFactory>();
   private readonly IRepeaters _repeatersManager = Substitute.For<IRepeaters>();
   private readonly IScanFactory _scanFactory = Substitute.For<IScanFactory>();
+  private readonly ICredentialProvider _credentialProvider = Substitute.For<ICredentialProvider>();
+
   private readonly SecRunner _sut;
 
   public SecRunnerTests()
@@ -31,10 +33,41 @@ public class SecRunnerTests
   public async Task Create_CreatesCompositeRoot()
   {
     // act
-    await using var secRunner = SecRunner.Create(_configuration);
+    await using var secRunner = await SecRunner.Create(_configuration);
 
     // assert
     secRunner.Should().BeOfType<SecRunner>();
+  }
+
+  [Fact]
+  public async Task Create_AbleToLoadCredentials_CreatesCompositeRoot()
+  {
+    // arrange
+    var configuration = new Configuration(Hostname,
+      credentialProviders: new List<ICredentialProvider> { _credentialProvider });
+
+    _credentialProvider.Get().Returns(new Credentials(Token));
+
+    // act
+    await using var secRunner = await SecRunner.Create(configuration);
+
+    // assert
+    secRunner.Should().BeOfType<SecRunner>();
+    await _credentialProvider.Received(1).Get();
+  }
+
+  [Fact]
+  public async Task Create_CouldNotLoadCredentials_ThrowsError()
+  {
+    // arrange
+    var configuration = new Configuration(Hostname,
+      credentialProviders: new List<ICredentialProvider> { _credentialProvider });
+
+    // act
+    var act = () => SecRunner.Create(configuration);
+
+    // assert
+    await act.Should().ThrowAsync<InvalidOperationException>("Could not load credentials from any providers");
   }
 
   [Fact]

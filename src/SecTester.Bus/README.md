@@ -23,7 +23,7 @@ To use the RabbitMQ Event Bus, pass the following options object to the construc
 ```csharp
 const string repeaterId = "your Repeater ID";
 var serviceProvider = new ServiceCollection()
-  .AddSecTesterConfig("app.neuralegion.com")
+  .AddSecTesterConfig("app.brightsec.com")
   .AddSecTesterBus(repeaterId)
   .BuildServiceProvider();
 
@@ -173,7 +173,7 @@ The command dispatcher can be customized using the following options:
 
 | Option    | Description                                                                                                                                                                                                                                                                                                                                |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `BaseUrl` | Base URL for your application instance, e.g. `https://app.neuralegion.com`                                                                                                                                                                                                                                                                 |
+| `BaseUrl` | Base URL for your application instance, e.g. `https://app.brightsec.com`                                                                                                                                                                                                                                                                 |
 | `Token`   | API key to access the API. Find out how to obtain [personal](https://docs.brightsec.com/docs/manage-your-personal-account#manage-your-personal-api-keys-authentication-tokens) and [organization](https://docs.brightsec.com/docs/manage-your-organization#manage-organization-apicli-authentication-tokens) API keys in the knowledgebase |
 | `Timeout` | Time to wait for a server to send response headers (and start the response body) before aborting the request. Default 10000 ms                                                                                                                                                                                                             |
 

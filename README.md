@@ -69,13 +69,13 @@ PS> NuGet\Install-Package SecTester.Runner
 
 ### Getting a Bright API key
 
-1.  Register for a free account at Bright’s [**signup**](https://app.neuralegion.com/signup) page
-2.  Optional: Skip the quickstart wizard and go directly to [**User API key creation**](https://app.neuralegion.com/profile)
-3.  Create a Bright API key ([**check out our doc on how to create a user key**](https://docs.brightsec.com/docs/manage-your-personal-account#manage-your-personal-api-keys-authentication-tokens))
-4.  Save the Bright API key
-  1.  We recommend using your Github repository secrets feature to store the key, accessible via the `Settings > Security > Secrets > Actions` configuration. We use the ENV variable called `BRIGHT_TOKEN` in our examples
-  2.  If you don’t use that option, make sure you save the key in a secure location. You will need to access it later on in the project but will not be able to view it again.
-  3.  More info on [**how to use ENV vars in Github actions**](https://docs.github.com/en/actions/learn-github-actions/environment-variables)
+1. Register for a free account at Bright’s [**signup**](https://app.neuralegion.com/signup) page
+2. Optional: Skip the quickstart wizard and go directly to [**User API key creation**](https://app.neuralegion.com/profile)
+3. Create a Bright API key ([**check out our doc on how to create a user key**](https://docs.brightsec.com/docs/manage-your-personal-account#manage-your-personal-api-keys-authentication-tokens))
+4. Save the Bright API key
+   1. We recommend using your Github repository secrets feature to store the key, accessible via the `Settings > Security > Secrets > Actions` configuration. We use the ENV variable called `BRIGHT_TOKEN` in our examples
+   2. If you don’t use that option, make sure you save the key in a secure location. You will need to access it later on in the project but will not be able to view it again.
+   3. More info on [**how to use ENV vars in Github actions**](https://docs.github.com/en/actions/learn-github-actions/environment-variables)
 
 > ⚠️ Make sure your API key is saved in a location where you can retrieve it later! You will need it in these next steps!
 

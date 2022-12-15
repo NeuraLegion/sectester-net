@@ -19,16 +19,16 @@ $ dotnet add package SecTester.Runner
 
 To start writing tests, first obtain a Bright token, which is required for the access to Bright API. More info about [setting up an API key](https://docs.brightsec.com/docs/manage-your-personal-account#manage-your-personal-api-keys-authentication-tokens).
 
-Then put obtained token into `BRIGHT_TOKEN` environment variable to make it accessible by default [`EnvCredentialProvider`](https://github.com/NeuraLegion/sectester-js/tree/master/packages/core#envcredentialprovider).
+Then put obtained token into `BRIGHT_TOKEN` environment variable to make it accessible by default [`EnvCredentialProvider`](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Core#envcredentialprovider).
 
 > Refer to `SecTester.Core` [documentation](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Core#credentials) for the details on alternative ways of configuring credential providers.
 
-Once it is done, create a configuration object. Single required option is Bright `Hostname` domain you are going to use, e.g. `app.neuralegion.com` as the main one:
+Once it is done, create a configuration object. Single required option is Bright `Hostname` domain you are going to use, e.g. `app.brightsec.com` as the main one:
 
 ```csharp
 using SecTester.Core;
 
-var config = new Configuration("app.neuralegion.com");
+var config = new Configuration("app.brightsec.com");
 ```
 
 ### Setup runner
@@ -39,7 +39,7 @@ To set up a runner, create `SecRunner` instance passing a previously created con
 using SecTester.Core;
 using SecTester.Runner;
 
-var config = new Configuration("app.neuralegion.com");
+var config = new Configuration("app.brightsec.com");
 await using var runner = SecRunner.Create(configuration);
 ```
 

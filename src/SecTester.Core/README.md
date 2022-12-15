@@ -22,7 +22,7 @@ First, you need to generate a new instance of `Configuration`.
 
 ```csharp
 var config = new Configuration(
-    hostname: "app.neuralegion.com",
+    hostname: "app.brightsec.com",
     credentials: new Credentials("your API key"));
 ```
 
@@ -31,7 +31,7 @@ You can also register the configuration using the dependency injection framework
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-  services.AddSecTesterConfig("app.neuralegion.com");
+  services.AddSecTesterConfig("app.brightsec.com");
   // or
   services.AddSecTesterConfig(config);
 }
@@ -76,7 +76,7 @@ The default configuration is as follows:
 Set the application name (domain name), that is used to establish connection with.
 
 ```csharp
-var config = new Configuration(hostname: "app.neuralegion.com");
+var config = new Configuration(hostname: "app.brightsec.com");
 ```
 
 #### credentials

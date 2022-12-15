@@ -8,7 +8,7 @@ public class ServiceCollectionExtensionsTests
   public ServiceCollectionExtensionsTests()
   {
     _services = new ServiceCollection();
-    _config = new Configuration("app.neuralegion.com",
+    _config = new Configuration("app.brightsec.com",
       new Credentials("0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk"));
   }
 
@@ -30,7 +30,7 @@ public class ServiceCollectionExtensionsTests
   [Fact]
   public void AddSecTesterBus_ReturnHttpCommandDispatcherConfig()
   {
-    // arrange 
+    // arrange
     _services.Add(new ServiceDescriptor(typeof(Configuration), _config));
 
     // act

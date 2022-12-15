@@ -13,7 +13,7 @@ public class ServiceCollectionExtensionsTests
   public void AddSecTesterConfig_Hostname_ReturnInstanceWithDefaultOptions()
   {
     // arrange
-    const string hostname = "app.neuralegion.com";
+    const string hostname = "app.brightsec.com";
 
     // act
     _services.AddSecTesterConfig(hostname);
@@ -28,7 +28,7 @@ public class ServiceCollectionExtensionsTests
   public void AddSecTesterConfig_GivenConfig_ReturnInstance()
   {
     // arrange
-    var configuration = new Configuration("app.neuralegion.com");
+    var configuration = new Configuration("app.brightsec.com");
 
     // act
     _services.AddSecTesterConfig(configuration);
@@ -43,7 +43,7 @@ public class ServiceCollectionExtensionsTests
   public void AddLogging_SetMinimumLevelToErrorByDefault()
   {
     // arrange
-    var configuration = new Configuration("app.neuralegion.com");
+    var configuration = new Configuration("app.brightsec.com");
     var services = new ServiceCollection();
 
     // act
@@ -60,7 +60,7 @@ public class ServiceCollectionExtensionsTests
   public void AddLogging_GivenLogLevel_SetMinimumLevelToValue()
   {
     // arrange
-    var configuration = new Configuration("app.neuralegion.com", logLevel: LogLevel.Information);
+    var configuration = new Configuration("app.brightsec.com", logLevel: LogLevel.Information);
     var services = new ServiceCollection();
 
     // act

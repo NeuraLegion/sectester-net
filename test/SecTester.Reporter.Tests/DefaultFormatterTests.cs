@@ -13,11 +13,11 @@ public class DefaultFormatterTests
     new Request("https://brokencrystals.com/"), new Request("https://brokencrystals.com/"),
     1, Severity.Medium, Protocol.Http, DateTime.Today)
   {
-    Link = "https://app.neuralegion.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9"
+    Link = "https://app.brightsec.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9"
   };
 
   private static readonly string FormattedText =
-    @"Issue in Bright UI:   https://app.neuralegion.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9
+    @"Issue in Bright UI:   https://app.brightsec.com/scans/pDzxcEXQC8df1fcz1QwPf9/issues/pDzxcEXQC8df1fcz1QwPf9
 Name:                 Database connection crashed
 Severity:             Medium
 Remediation:

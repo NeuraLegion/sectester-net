@@ -7,7 +7,7 @@ namespace SecTester.Runner.Tests;
 
 public class SecRunnerTests
 {
-  private const string Hostname = "app.neuralegion.com";
+  private const string Hostname = "app.brightsec.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
   private const string RepeaterId = "123";
 

@@ -51,7 +51,7 @@ public class ConfigurationTests
   public void Configuration_CredentialsOrCredentialProvidersNoDefined_ThrowError()
   {
     // arrange
-    const string hostname = "app.neuralegion.com";
+    const string hostname = "app.brightsec.com";
 
     // act
     var act = () => new Configuration(hostname, credentials: null, credentialProviders: new List<ICredentialProvider>());
@@ -76,7 +76,7 @@ public class ConfigurationTests
   {
     // arrange
     var credentials = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
-    var configuration = new Configuration(hostname: "app.neuralegion.com", credentials: credentials);
+    var configuration = new Configuration(hostname: "app.brightsec.com", credentials: credentials);
 
     // act
     await configuration.LoadCredentials();
@@ -92,7 +92,7 @@ public class ConfigurationTests
     var сredentialProvider = Substitute.For<ICredentialProvider>();
     var credentials = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
     var credentialProviders = new List<ICredentialProvider> { сredentialProvider };
-    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+    var configuration = new Configuration(hostname: "app.brightsec.com", credentialProviders: credentialProviders);
 
     сredentialProvider.Get()!.Returns(Task.FromResult(credentials));
 
@@ -109,7 +109,7 @@ public class ConfigurationTests
     // arrange
     var сredentialProvider = Substitute.For<ICredentialProvider>();
     var credentialProviders = new List<ICredentialProvider> { сredentialProvider };
-    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+    var configuration = new Configuration(hostname: "app.brightsec.com", credentialProviders: credentialProviders);
 
     // act
     var act = () => configuration.LoadCredentials();
@@ -126,7 +126,7 @@ public class ConfigurationTests
     var credentials1 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj0");
     var credentials2 = new Credentials("weobbz5.nexa.vennegtzr2h7urpxgtksetz2kwppdgj1");
     var credentialProviders = new List<ICredentialProvider> { сredentialProvider, сredentialProvider, сredentialProvider };
-    var configuration = new Configuration(hostname: "app.neuralegion.com", credentialProviders: credentialProviders);
+    var configuration = new Configuration(hostname: "app.brightsec.com", credentialProviders: credentialProviders);
 
     сredentialProvider.Get()!.Returns(Task.FromResult<Credentials?>(null)!, Task.FromResult(credentials1), Task.FromResult(credentials2));
 
@@ -141,7 +141,7 @@ public class ConfigurationTests
   public void Constructor_LogLevelOmitted_SetLogLevelToError()
   {
     // act
-    var configuration = new Configuration(hostname: "app.neuralegion.com");
+    var configuration = new Configuration(hostname: "app.brightsec.com");
 
     // assert
     configuration.LogLevel.Should().Be(LogLevel.Error);
@@ -151,7 +151,7 @@ public class ConfigurationTests
   public void Constructor_GivenSpecificLogLevel_SetLogLevelToValue()
   {
     // act
-    var configuration = new Configuration(hostname: "app.neuralegion.com", logLevel: LogLevel.Trace);
+    var configuration = new Configuration(hostname: "app.brightsec.com", logLevel: LogLevel.Trace);
 
     // assert
     configuration.LogLevel.Should().Be(LogLevel.Trace);
@@ -161,7 +161,7 @@ public class ConfigurationTests
   public void Version_ReturnsSemVerProductVersion()
   {
     // act
-    var configuration = new Configuration(hostname: "app.neuralegion.com", logLevel: LogLevel.Trace);
+    var configuration = new Configuration(hostname: "app.brightsec.com", logLevel: LogLevel.Trace);
 
     // assert
     configuration.Version.Should().MatchRegex(@"^\d+\.\d+\.\d+$");

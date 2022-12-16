@@ -45,8 +45,10 @@ public class SecRunner : IAsyncDisposable
     GC.SuppressFinalize(this);
   }
 
-  public static SecRunner Create(Configuration configuration)
+  public static async Task<SecRunner> Create(Configuration configuration)
   {
+    await configuration.LoadCredentials().ConfigureAwait(false);
+
     var collection = new ServiceCollection()
       .AddSecTesterConfig(configuration)
       .AddSecTesterBus()

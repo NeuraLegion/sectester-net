@@ -30,7 +30,7 @@ public class ScanSettingsTests
 
   public static readonly IEnumerable<object[]> ValidTargetTimeout = new List<object[]>
   {
-    new object[] { null },
+    new object[] { null! },
     new object[] { TimeSpan.FromSeconds(100) },
   };
 

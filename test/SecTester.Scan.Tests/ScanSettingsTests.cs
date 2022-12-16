@@ -25,7 +25,7 @@ public class ScanSettingsTests
   public static readonly IEnumerable<object[]> InvalidTargetTimeout = new List<object[]>
   {
     new object[] { TimeSpan.Zero },
-    new object[] { TimeSpan.FromSeconds(121) },
+    new object[] { TimeSpan.FromMinutes(121) },
   };
 
   public static readonly IEnumerable<object[]> ValidTargetTimeout = new List<object[]>

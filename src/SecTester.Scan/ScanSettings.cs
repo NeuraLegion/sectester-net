@@ -11,9 +11,9 @@ public sealed record ScanSettings
   private const int MinPoolSize = 1;
   private const int MaxPoolSize = 50;
 
-  private static readonly TimeSpan MinSlowEpTimeout = TimeSpan.FromSeconds(100);
-  private static readonly TimeSpan MinTargetTimeout = TimeSpan.FromSeconds(1);
-  private static readonly TimeSpan MaxTargetTimeout = TimeSpan.FromSeconds(120);
+  private static readonly TimeSpan MinSlowEpTimeout = TimeSpan.FromMilliseconds(100);
+  private static readonly TimeSpan MinTargetTimeout = TimeSpan.FromMinutes(1);
+  private static readonly TimeSpan MaxTargetTimeout = TimeSpan.FromMinutes(120);
 
   private readonly IEnumerable<AttackParamLocation>? _attackParamLocations;
   private readonly string _name;

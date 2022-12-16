@@ -62,9 +62,9 @@ public class DefaultScanFactory : IScanFactory
           scanSettings.RepeaterId
         },
       SlowEpTimeout =
-        scanSettings.SlowEpTimeout is null ? default : (int)scanSettings.SlowEpTimeout.Value.TotalSeconds,
+        scanSettings.SlowEpTimeout is null ? default : (int)Math.Ceiling(scanSettings.SlowEpTimeout.Value.TotalMilliseconds),
       TargetTimeout =
-        scanSettings.TargetTimeout is null ? default : (int)scanSettings.TargetTimeout.Value.TotalSeconds
+        scanSettings.TargetTimeout is null ? default : (int)Math.Ceiling(scanSettings.TargetTimeout.Value.TotalMinutes)
     };
   }
 

@@ -10,7 +10,7 @@ public class ServiceCollectionExtensionsTests
   public ServiceCollectionExtensionsTests()
   {
     _services = new ServiceCollection();
-    _config = new Configuration("app.neuralegion.com",
+    _config = new Configuration("app.brightsec.com",
       new Credentials("0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk"));
   }
 

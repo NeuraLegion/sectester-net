@@ -5,7 +5,7 @@ namespace SecTester.Repeater.Tests.Bus;
 public class DefaultRepeaterEventBusFactoryTests : IDisposable
 {
   private const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
-  private const string Hostname = "app.neuralegion.com";
+  private const string Hostname = "app.brightsec.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 
   private readonly IRmqEventBusFactory _eventBusFactory = Substitute.For<IRmqEventBusFactory>();

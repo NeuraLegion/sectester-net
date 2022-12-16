@@ -4,7 +4,7 @@ public class DefaultRepeaterFactoryTests : IDisposable
 {
   private const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
   private const string DefaultNamePrefix = "sectester";
-  private const string Hostname = "app.neuralegion.com";
+  private const string Hostname = "app.brightsec.com";
 
   private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
   private readonly IRepeaterEventBusFactory _eventBusFactory = Substitute.For<IRepeaterEventBusFactory>();
@@ -20,7 +20,7 @@ public class DefaultRepeaterFactoryTests : IDisposable
   {
     // ADHOC: since GetRequiredService is part of extension we should explicitly mock an instance method
     _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(ITimerProvider)).Returns(_timerProvider);
-    _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory, _ansiCodeColorizer );
+    _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory, _ansiCodeColorizer);
   }
 
   public void Dispose()

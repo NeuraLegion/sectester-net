@@ -18,7 +18,7 @@ $ dotnet add package SecTester.Repeater
 
 ## Usage
 
-To establish a secure connection between the Bright cloud engine and a target on a local network, you just need to use the `RepeaterFactory` constructed with [`Configuration` instance](https://github.com/NeuraLegion/sectester-js/tree/master/packages/core#configuration).
+To establish a secure connection between the Bright cloud engine and a target on a local network, you just need to use the `RepeaterFactory` constructed with [`Configuration` instance](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Core#configuration).
 
 ```csharp
 var repeaterFactory = serviceProvider.GetService<IRepeaterFactory>();

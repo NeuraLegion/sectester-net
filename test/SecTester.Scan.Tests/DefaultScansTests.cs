@@ -2,7 +2,7 @@ namespace SecTester.Scan.Tests;
 
 public class DefaultScansTests : IDisposable
 {
-  private const string Hostname = "app.neuralegion.com";
+  private const string Hostname = "app.brightsec.com";
   private const string NullResultMessage = "Something went wrong. Please try again later.";
   private const string ScanName = "Scan Name";
   private const string ProjectId = "e9a2eX46EkidKhn3uqdYvE";

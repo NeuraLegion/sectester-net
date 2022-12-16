@@ -5,7 +5,7 @@ public class DefaultScanFactoryTests : IDisposable
   private const string FileId = "6aJa25Yd8DdXEcZg3QFoi8";
   private const string ScanId = "roMq1UVuhPKkndLERNKnA8";
 
-  private readonly Configuration _configuration = new("app.neuralegion.com");
+  private readonly Configuration _configuration = new("app.brightsec.com");
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
   private readonly IScans _scans = Substitute.For<IScans>();
   private readonly ISystemTimeProvider _systemTimeProvider = Substitute.For<ISystemTimeProvider>();

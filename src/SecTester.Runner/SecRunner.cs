@@ -47,10 +47,7 @@ public class SecRunner : IAsyncDisposable
 
   public static async Task<SecRunner> Create(Configuration configuration)
   {
-    if (configuration.Credentials is null)
-    {
-      await configuration.LoadCredentials().ConfigureAwait(false);
-    }
+    await configuration.LoadCredentials().ConfigureAwait(false);
 
     var collection = new ServiceCollection()
       .AddSecTesterConfig(configuration)

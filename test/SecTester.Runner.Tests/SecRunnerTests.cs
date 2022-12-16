@@ -40,7 +40,7 @@ public class SecRunnerTests
   }
 
   [Fact]
-  public async Task Create_AbleToLoadCredentials_CreatesCompositeRoot()
+  public async Task Create_CouldLoadCredentials_CreatesCompositeRoot()
   {
     // arrange
     var configuration = new Configuration(Hostname,

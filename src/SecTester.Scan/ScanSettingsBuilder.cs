@@ -15,10 +15,10 @@ public class ScanSettingsBuilder
   private int _poolSize = 10;
   private string? _repeaterId;
   private bool _skipStaticParams = true;
-  private TimeSpan _slowEpTimeout = TimeSpan.FromSeconds(1000);
+  private TimeSpan _slowEpTimeout = TimeSpan.FromMilliseconds(1000);
   private bool _smart = true;
   private Target? _target;
-  private TimeSpan _targetTimeout = TimeSpan.FromSeconds(5);
+  private TimeSpan _targetTimeout = TimeSpan.FromMinutes(5);
   private IEnumerable<TestType> _tests = new List<TestType>();
 
   /// <summary>

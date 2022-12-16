@@ -210,8 +210,8 @@ public class ScanSettingsBuilderTests
       SkipStaticParams = true,
       Name = DefaultName,
       PoolSize = 10,
-      SlowEpTimeout = TimeSpan.FromSeconds(1000),
-      TargetTimeout = TimeSpan.FromSeconds(5),
+      SlowEpTimeout = TimeSpan.FromMilliseconds(1000),
+      TargetTimeout = TimeSpan.FromMinutes(5),
       AttackParamLocations = new List<AttackParamLocation>
       {
         AttackParamLocation.Body, AttackParamLocation.Query, AttackParamLocation.Fragment

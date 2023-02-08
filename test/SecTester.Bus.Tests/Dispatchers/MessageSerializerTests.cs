@@ -56,6 +56,7 @@ public class MessageSerializerTests
 
   public static readonly IEnumerable<object[]> SeverityEnumerable = new List<object[]>
   {
+    new object[] { Severity.Critical, @"""Critical""" },
     new object[] { Severity.Medium, @"""Medium""" },
     new object[] { Severity.High, @"""High""" },
     new object[] { Severity.Low, @"""Low""" }

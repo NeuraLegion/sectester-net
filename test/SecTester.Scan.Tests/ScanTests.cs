@@ -570,11 +570,11 @@ public class ScanTests : IAsyncDisposable
     // arrange
     _scans.GetScan(ScanId).Returns(new ScanState(scanStatus), new ScanState(scanStatus)
     {
-      IssuesBySeverity = new[] { new IssueGroup(1, Severity.High) }
+      IssuesBySeverity = new[] { new IssueGroup(1, Severity.Critical) }
     });
 
     // act
-    var act = () => _sut.Expect(Severity.Medium);
+    var act = () => _sut.Expect(Severity.Low);
 
     // assert
     await act.Should().NotThrowAsync<Exception>();

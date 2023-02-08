@@ -11,5 +11,8 @@ public enum Severity
   Medium = 2,
 
   [EnumMember(Value = "High")]
-  High = 3
+  High = 3,
+
+  [EnumMember(Value = "Critical")]
+  Critical = 4
 }

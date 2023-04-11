@@ -99,6 +99,7 @@ public class MessageSerializerTests
     new object[] { TestType.ProtoPollution, @"""proto_pollution""" },
     new object[] { TestType.RetireJs, @"""retire_js""" },
     new object[] { TestType.Rfi, @"""rfi""" },
+    new object[] { TestType.AmazonS3Takeover, @"""amazon_s3_takeover""" },
     new object[] { TestType.SecretTokens, @"""secret_tokens""" },
     new object[] { TestType.ServerSideJsInjection, @"""server_side_js_injection""" },
     new object[] { TestType.Sqli, @"""sqli""" },

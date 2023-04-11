@@ -37,6 +37,7 @@ public enum TestType
   ProtoPollution,
   RetireJs,
   Rfi,
+  AmazonS3Takeover,
   SecretTokens,
   ServerSideJsInjection,
   Sqli,

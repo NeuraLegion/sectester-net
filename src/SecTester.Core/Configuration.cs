@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -31,7 +30,7 @@ namespace SecTester.Core
     // TODO: provide a more convenient way of setting these properties
     public string Name { get; } = "sectester-net";
     public string Version { get; }
-    public string RepeaterVersion { get; } = "9.0.0";
+    public string RepeaterVersion { get; } = "10.0.0";
 
     public Configuration(string? hostname, Credentials? credentials = null, IEnumerable<ICredentialProvider>? credentialProviders = null,
       LogLevel logLevel = LogLevel.Error)

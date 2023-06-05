@@ -72,6 +72,7 @@ public class MessageSerializerTests
     new object[] { TestType.CommonFiles, @"""common_files""" },
     new object[] { TestType.CookieSecurity, @"""cookie_security""" },
     new object[] { TestType.Csrf, @"""csrf""" },
+    new object[] { TestType.Cve, @"""cve_test""" },
     new object[] { TestType.DateManipulation, @"""date_manipulation""" },
     new object[] { TestType.DefaultLoginLocation, @"""default_login_location""" },
     new object[] { TestType.DirectoryListing, @"""directory_listing""" },

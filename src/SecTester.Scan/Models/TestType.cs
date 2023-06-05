@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace SecTester.Scan.Models;
 
 public enum TestType
@@ -10,6 +12,8 @@ public enum TestType
   CommonFiles,
   CookieSecurity,
   Csrf,
+  [EnumMember(Value = "cve_test")]
+  Cve,
   DateManipulation,
   DefaultLoginLocation,
   DirectoryListing,

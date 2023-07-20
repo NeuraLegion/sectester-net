@@ -106,6 +106,7 @@ public class MessageSerializerTests
     new object[] { TestType.Sqli, @"""sqli""" },
     new object[] { TestType.Ssrf, @"""ssrf""" },
     new object[] { TestType.Ssti, @"""ssti""" },
+    new object[] { TestType.StoredXss, @"""stored_xss""" },
     new object[] { TestType.UnvalidatedRedirect, @"""unvalidated_redirect""" },
     new object[] { TestType.VersionControlSystems, @"""version_control_systems""" },
     new object[] { TestType.Wordpress, @"""wordpress""" },

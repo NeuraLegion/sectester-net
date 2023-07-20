@@ -17,6 +17,9 @@ public enum TestType
   DateManipulation,
   DefaultLoginLocation,
   DirectoryListing,
+  /**
+   * @deprecated Use TestType.XSS instead
+   */
   DomXss,
   EmailInjection,
   ExposedCouchDbApis,
@@ -47,6 +50,7 @@ public enum TestType
   Sqli,
   Ssrf,
   Ssti,
+  StoredXss,
   UnvalidatedRedirect,
   VersionControlSystems,
   Wordpress,

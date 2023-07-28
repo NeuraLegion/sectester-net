@@ -41,6 +41,7 @@ public enum TestType
   OpenBuckets,
   OpenDatabase,
   Osi,
+  PromptInjection,
   ProtoPollution,
   RetireJs,
   Rfi,

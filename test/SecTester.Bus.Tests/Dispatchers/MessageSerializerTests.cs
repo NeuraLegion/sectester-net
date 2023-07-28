@@ -97,6 +97,7 @@ public class MessageSerializerTests
     new object[] { TestType.OpenBuckets, @"""open_buckets""" },
     new object[] { TestType.OpenDatabase, @"""open_database""" },
     new object[] { TestType.Osi, @"""osi""" },
+    new object[] { TestType.PromptInjection, @"""prompt_injection""" },
     new object[] { TestType.ProtoPollution, @"""proto_pollution""" },
     new object[] { TestType.RetireJs, @"""retire_js""" },
     new object[] { TestType.Rfi, @"""rfi""" },

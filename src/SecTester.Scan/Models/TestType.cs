@@ -12,6 +12,7 @@ public enum TestType
   CommonFiles,
   CookieSecurity,
   Csrf,
+  CssInjection,
   [EnumMember(Value = "cve_test")]
   Cve,
   DateManipulation,

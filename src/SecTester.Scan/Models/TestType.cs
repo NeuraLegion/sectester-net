@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace SecTester.Scan.Models;
@@ -18,9 +19,7 @@ public enum TestType
   DateManipulation,
   DefaultLoginLocation,
   DirectoryListing,
-  /**
-   * @deprecated Use TestType.XSS instead
-   */
+  [Obsolete("Use TestType.XSS instead")]
   DomXss,
   EmailInjection,
   ExposedCouchDbApis,

@@ -31,6 +31,7 @@ public enum TestType
   HttpMethodFuzzing,
   HttpResponseSplitting,
   IdEnumeration,
+  IFrameInjection,
   ImproperAssetManagement,
   InsecureTlsConfiguration,
   Jwt,

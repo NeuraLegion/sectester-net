@@ -88,7 +88,7 @@ public class MessageSerializerTests
     new object[] { TestType.HttpMethodFuzzing, @"""http_method_fuzzing""" },
     new object[] { TestType.HttpResponseSplitting, @"""http_response_splitting""" },
     new object[] { TestType.IdEnumeration, @"""id_enumeration""" },
-    new object[] { TestType.IFrameInjection, @"""iframe_injection""" },
+    new object[] { TestType.IframeInjection, @"""iframe_injection""" },
     new object[] { TestType.ImproperAssetManagement, @"""improper_asset_management""" },
     new object[] { TestType.InsecureTlsConfiguration, @"""insecure_tls_configuration""" },
     new object[] { TestType.Jwt, @"""jwt""" },

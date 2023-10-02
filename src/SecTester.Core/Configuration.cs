@@ -14,7 +14,7 @@ namespace SecTester.Core
   {
     private readonly Regex _schemaRegex = new(@"^.+:\/\/");
     private readonly Regex _hostnameNormalizationRegex = new(@"^(?!(?:\w+:)?\/\/)|^\/\/");
-    private readonly string[] _loopbackAddresses = { "localhost", "127.0.0.1" };
+    private readonly string[] _loopbackAddresses = { "localhost", "127.0.0.1", "::1" };
     private readonly List<ICredentialProvider> _credentialProviders;
 
     public string Bus { get; private set; }

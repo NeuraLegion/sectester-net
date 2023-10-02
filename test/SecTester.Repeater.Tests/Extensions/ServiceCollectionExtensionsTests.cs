@@ -68,7 +68,6 @@ public class ServiceCollectionExtensionsTests : IDisposable
     var result = provider.GetRequiredService<RequestRunnerResolver>();
 
     result(Protocol.Http).Should().BeOfType(typeof(HttpRequestRunner));
-    result(Protocol.Ws).Should().BeOfType(typeof(WsRequestRunner));
   }
 
   [Fact]

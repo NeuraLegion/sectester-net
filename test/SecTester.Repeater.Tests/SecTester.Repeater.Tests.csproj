@@ -12,7 +12,6 @@
     <Folder Include="Api"/>
     <Folder Include="Bus"/>
     <Folder Include="Extensions"/>
-    <Folder Include="Fixtures"/>
     <Folder Include="Mocks"/>
     <Folder Include="Runners"/>
   </ItemGroup>

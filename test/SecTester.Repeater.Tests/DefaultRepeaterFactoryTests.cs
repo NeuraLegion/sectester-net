@@ -6,31 +6,28 @@ public class DefaultRepeaterFactoryTests : IDisposable
   private const string DefaultNamePrefix = "sectester";
   private const string Hostname = "app.brightsec.com";
 
-  private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-  private readonly IRepeaterEventBusFactory _eventBusFactory = Substitute.For<IRepeaterEventBusFactory>();
+  private readonly IRepeaterBusFactory _busFactory = Substitute.For<IRepeaterBusFactory>();
   private readonly Configuration _configuration = new(Hostname);
 
   private readonly IRepeaters _repeaters = Substitute.For<IRepeaters>();
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly ITimerProvider _timerProvider = Substitute.For<ITimerProvider>();
   private readonly IAnsiCodeColorizer _ansiCodeColorizer = Substitute.For<IAnsiCodeColorizer>();
+  private readonly RequestRunnerResolver _resolver = Substitute.For<RequestRunnerResolver>();
+
   private readonly DefaultRepeaterFactory _sut;
 
   public DefaultRepeaterFactoryTests()
   {
-    // ADHOC: since GetRequiredService is part of extension we should explicitly mock an instance method
-    _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(ITimerProvider)).Returns(_timerProvider);
-    _sut = new DefaultRepeaterFactory(_serviceScopeFactory, _repeaters, _eventBusFactory, _configuration, _loggerFactory, _ansiCodeColorizer);
+    _sut = new DefaultRepeaterFactory(_repeaters, _busFactory, _configuration, _loggerFactory, _ansiCodeColorizer, _resolver);
   }
 
   public void Dispose()
   {
     _ansiCodeColorizer.ClearSubstitute();
-    _timerProvider.ClearSubstitute();
-    _serviceScopeFactory.ClearSubstitute();
-    _eventBusFactory.ClearSubstitute();
+    _busFactory.ClearSubstitute();
     _repeaters.ClearSubstitute();
     _loggerFactory.ClearSubstitute();
+    _resolver.ClearSubstitute();
     GC.SuppressFinalize(this);
   }
 

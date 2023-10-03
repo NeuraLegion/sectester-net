@@ -11,11 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
+    <PackageReference Include="SocketIOClient" Version="3.1.1" />
+    <PackageReference Include="SocketIO.Serializer.MessagePack" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Api"/>
-    <Folder Include="Bus"/>
     <Folder Include="Extensions"/>
     <Folder Include="Internal"/>
     <Folder Include="Runners"/>

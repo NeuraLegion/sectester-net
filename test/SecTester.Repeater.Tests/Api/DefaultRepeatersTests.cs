@@ -23,7 +23,7 @@ public class DefaultRepeatersTests : IDisposable
   public async Task CreateRepeater_CreatesRepeater()
   {
     // arrange
-    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity(Id, "foo"));
+    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity(Id));
 
     // act
     var result = await _sut.CreateRepeater("foo");
@@ -36,7 +36,7 @@ public class DefaultRepeatersTests : IDisposable
   public async Task CreateRepeater_ThrowsError()
   {
     // arrange
-    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity("", "foo"));
+    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity(""));
 
     // act
     var act = () => _sut.CreateRepeater("foo");

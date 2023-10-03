@@ -21,8 +21,7 @@ public static class ServiceCollectionExtensions
   {
     return collection
       .AddSingleton(options)
-      .AddSingleton<IRepeaterEventBusFactory, DefaultRepeaterEventBusFactory>()
-      .AddScoped<RequestExecutingEventListener>()
+      .AddSingleton<IRepeaterBusFactory, DefaultRepeaterBusFactory>()
       .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<IRepeaters, DefaultRepeaters>()
       .AddScoped<ITimerProvider, SystemTimerProvider>()

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Bus;
 
-public class SocketIoClientWrapper : ISocketIoClient
+internal sealed class SocketIoClientWrapper : ISocketIoClient
 {
   private readonly SocketIOClient.SocketIO _socketIo;
 

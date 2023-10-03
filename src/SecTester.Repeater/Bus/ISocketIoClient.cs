@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SecTester.Repeater.Bus;
 
-public interface ISocketIoClient : IDisposable
+internal interface ISocketIoClient : IDisposable
 {
   public bool Connected { get; }
   public Task Connect();

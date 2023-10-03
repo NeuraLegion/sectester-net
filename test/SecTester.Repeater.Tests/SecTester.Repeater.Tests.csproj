@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="Api"/>
+    <Folder Include="Bus"/>
     <Folder Include="Extensions"/>
     <Folder Include="Mocks"/>
     <Folder Include="Runners"/>

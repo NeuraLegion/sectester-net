@@ -7,7 +7,7 @@ using SecTester.Core.Utils;
 
 namespace SecTester.Repeater.Bus;
 
-public class SocketIoRepeaterBus : IRepeaterBus
+internal sealed class SocketIoRepeaterBus : IRepeaterBus
 {
   private static readonly TimeSpan PingInterval = TimeSpan.FromSeconds(10);
 
@@ -16,7 +16,7 @@ public class SocketIoRepeaterBus : IRepeaterBus
   private readonly ILogger<IRepeaterBus> _logger;
   private readonly Uri _url;
 
-  public SocketIoRepeaterBus(Uri url, ISocketIoClient client, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
+  internal SocketIoRepeaterBus(Uri url, ISocketIoClient client, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
   {
     _url = url ?? throw new ArgumentNullException(nameof(url));
     _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -24,9 +24,9 @@ public class SocketIoRepeaterBus : IRepeaterBus
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
-  internal record RepeaterVersion(string Version);
-  internal record RepeaterError(string Message);
-  internal record RepeaterInfo(string RepeaterId);
+  internal sealed record RepeaterVersion(string Version);
+  internal sealed record RepeaterError(string Message);
+  internal sealed record RepeaterInfo(string RepeaterId);
 
   public event Func<IncomingRequest, Task<OutgoingResponse>>? RequestReceived;
   public event Action<Exception>? ErrorOccurred;

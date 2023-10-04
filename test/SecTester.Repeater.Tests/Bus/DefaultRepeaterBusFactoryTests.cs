@@ -2,7 +2,7 @@ namespace SecTester.Repeater.Tests.Bus;
 
 public class DefaultRepeaterBusFactoryTests : IDisposable
 {
-  private const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
+  private const string Id = "g5MvgM74sweGcK1U6hvs76";
   private const string Hostname = "app.brightsec.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SecTester.Core;
@@ -31,18 +30,15 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
       );
     }
 
-    var url = new Uri(_config.Api);
-    var options = new SocketIoRepeaterBusOptions(url);
-    var client = new SocketIOClient.SocketIO(url, new SocketIOOptions
+    var options = new SocketIoRepeaterBusOptions(new Uri(_config.Api));
+    var client = new SocketIOClient.SocketIO(options.Url, new SocketIOOptions
     {
       Path = options.Path,
       ReconnectionAttempts = options.ReconnectionAttempts,
       ReconnectionDelayMax = options.ReconnectionDelayMax,
       ConnectionTimeout = options.ConnectionTimeout,
-      Auth = new List<KeyValuePair<string, string>>
-      {
-        new("token", _config.Credentials.Token), new("domain", repeaterId)
-      },
+      AutoUpgrade = false,
+      Auth = new { token = _config.Credentials.Token, domain = repeaterId }
     })
     {
       Serializer = new SocketIOMessagePackSerializer()

@@ -6,21 +6,21 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   private static readonly Uri Url = new("http://example.com");
   private static readonly SocketIoRepeaterBusOptions Options = new(Url);
 
-  private readonly ISocketIoClient _client = Substitute.For<ISocketIoClient>();
+  private readonly ISocketIoConnection _connection = Substitute.For<ISocketIoConnection>();
   private readonly ITimerProvider _heartbeat = Substitute.For<ITimerProvider>();
   private readonly ILogger<IRepeaterBus> _logger = Substitute.For<ILogger<IRepeaterBus>>();
-  private readonly ISocketIoResponse _socketIoResponse = Substitute.For<ISocketIoResponse>();
+  private readonly ISocketIoMessage _socketIoMessage = Substitute.For<ISocketIoMessage>();
   private readonly SocketIoRepeaterBus _sut;
 
   public SocketIoRepeaterBusTests()
   {
-    _sut = new SocketIoRepeaterBus(Options, _client, _heartbeat, _logger);
+    _sut = new SocketIoRepeaterBus(Options, _connection, _heartbeat, _logger);
   }
 
   public void Dispose()
   {
-    _socketIoResponse.ClearSubstitute();
-    _client.ClearSubstitute();
+    _socketIoMessage.ClearSubstitute();
+    _connection.ClearSubstitute();
     _heartbeat.ClearSubstitute();
     _logger.ClearSubstitute();
 
@@ -35,16 +35,16 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     {
       StatusCode = 204
     };
-    _client.Connect().Returns(Task.CompletedTask);
-    _socketIoResponse.GetValue<IncomingRequest>().Returns(new IncomingRequest(Url));
-    _client.On("request", Arg.Invoke(_socketIoResponse));
+    _connection.Connect().Returns(Task.CompletedTask);
+    _socketIoMessage.GetValue<IncomingRequest>().Returns(new IncomingRequest(Url));
+    _connection.On("request", Arg.Invoke(_socketIoMessage));
     _sut.RequestReceived += _ => Task.FromResult(result);
 
     // act
     await _sut.Connect();
 
     // assert
-    await _socketIoResponse.Received().CallbackAsync(Arg.Any<CancellationToken>(), result);
+    await _socketIoMessage.Received().CallbackAsync(Arg.Any<CancellationToken>(), result);
   }
 
   [Fact]
@@ -53,9 +53,9 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     // arrange
     const string msg = "Something went wrong";
     Exception? result = null;
-    _client.Connect().Returns(Task.CompletedTask);
-    _socketIoResponse.GetValue<SocketIoRepeaterBus.RepeaterError>().Returns(new SocketIoRepeaterBus.RepeaterError(msg));
-    _client.On("error", Arg.Invoke(_socketIoResponse));
+    _connection.Connect().Returns(Task.CompletedTask);
+    _socketIoMessage.GetValue<RepeaterError>().Returns(new RepeaterError { Message = msg });
+    _connection.On("error", Arg.Invoke(_socketIoMessage));
     _sut.ErrorOccurred += err =>
     {
       result = err;
@@ -73,9 +73,9 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   {
     // arrange
     Version? result = null;
-    _client.Connect().Returns(Task.CompletedTask);
-    _socketIoResponse.GetValue<SocketIoRepeaterBus.RepeaterVersion>().Returns(new SocketIoRepeaterBus.RepeaterVersion("1.1.1"));
-    _client.On("update-available", Arg.Invoke(_socketIoResponse));
+    _connection.Connect().Returns(Task.CompletedTask);
+    _socketIoMessage.GetValue<RepeaterVersion>().Returns(new RepeaterVersion { Version = "1.1.1" });
+    _connection.On("update-available", Arg.Invoke(_socketIoMessage));
     _sut.UpgradeAvailable += version =>
     {
       result = version;
@@ -92,33 +92,33 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   public async Task Connect_Success()
   {
     // arrange
-    _client.Connect().Returns(Task.CompletedTask);
+    _connection.Connect().Returns(Task.CompletedTask);
 
     // act
     await _sut.Connect();
 
     // assert
-    await _client.Received().Connect();
+    await _connection.Received().Connect();
   }
 
   [Fact]
   public async Task Connect_AlreadyConnected_DoNothing()
   {
     // arrange
-    _client.Connected.Returns(true);
+    _connection.Connected.Returns(true);
 
     // act
     await _sut.Connect();
 
     // assert
-    await _client.DidNotReceive().Connect();
+    await _connection.DidNotReceive().Connect();
   }
 
   [Fact]
   public async Task Connect_SchedulesPing()
   {
     // arrange
-    _client.Connect().Returns(Task.CompletedTask);
+    _connection.Connect().Returns(Task.CompletedTask);
 
     // act
     await _sut.Connect();
@@ -133,7 +133,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   {
     // arrange
     var elapsedEventArgs = EventArgs.Empty as ElapsedEventArgs;
-    _client.Connect().Returns(Task.CompletedTask);
+    _connection.Connect().Returns(Task.CompletedTask);
     await _sut.Connect();
 
     // act
@@ -141,20 +141,20 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
 
     // assert
     _heartbeat.Interval.Should().BeGreaterOrEqualTo(10_000);
-    await _client.Received(2).EmitAsync("ping");
+    await _connection.Received(2).EmitAsync("ping");
   }
 
   [Fact]
   public async Task Deploy_Success()
   {
     // arrange
-    _client.On("deployed", Arg.Invoke(_socketIoResponse));
+    _connection.On("deployed", Arg.Invoke(_socketIoMessage));
 
     // act
     await _sut.Deploy(RepeaterId);
 
     // assert
-    await _client.Received().EmitAsync("deploy", Arg.Is<SocketIoRepeaterBus.RepeaterInfo>(x => x.RepeaterId.Equals(RepeaterId, StringComparison.OrdinalIgnoreCase)));
+    await _connection.Received().EmitAsync("deploy", Arg.Is<RepeaterInfo>(x => x.RepeaterId.Equals(RepeaterId, StringComparison.OrdinalIgnoreCase)));
   }
 
   [Fact]
@@ -175,14 +175,14 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   public async Task DisposeAsync_Success()
   {
     // arrange
-    _client.Connected.Returns(true);
+    _connection.Connected.Returns(true);
 
     // act
     await _sut.DisposeAsync();
 
     // assert
-    await _client.Received().Disconnect();
-    _client.Received().Dispose();
+    await _connection.Received().Disconnect();
+    _connection.Received().Dispose();
   }
 
   [Fact]
@@ -192,15 +192,15 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     await _sut.DisposeAsync();
 
     // assert
-    await _client.DidNotReceive().Disconnect();
-    _client.Received().Dispose();
+    await _connection.DidNotReceive().Disconnect();
+    _connection.Received().Dispose();
   }
 
   [Fact]
   public async Task DisposeAsync_StopsPingMessages()
   {
     // arrange
-    _client.Connected.Returns(true);
+    _connection.Connected.Returns(true);
 
     // act
     await _sut.DisposeAsync();

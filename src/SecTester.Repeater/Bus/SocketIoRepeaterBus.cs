@@ -12,21 +12,17 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
   private static readonly TimeSpan PingInterval = TimeSpan.FromSeconds(10);
 
   private readonly ITimerProvider _heartbeat;
-  private readonly ISocketIoClient _client;
+  private readonly ISocketIoConnection _connection;
   private readonly ILogger<IRepeaterBus> _logger;
   private readonly SocketIoRepeaterBusOptions _options;
 
-  internal SocketIoRepeaterBus(SocketIoRepeaterBusOptions options, ISocketIoClient client, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
+  internal SocketIoRepeaterBus(SocketIoRepeaterBusOptions options, ISocketIoConnection connection, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
-    _client = client ?? throw new ArgumentNullException(nameof(client));
+    _connection = connection ?? throw new ArgumentNullException(nameof(connection));
     _heartbeat = heartbeat ?? throw new ArgumentNullException(nameof(heartbeat));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
-
-  internal sealed record RepeaterVersion(string Version);
-  internal sealed record RepeaterError(string Message);
-  internal sealed record RepeaterInfo(string RepeaterId);
 
   public event Func<IncomingRequest, Task<OutgoingResponse>>? RequestReceived;
   public event Action<Exception>? ErrorOccurred;
@@ -34,11 +30,11 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
   public async Task Connect()
   {
-    if (_client is not { Connected: true })
+    if (_connection is not { Connected: true })
     {
       DelegateEvents();
 
-      await _client.Connect().ConfigureAwait(false);
+      await _connection.Connect().ConfigureAwait(false);
 
       await SchedulePing().ConfigureAwait(false);
 
@@ -48,19 +44,19 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
   private void DelegateEvents()
   {
-    _client.On("error", response =>
+    _connection.On("error", response =>
     {
       var err = response.GetValue<RepeaterError>();
       ErrorOccurred?.Invoke(new(err.Message));
     });
 
-    _client.On("update-available", response =>
+    _connection.On("update-available", response =>
     {
       var version = response.GetValue<RepeaterVersion>();
       UpgradeAvailable?.Invoke(new(version.Version));
     });
 
-    _client.On("request", async response =>
+    _connection.On("request", async response =>
     {
       if (RequestReceived == null)
       {
@@ -76,15 +72,15 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
   public async ValueTask DisposeAsync()
   {
-    if (_client is { Connected: true })
+    if (_connection is { Connected: true })
     {
       _heartbeat.Elapsed -= Ping;
       _heartbeat.Stop();
-      await _client.Disconnect().ConfigureAwait(false);
+      await _connection.Disconnect().ConfigureAwait(false);
       _logger.LogDebug("Repeater disconnected from {BaseUrl}", _options.BaseUrl);
     }
 
-    _client.Dispose();
+    _connection.Dispose();
 
     RequestReceived = null;
     ErrorOccurred = null;
@@ -99,9 +95,9 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
     {
       var tcs = new TaskCompletionSource<RepeaterInfo>();
 
-      _client.On("deployed", response => tcs.TrySetResult(response.GetValue<RepeaterInfo>()));
+      _connection.On("deployed", response => tcs.TrySetResult(response.GetValue<RepeaterInfo>()));
 
-      await _client.EmitAsync("deploy", new RepeaterInfo(repeaterId)).ConfigureAwait(false);
+      await _connection.EmitAsync("deploy", new RepeaterInfo { RepeaterId = repeaterId }).ConfigureAwait(false);
 
       using var _ = cancellationToken?.Register(() => tcs.TrySetCanceled());
 
@@ -111,7 +107,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
     }
     finally
     {
-      _client.Off("deployed");
+      _connection.Off("deployed");
     }
   }
 
@@ -130,6 +126,6 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
   private async Task Ping()
   {
-    await _client.EmitAsync("ping").ConfigureAwait(false);
+    await _connection.EmitAsync("ping").ConfigureAwait(false);
   }
 }

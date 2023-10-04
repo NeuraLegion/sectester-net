@@ -18,7 +18,7 @@ $ dotnet add package SecTester.Repeater
 
 ## Usage
 
-To establish a secure connection between the Bright cloud engine and a target on a local network, you just need to use the `RepeaterFactory` constructed with [`Configuration` instance](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Core#configuration).
+To establish a secure connection between the Bright cloud engine and a target on a local network, you just need to use the `IRepeaterFactory` constructed with [`Configuration` instance](https://github.com/NeuraLegion/sectester-net/tree/master/src/SecTester.Core#configuration).
 
 ```csharp
 var repeaterFactory = serviceProvider.GetService<IRepeaterFactory>();
@@ -49,28 +49,28 @@ The `CreateRepeater` method accepts the options described below:
 
 The default `requestRunnerOptions` is as follows:
 
-```js
+```json
 {
-  timeout: 30000,
-    maxContentLength: 100,
-    reuseConnection: false,
-    allowedMimes: [
-    'text/html',
-    'text/plain',
-    'text/css',
-    'text/javascript',
-    'text/markdown',
-    'text/xml',
-    'application/javascript',
-    'application/x-javascript',
-    'application/json',
-    'application/xml',
-    'application/x-www-form-urlencoded',
-    'application/msgpack',
-    'application/ld+json',
-    'application/graphql'
-  ]
-};
+    "timeout": 30000, 
+    "maxContentLength": 100,
+    "reuseConnection": false,
+    "allowedMimes": [
+        "text/html",
+        "text/plain",
+        "text/css",
+        "text/javascript",
+        "text/markdown",
+        "text/xml",
+        "application/javascript",
+        "application/x-javascript",
+        "application/json",
+        "application/xml",
+        "application/x-www-form-urlencoded",
+        "application/msgpack",
+        "application/ld+json",
+        "application/graphql"
+      ]
+}
 ```
 
 The `RequestRunnerOptions` exposes the following options that can used to customize the request runner's behavior: [RequestRunnerOptions.cs](https://github.com/NeuraLegion/sectester-net/blob/master/src/SecTester.Repeater/Runners/RequestRunnerOptions.cs)
@@ -131,8 +131,7 @@ public class ScanTests: IAsyncDisposable, IAsyncLifetime
 
 ### Implementation details
 
-Under the hood `Repeater` register `RequestExecutingEventHandler` in bus,
-which in turn uses the `RequestRunner` to proceed with request:
+Under the hood `Repeater` uses the `IRequestRunner` to proceed with request:
 
 ```csharp
 public interface IRequestRunner
@@ -146,9 +145,7 @@ Task<IResponse> Run(IRequest request);
 }
 ```
 
-Package contains `RequestRunner` implementations for both HTTP and WS protocols.
-
-To support other protocol new class implementation of `RequestRunner` should be registered in the IoC container:
+The package provide a single `RequestRunner` implementations for HTTP protocol. To add support for other protocols, new implementation of `IRequestRunner` should be registered in the IoC container:
 
 ```csharp
 collection.AddScoped<IRequestRunner, CustomProtocolRequestRunner>();
@@ -156,7 +153,7 @@ collection.AddScoped<IRequestRunner, CustomProtocolRequestRunner>();
 
 ## Limitations
 
-Custom scripts and self-signed certificates (see [NexPloit CLI](https://www.npmjs.com/package/@neuralegion/nexploit-cli)) are not supported yet.
+Custom scripts and self-signed certificates (see [Bright CLI](https://www.npmjs.com/package/@brightsec/cli)) are not supported yet.
 
 ## License
 

@@ -48,7 +48,7 @@ internal sealed class HttpRequestRunner : IRequestRunner
     }
     catch (Exception err)
     {
-      return new RequestExecutingResult
+      return new OutgoingResponse
       {
         Message = err.Message,
         // TODO: use native errno codes instead
@@ -57,7 +57,7 @@ internal sealed class HttpRequestRunner : IRequestRunner
     }
   }
 
-  private async Task<RequestExecutingResult> CreateRequestExecutingResult(HttpResponseMessage response)
+  private async Task<OutgoingResponse> CreateRequestExecutingResult(HttpResponseMessage response)
   {
     var body = await TruncateResponseBody(response).ConfigureAwait(false);
     var headers = AggregateHeaders(response);
@@ -71,7 +71,7 @@ internal sealed class HttpRequestRunner : IRequestRunner
       headers.Replace(contentLength, x => x.Key.Equals(ContentLengthFieldName, StringComparison.OrdinalIgnoreCase));
     }
 
-    return new RequestExecutingResult
+    return new OutgoingResponse
     {
       Headers = headers,
       StatusCode = (int)response.StatusCode,

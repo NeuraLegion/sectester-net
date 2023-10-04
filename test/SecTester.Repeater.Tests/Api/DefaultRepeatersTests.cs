@@ -2,8 +2,7 @@ namespace SecTester.Repeater.Tests.Api;
 
 public class DefaultRepeatersTests : IDisposable
 {
-  const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
-  const string AnotherId = "220baaac-b7ec-46a7-ab5e-ff1e96b0785e";
+  private const string Id = "99138d92-69db-44cb-952a-1cd9ec031e20";
 
   private readonly ICommandDispatcher _commandDispatcher;
   private readonly DefaultRepeaters _sut;
@@ -24,33 +23,27 @@ public class DefaultRepeatersTests : IDisposable
   public async Task CreateRepeater_CreatesRepeater()
   {
     // arrange
-    _commandDispatcher.Execute(Arg.Any<ListRepeatersRequest>()).Returns(new List<RepeaterIdentity>
-    {
-      new(AnotherId, "bar"), new(Id, "foo")
-    });
+    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity(Id));
 
     // act
     var result = await _sut.CreateRepeater("foo");
 
-    //
+    // assert
     result.Should().Be(Id);
   }
 
   [Fact]
-  public async Task CreateRepeater_CreatedRepeaterNotFound_ThrowsError()
+  public async Task CreateRepeater_ThrowsError()
   {
     // arrange
-    _commandDispatcher.Execute(Arg.Any<ListRepeatersRequest>()).Returns(new List<RepeaterIdentity>
-    {
-      new(AnotherId, "bar")
-    });
+    _commandDispatcher.Execute(Arg.Any<CreateRepeaterRequest>()).Returns(new RepeaterIdentity(""));
 
     // act
     var act = () => _sut.CreateRepeater("foo");
 
-    //
+    // assert
     await act.Should().ThrowAsync<SecTesterException>()
-      .WithMessage("Cannot find created repeater id");
+      .WithMessage("Cannot create repeater");
   }
 
   [Fact]

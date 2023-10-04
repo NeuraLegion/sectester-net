@@ -2,11 +2,10 @@ using System.Net.Http;
 using System.Text;
 using SecTester.Bus.Commands;
 using SecTester.Bus.Dispatchers;
-using SecTester.Core;
 
 namespace SecTester.Repeater.Api;
 
-internal record CreateRepeaterRequest : HttpRequest<Unit>
+internal record CreateRepeaterRequest : HttpRequest<RepeaterIdentity>
 {
   public CreateRepeaterRequest(string name, string? description) :
     base("/api/v1/repeaters", HttpMethod.Post, expectReply: false)
@@ -14,7 +13,8 @@ internal record CreateRepeaterRequest : HttpRequest<Unit>
     var data = new
     {
       Name = name,
-      Description = description
+      Description = description,
+      ClientRole = "dev-centric"
     };
     var content = MessageSerializer.Serialize(data);
     Body = new StringContent(content, Encoding.UTF8, "application/json");

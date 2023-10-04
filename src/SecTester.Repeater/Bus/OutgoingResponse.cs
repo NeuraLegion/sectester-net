@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;
 
-public record RequestExecutingResult : IResponse
+public record OutgoingResponse : IResponse
 {
-  [JsonPropertyName("status_code")] public int? StatusCode { get; init; }
+  public int? StatusCode { get; init; }
 
   public string? Body { get; init; }
   public string? Message { get; init; }
 
-  [JsonPropertyName("error_code")] public string? ErrorCode { get; init; }
+  public string? ErrorCode { get; init; }
 
   public Protocol Protocol { get; init; } = Protocol.Http;
 

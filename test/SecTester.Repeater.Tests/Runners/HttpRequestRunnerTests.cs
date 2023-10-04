@@ -51,7 +51,7 @@ public class HttpRequestRunnerTests : IDisposable
         HeaderFieldValue
       })
     };
-    var request = new RequestExecutingEvent(Uri)
+    var request = new IncomingRequest(Uri)
     {
       Method = HttpMethod.Patch,
       Body = JsonContent,
@@ -84,7 +84,7 @@ public class HttpRequestRunnerTests : IDisposable
     var sut = CreateSut();
     var encoding = Encoding.GetEncoding("utf-16");
     var expectedByteLength = Buffer.ByteLength(encoding.GetBytes(HtmlBody));
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     var content = new StringContent(HtmlBody, encoding, HtmlContentType);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, content);
 
@@ -118,7 +118,7 @@ public class HttpRequestRunnerTests : IDisposable
     {
       Timeout = TimeSpan.Zero
     });
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     _mockHttp.Expect(Url)
       .Respond(async () =>
       {
@@ -146,7 +146,7 @@ public class HttpRequestRunnerTests : IDisposable
     {
       MaxContentLength = -1
     });
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     var body = string.Concat(Enumerable.Repeat("x", 5));
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, CustomContentType, body);
 
@@ -165,7 +165,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.NoContent);
 
     // act
@@ -184,7 +184,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(Uri)
+    var request = new IncomingRequest(Uri)
     {
       Method = HttpMethod.Head
     };
@@ -206,7 +206,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, JsonContentType, JsonContent);
 
     // act
@@ -240,7 +240,7 @@ public class HttpRequestRunnerTests : IDisposable
         $"{options.MaxContentLength}"
       })
     };
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     var body = string.Concat(Enumerable.Repeat("x", 5));
     _mockHttp.Expect(Url).Respond(HttpStatusCode.OK, CustomContentType, body);
 
@@ -261,7 +261,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     _mockHttp.Expect(Url).Respond(HttpStatusCode.ServiceUnavailable, JsonContentType, JsonContent);
 
     // act
@@ -280,7 +280,7 @@ public class HttpRequestRunnerTests : IDisposable
   {
     // arrange
     var sut = CreateSut();
-    var request = new RequestExecutingEvent(Uri);
+    var request = new IncomingRequest(Uri);
     _mockHttp.Expect(Url).Throw(new SocketException((int)SocketError.ConnectionRefused));
 
     // act
@@ -292,7 +292,7 @@ public class HttpRequestRunnerTests : IDisposable
       ErrorCode = "ConnectionRefused"
     },
       options => options.Using<IResponse>(ctx => ctx.Subject.Should().BeOfType<string>())
-        .When(info => info.Path.EndsWith(nameof(RequestExecutingResult.Message))));
+        .When(info => info.Path.EndsWith(nameof(OutgoingResponse.Message))));
   }
 
   [Fact]
@@ -307,7 +307,7 @@ public class HttpRequestRunnerTests : IDisposable
         InvalidHostHeaderValue
       })
     };
-    var request = new RequestExecutingEvent(Uri)
+    var request = new IncomingRequest(Uri)
     {
       Headers = headers
     };
@@ -334,7 +334,7 @@ public class HttpRequestRunnerTests : IDisposable
         JsonContentType
       })
     };
-    var request = new RequestExecutingEvent(Uri)
+    var request = new IncomingRequest(Uri)
     {
       Method = HttpMethod.Post,
       Headers = headers,

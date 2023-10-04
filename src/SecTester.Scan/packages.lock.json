@@ -302,7 +302,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
           "Microsoft.Extensions.Http": "[6.0.0, )",
           "RabbitMQ.Client": "[6.4.0, )",
-          "SecTester.Core": "[0.29.0, )",
+          "SecTester.Core": "[0.40.0, )",
           "System.Text.Json": "[6.0.0, )",
           "System.Threading.RateLimiting": "[7.0.0, )"
         }

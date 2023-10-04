@@ -43,7 +43,7 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
     {
       Serializer = new SocketIOMessagePackSerializer()
     };
-    var wrapper = new SocketIoClientWrapper(client);
+    var wrapper = new SocketIoConnection(client);
 
     var scope = _scopeFactory.CreateAsyncScope();
     var timerProvider = scope.ServiceProvider.GetRequiredService<ITimerProvider>();

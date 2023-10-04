@@ -119,7 +119,7 @@ public sealed class Target
   {
     return WithBody(value, async () =>
     {
-      var text = await value.ReadAsStringAsync().ConfigureAwait(true);
+      var text = await value.ReadAsStringAsync().ConfigureAwait(false);
       var query = UrlUtils.ParseQuery(text);
       var parameters = query.Select(k => new PostDataParameter(k.Key, k.Value)).ToList();
 
@@ -140,7 +140,7 @@ public sealed class Target
   {
     return WithBody(value, async () =>
     {
-      var text = await value.ReadAsStringAsync().ConfigureAwait(true);
+      var text = await value.ReadAsStringAsync().ConfigureAwait(false);
       var tasks = value.Select(async k =>
       {
         var contentDisposition = k.Headers.ContentDisposition;
@@ -172,7 +172,7 @@ public sealed class Target
   {
     return WithBody(value, async () =>
     {
-      var text = await value.ReadAsStringAsync().ConfigureAwait(true);
+      var text = await value.ReadAsStringAsync().ConfigureAwait(false);
 
       return new PostData
       {

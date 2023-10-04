@@ -3,7 +3,8 @@ namespace SecTester.Repeater.Tests.Bus;
 public sealed class SocketIoRepeaterBusTests : IDisposable
 {
   private static readonly string RepeaterId = "g5MvgM74sweGcK1U6hvs76";
-  private static readonly string Url = new("http://example.com");
+  private static readonly Uri Url = new("http://example.com");
+  private static readonly SocketIoRepeaterBusOptions Options = new(Url);
 
   private readonly ISocketIoClient _client = Substitute.For<ISocketIoClient>();
   private readonly ITimerProvider _heartbeat = Substitute.For<ITimerProvider>();
@@ -13,7 +14,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
 
   public SocketIoRepeaterBusTests()
   {
-    _sut = new SocketIoRepeaterBus(new Uri(Url), _client, _heartbeat, _logger);
+    _sut = new SocketIoRepeaterBus(Options, _client, _heartbeat, _logger);
   }
 
   public void Dispose()
@@ -35,7 +36,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
       StatusCode = 204
     };
     _client.Connect().Returns(Task.CompletedTask);
-    _socketIoResponse.GetValue<IncomingRequest>().Returns(new IncomingRequest(new(Url)));
+    _socketIoResponse.GetValue<IncomingRequest>().Returns(new IncomingRequest(Url));
     _client.On("request", Arg.Invoke(_socketIoResponse));
     _sut.RequestReceived += _ => Task.FromResult(result);
 
@@ -43,7 +44,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     await _sut.Connect();
 
     // assert
-    await _socketIoResponse.Received().CallbackAsync(result);
+    await _socketIoResponse.Received().CallbackAsync(Arg.Any<CancellationToken>(), result);
   }
 
   [Fact]

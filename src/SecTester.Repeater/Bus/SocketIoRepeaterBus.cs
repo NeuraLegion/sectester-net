@@ -14,11 +14,11 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
   private readonly ITimerProvider _heartbeat;
   private readonly ISocketIoClient _client;
   private readonly ILogger<IRepeaterBus> _logger;
-  private readonly Uri _url;
+  private readonly SocketIoRepeaterBusOptions _options;
 
-  internal SocketIoRepeaterBus(Uri url, ISocketIoClient client, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
+  internal SocketIoRepeaterBus(SocketIoRepeaterBusOptions options, ISocketIoClient client, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
   {
-    _url = url ?? throw new ArgumentNullException(nameof(url));
+    _options = options ?? throw new ArgumentNullException(nameof(options));
     _client = client ?? throw new ArgumentNullException(nameof(client));
     _heartbeat = heartbeat ?? throw new ArgumentNullException(nameof(heartbeat));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,7 +42,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
       await SchedulePing().ConfigureAwait(false);
 
-      _logger.LogDebug("Repeater connected to {Url}", _url);
+      _logger.LogDebug("Repeater connected to {Url}", _options.Url);
     }
   }
 
@@ -67,9 +67,10 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
         return;
       }
 
+      var ct = new CancellationTokenSource(_options.AckTimeout);
       var request = response.GetValue<IncomingRequest>();
       var result = await RequestReceived.Invoke(request).ConfigureAwait(false);
-      await response.CallbackAsync(result).ConfigureAwait(false);
+      await response.CallbackAsync(ct.Token, result).ConfigureAwait(false);
     });
   }
 
@@ -80,7 +81,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
       _heartbeat.Elapsed -= Ping;
       _heartbeat.Stop();
       await _client.Disconnect().ConfigureAwait(false);
-      _logger.LogDebug("Repeater disconnected from {Url}", _url);
+      _logger.LogDebug("Repeater disconnected from {Url}", _options.Url);
     }
 
     _client.Dispose();

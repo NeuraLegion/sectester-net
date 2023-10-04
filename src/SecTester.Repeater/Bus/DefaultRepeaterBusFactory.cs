@@ -32,19 +32,18 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
     }
 
     var url = new Uri(_config.Api);
-    var options = new SocketIOOptions
+    var options = new SocketIoRepeaterBusOptions(url);
+    var client = new SocketIOClient.SocketIO(url, new SocketIOOptions
     {
-      Path = "/api/ws/v1",
-      ReconnectionAttempts = 20,
-      ReconnectionDelayMax = 86400000,
-      ConnectionTimeout = TimeSpan.FromSeconds(10),
+      Path = options.Path,
+      ReconnectionAttempts = options.ReconnectionAttempts,
+      ReconnectionDelayMax = options.ReconnectionDelayMax,
+      ConnectionTimeout = options.ConnectionTimeout,
       Auth = new List<KeyValuePair<string, string>>
       {
         new("token", _config.Credentials.Token), new("domain", repeaterId)
       },
-    };
-
-    var client = new SocketIOClient.SocketIO(url, options)
+    })
     {
       Serializer = new SocketIOMessagePackSerializer()
     };
@@ -53,6 +52,6 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
     var scope = _scopeFactory.CreateAsyncScope();
     var timerProvider = scope.ServiceProvider.GetRequiredService<ITimerProvider>();
 
-    return new SocketIoRepeaterBus(url, wrapper, timerProvider, _loggerFactory.CreateLogger<IRepeaterBus>());
+    return new SocketIoRepeaterBus(options, wrapper, timerProvider, _loggerFactory.CreateLogger<IRepeaterBus>());
   }
 }

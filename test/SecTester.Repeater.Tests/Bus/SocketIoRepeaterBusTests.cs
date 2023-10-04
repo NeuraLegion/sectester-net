@@ -153,7 +153,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     await _sut.Deploy(RepeaterId);
 
     // assert
-    await _client.Received().EmitAsync("deploy", Arg.Is<SocketIoRepeaterBus.RepeaterInfo>(x => x.RepeaterId.Equals(RepeaterId, StringComparison.OrdinalIgnoreCase)), Arg.Any<Runtime>());
+    await _client.Received().EmitAsync("deploy", Arg.Is<SocketIoRepeaterBus.RepeaterInfo>(x => x.RepeaterId.Equals(RepeaterId, StringComparison.OrdinalIgnoreCase)));
   }
 
   [Fact]
@@ -164,7 +164,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     cancellationTokenSource.Cancel();
 
     // act
-    var act = () => _sut.Deploy(RepeaterId, null, cancellationTokenSource.Token);
+    var act = () => _sut.Deploy(RepeaterId, cancellationTokenSource.Token);
 
     // assert
     await act.Should().ThrowAsync<OperationCanceledException>();

@@ -60,7 +60,7 @@ public class Repeater : IRepeater
       SubscribeToEvents();
 
       await _bus.Connect().ConfigureAwait(false);
-      await _bus.Deploy(RepeaterId, new Runtime(_version.ToString()), cancellationToken).ConfigureAwait(false);
+      await _bus.Deploy(RepeaterId, cancellationToken).ConfigureAwait(false);
 
       Status = RunningStatus.Running;
     }

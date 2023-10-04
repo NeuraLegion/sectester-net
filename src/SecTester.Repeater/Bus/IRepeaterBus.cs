@@ -11,5 +11,5 @@ public interface IRepeaterBus : IAsyncDisposable
   event Action<Version> UpgradeAvailable;
 
   Task Connect();
-  Task Deploy(string repeaterId, Runtime? runtime = null, CancellationToken? cancellationToken = null);
+  Task Deploy(string repeaterId, CancellationToken? cancellationToken = null);
 }

@@ -43,7 +43,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
     await _sut.Start();
 
     // assert
-    await _bus.Received().Deploy(Id, Arg.Any<Runtime>(), Arg.Any<CancellationToken>());
+    await _bus.Received().Deploy(Id, Arg.Any<CancellationToken>());
   }
 
   [Fact]

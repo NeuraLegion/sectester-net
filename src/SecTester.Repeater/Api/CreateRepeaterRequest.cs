@@ -8,7 +8,7 @@ namespace SecTester.Repeater.Api;
 internal record CreateRepeaterRequest : HttpRequest<RepeaterIdentity>
 {
   public CreateRepeaterRequest(string name, string? description) :
-    base("/api/v1/repeaters", HttpMethod.Post, expectReply: false)
+    base("/api/v1/repeaters", HttpMethod.Post)
   {
     var data = new
     {

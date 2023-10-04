@@ -42,7 +42,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
       await SchedulePing().ConfigureAwait(false);
 
-      _logger.LogDebug("Repeater connected to {Url}", _options.Url);
+      _logger.LogDebug("Repeater connected to {BaseUrl}", _options.BaseUrl);
     }
   }
 
@@ -81,7 +81,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
       _heartbeat.Elapsed -= Ping;
       _heartbeat.Stop();
       await _client.Disconnect().ConfigureAwait(false);
-      _logger.LogDebug("Repeater disconnected from {Url}", _options.Url);
+      _logger.LogDebug("Repeater disconnected from {BaseUrl}", _options.BaseUrl);
     }
 
     _client.Dispose();

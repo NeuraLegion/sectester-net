@@ -4,7 +4,7 @@ using SecTester.Repeater.Runners;
 namespace SecTester.Repeater.Bus;
 
 [MessagePackObject]
-public record OutgoingResponse : HttpMessage,  IResponse
+public record OutgoingResponse : HttpMessage, IResponse
 {
   [Key("statusCode")]
   public int? StatusCode { get; set; }

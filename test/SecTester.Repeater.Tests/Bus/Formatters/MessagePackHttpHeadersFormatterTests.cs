@@ -39,6 +39,22 @@ public sealed class MessagePackHttpHeadersFormatterTests
       }
     };
 
+  public static readonly IEnumerable<object[]> WrongFormatFixtures = new List<object[]>
+  {
+    new object[]
+    {
+      "{\"headers\":5}",
+    },
+    new object[]
+    {
+      "{\"headers\":[]}",
+    },
+    new object[]
+    {
+      "{\"headers\":{\"content-type\":{\"foo\"}:{\"bar\"}}}",
+    }
+  };
+
   public static IEnumerable<object?[]> SerializeDeserializeFixtures => Fixtures
     .Select((x) => new object?[]
     {
@@ -75,5 +91,20 @@ public sealed class MessagePackHttpHeadersFormatterTests
     {
       Headers = null
     });
+  }
+
+  [Theory]
+  [MemberData(nameof(WrongFormatFixtures))]
+  public void HttpHeadersMessagePackFormatter_Deserialize_ShouldThrow(
+    string input)
+  {
+    // arrange
+    var binary = MessagePackSerializer.ConvertFromJson(input, Options);
+
+    // act
+    var act = () => MessagePackSerializer.Deserialize<HttpHeadersDto>(binary, Options);
+
+    // assert
+    act.Should().Throw<MessagePackSerializationException>().WithMessage("Failed to deserialize SecTester.Repeater.Tests.Bus.Formatters.MessagePackHttpHeadersFormatterTests+HttpHeadersDto value.");
   }
 }

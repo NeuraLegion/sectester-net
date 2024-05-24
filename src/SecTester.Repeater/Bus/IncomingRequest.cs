@@ -10,7 +10,7 @@ using SecTester.Repeater.Runners;
 namespace SecTester.Repeater.Bus;
 
 [MessagePackObject]
-public record IncomingRequest(Uri Url): HttpMessage, IRequest
+public record IncomingRequest(Uri Url) : HttpMessage, IRequest
 {
   private const string UrlKey = "url";
   private const string MethodKey = "method";

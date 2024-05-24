@@ -91,4 +91,24 @@ public class IncomingRequestTests
     // assert
     result.Should().BeEquivalentTo(new IncomingRequest(new Uri("https://foo.bar/1")));
   }
+
+  [Fact]
+  public void IncomingRequest_FromDictionary_ShouldParseEnumNamedValue()
+  {
+    // arrange
+    var packJson =
+      "{\"type\":2,\"data\":[\"request\",{\"protocol\":\"http\",\"url\":\"https://foo.bar/1\"}],\"options\":{\"compress\":true},\"id\":1,\"nsp\":\"/some\"}";
+
+    var serializer = new SocketIOMessagePackSerializer(MessagePackSerializerOptions.Standard);
+
+    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson));
+
+    var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
+
+    // act
+    var result = IncomingRequest.FromDictionary(deserializedDictionary);
+
+    // assert
+    result.Should().BeEquivalentTo(new IncomingRequest(new Uri("https://foo.bar/1")){ Protocol = Protocol.Http});
+  }
 }

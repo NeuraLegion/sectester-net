@@ -15,44 +15,34 @@ public sealed class MessagePackHttpHeadersFormatterTests
 
   private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard;
 
-  private static IEnumerable<
-      HttpHeadersDto>
-    Fixtures =>
-    new[]
-    {
-      new HttpHeadersDto
-      {
-        Headers = null
-      },
-      new HttpHeadersDto
-      {
-        Headers = new List<KeyValuePair<string, IEnumerable<string>>>()
-      },
-
-      new HttpHeadersDto
-      {
-        Headers = new List<KeyValuePair<string, IEnumerable<string>>>
-        {
-          new("content-type", new List<string> { "application/json" }),
-          new("cache-control", new List<string> { "no-cache", "no-store" })
-        }
-      }
-    };
-
-  public static readonly IEnumerable<object[]> WrongFormatFixtures = new List<object[]>
+  private static IEnumerable<HttpHeadersDto> Fixtures => new[]
   {
-    new object[]
+    new HttpHeadersDto
     {
-      "{\"headers\":5}",
+      Headers = null
     },
-    new object[]
+    new HttpHeadersDto
     {
-      "{\"headers\":[]}",
+      Headers = new List<KeyValuePair<string, IEnumerable<string>>>()
     },
-    new object[]
+    new HttpHeadersDto
     {
-      "{\"headers\":{\"content-type\":{\"foo\"}:{\"bar\"}}}",
+      Headers = new List<KeyValuePair<string, IEnumerable<string>>>
+      {
+        new("content-type", new List<string> { "application/json" }),
+        new("cache-control", new List<string> { "no-cache", "no-store" })
+      }
     }
+  };
+
+  public static readonly IEnumerable<string> WrongFormatFixtures = new[]
+  {
+    "{\"headers\":5}",
+    "{\"headers\":[]}",
+    "{\"headers\":{\"content-type\":{\"foo\"}:{\"bar\"}}}",
+    "{\"headers\":{\"content-type\":1}}",
+    "{\"headers\":{\"content-type\":[null]}}",
+    "{\"headers\":{\"content-type\":[1]}}"
   };
 
   public static IEnumerable<object?[]> SerializeDeserializeFixtures => Fixtures
@@ -93,8 +83,14 @@ public sealed class MessagePackHttpHeadersFormatterTests
     });
   }
 
+  public static IEnumerable<object?[]> ThrowWhenWrongFormatFixtures => WrongFormatFixtures
+    .Select((x) => new object?[]
+    {
+      x
+    });
+
   [Theory]
-  [MemberData(nameof(WrongFormatFixtures))]
+  [MemberData(nameof(ThrowWhenWrongFormatFixtures))]
   public void HttpHeadersMessagePackFormatter_Deserialize_ShouldThrow(
     string input)
   {
@@ -105,6 +101,7 @@ public sealed class MessagePackHttpHeadersFormatterTests
     var act = () => MessagePackSerializer.Deserialize<HttpHeadersDto>(binary, Options);
 
     // assert
-    act.Should().Throw<MessagePackSerializationException>().WithMessage("Failed to deserialize SecTester.Repeater.Tests.Bus.Formatters.MessagePackHttpHeadersFormatterTests+HttpHeadersDto value.");
+    act.Should().Throw<MessagePackSerializationException>().WithMessage(
+      "Failed to deserialize SecTester.Repeater.Tests.Bus.Formatters.MessagePackHttpHeadersFormatterTests+HttpHeadersDto value.");
   }
 }

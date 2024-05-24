@@ -28,6 +28,5 @@ internal class SocketIoMessage : ISocketIoMessage
 
   public virtual Task CallbackAsync(params object[] data) => _response.CallbackAsync(data);
 
-  public virtual Task CallbackAsync(CancellationToken cancellationToken, params object[] data) =>
-    _response.CallbackAsync(cancellationToken, data);
+  public virtual Task CallbackAsync(CancellationToken cancellationToken, params object[] data) => _response.CallbackAsync(cancellationToken, data);
 }

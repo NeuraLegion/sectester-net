@@ -4,7 +4,7 @@ using SecTester.Repeater.Bus.Formatters;
 
 namespace SecTester.Repeater.Bus;
 
-public record HttpMessage
+public abstract record HttpMessage
 {
   public const string HeadersKey = "headers";
   public const string BodyKey = "body";

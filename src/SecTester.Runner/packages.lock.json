@@ -231,8 +231,8 @@
       },
       "SocketIO.Serializer.MessagePack": {
         "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "lOAZs6AUCDhfMFa4Vu40LeeK/9fP+iMUerI3qzmToDaSa+A2/YQ7D0nvYa1atwTvzvhDZklBKNV5dIzQWWwPJg==",
+        "resolved": "3.1.2",
+        "contentHash": "eYSPq7aKP11crDqGA5XlcGtQBqbeydbzgKb6FgySAlUqgGWZ2foXuQLIiBbPJPuH6ygaqycvQimw+oz5328AeA==",
         "dependencies": {
           "MessagePack": "2.5.124",
           "SocketIO.Core": "3.1.1",
@@ -412,7 +412,7 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
           "Microsoft.Extensions.Http": "[6.0.0, )",
           "RabbitMQ.Client": "[6.4.0, )",
-          "SecTester.Core": "[0.40.0, )",
+          "SecTester.Core": "[0.41.3, )",
           "System.Text.Json": "[6.0.0, )",
           "System.Threading.RateLimiting": "[7.0.0, )"
         }
@@ -429,9 +429,9 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "SecTester.Bus": "[0.40.0, )",
-          "SecTester.Core": "[0.40.0, )",
-          "SocketIO.Serializer.MessagePack": "[3.1.1, )",
+          "SecTester.Bus": "[0.41.3, )",
+          "SecTester.Core": "[0.41.3, )",
+          "SocketIO.Serializer.MessagePack": "[3.1.2, )",
           "SocketIOClient": "[3.1.1, )",
           "System.Linq.Async": "[6.0.1, )"
         }
@@ -440,7 +440,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "SecTester.Scan": "[0.40.0, )"
+          "SecTester.Scan": "[0.41.3, )"
         }
       },
       "sectester.scan": {
@@ -448,8 +448,8 @@
         "dependencies": {
           "Macross.Json.Extensions": "[3.0.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "SecTester.Bus": "[0.40.0, )",
-          "SecTester.Core": "[0.40.0, )",
+          "SecTester.Bus": "[0.41.3, )",
+          "SecTester.Core": "[0.41.3, )",
           "System.Linq.Async": "[6.0.1, )",
           "System.Text.Json": "[6.0.0, )"
         }

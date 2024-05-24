@@ -1,12 +1,18 @@
 using System;
+using System.Runtime.Serialization;
 using SecTester.Core.Utils;
 
 namespace SecTester.Core.Bus;
 
 public abstract record Message
 {
+  [IgnoreDataMember]
   public string CorrelationId { get; protected init; }
+
+  [IgnoreDataMember]
   public DateTime CreatedAt { get; protected init; }
+
+  [IgnoreDataMember]
   public string Type { get; protected init; }
 
   protected Message()

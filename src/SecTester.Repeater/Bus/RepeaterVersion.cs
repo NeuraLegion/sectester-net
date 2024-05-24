@@ -2,7 +2,7 @@ using MessagePack;
 
 namespace SecTester.Repeater.Bus;
 
-[MessagePackObject(true)]
+[MessagePackObject]
 public sealed record RepeaterVersion
 {
   [Key("version")]

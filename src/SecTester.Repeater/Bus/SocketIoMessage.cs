@@ -20,8 +20,7 @@ internal class SocketIoMessage : ISocketIoMessage
   {
     if (typeof(T) == typeof(IncomingRequest))
     {
-      var raw = _response.GetValue<Dictionary<object,object>>(index);
-      return (T)(object)SocketIOIncomingRequestMapper.ToRequest(raw);
+      return (T)(object)IncomingRequest.FromDictionary(_response.GetValue<Dictionary<object, object>>(index));
     }
 
     return _response.GetValue<T>(index);
@@ -29,5 +28,6 @@ internal class SocketIoMessage : ISocketIoMessage
 
   public virtual Task CallbackAsync(params object[] data) => _response.CallbackAsync(data);
 
-  public virtual Task CallbackAsync(CancellationToken cancellationToken, params object[] data) => _response.CallbackAsync(cancellationToken, data);
+  public virtual Task CallbackAsync(CancellationToken cancellationToken, params object[] data) =>
+    _response.CallbackAsync(cancellationToken, data);
 }

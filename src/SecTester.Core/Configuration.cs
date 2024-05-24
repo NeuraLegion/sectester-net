@@ -92,7 +92,7 @@ namespace SecTester.Core
       if (_loopbackAddresses.Any(address => address == host))
       {
         Bus = $"amqp://{host}:5672";
-        Api = $"http://{host}:8090";
+        Api = $"http://{host}:8000";
       }
       else
       {

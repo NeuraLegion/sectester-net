@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Serialization;
 using SecTester.Core.Utils;
 
 namespace SecTester.Core.Bus;
@@ -7,9 +6,7 @@ namespace SecTester.Core.Bus;
 public abstract record Message
 {
   public string CorrelationId { get; protected init; }
-
   public DateTime CreatedAt { get; protected init; }
-
   public string Type { get; protected init; }
 
   protected Message()

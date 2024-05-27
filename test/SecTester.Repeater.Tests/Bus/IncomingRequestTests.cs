@@ -57,7 +57,7 @@ public class IncomingRequestTests
   {
     // arrange
     var packJson =
-      "{\"type\":2,\"data\":[\"request\",{\"protocol\":0,\"headers\":{\"content-type\":\"application/json\",\"cache-control\":[\"no-cache\",\"no-store\"]},\"body\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"method\":\"PROPFIND\"}],\"options\":{\"compress\":true},\"id\":1,\"nsp\":\"/some\"}";
+      "{\"type\":2,\"data\":[\"request\",{\"protocol\":\"http:\",\"headers\":{\"content-type\":\"application/json\",\"cache-control\":[\"no-cache\",\"no-store\"]},\"body\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"method\":\"PROPFIND\"}],\"options\":{\"compress\":true},\"id\":1,\"nsp\":\"/some\"}";
 
     var serializer = new SocketIOMessagePackSerializer(MessagePackSerializerOptions.Standard);
 

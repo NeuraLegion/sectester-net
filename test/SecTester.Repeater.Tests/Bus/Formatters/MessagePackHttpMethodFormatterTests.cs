@@ -15,35 +15,35 @@ public sealed class MessagePackHttpMethodFormatterTests
 
   private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard;
 
-  private static IEnumerable<HttpMethodDto>
-    Fixtures =>
-    new[]
+  public static readonly IEnumerable<object[]> Fixtures = new List<object[]>()
+  {
+    new object[]
     {
       new HttpMethodDto
       {
         Method = null
-      },
+      }
+    },
+    new object[]
+    {
       new HttpMethodDto
       {
         Method = HttpMethod.Get
-      },
+      }
+    },
+    new object[]
+    {
       new HttpMethodDto
       {
         Method = new HttpMethod("PROPFIND")
       }
-    };
-
-  public static IEnumerable<object?[]> SerializeDeserializeFixtures => Fixtures
-    .Select((x) => new object?[]
-    {
-      x, x
-    });
+    }
+  };
 
   [Theory]
-  [MemberData(nameof(SerializeDeserializeFixtures))]
+  [MemberData(nameof(Fixtures))]
   public void HttpMethodMessagePackFormatter_Deserialize_ShouldCorrectlyDeserializePreviouslySerializedValue(
-    HttpMethodDto input,
-    HttpMethodDto expected)
+    HttpMethodDto input)
   {
     // arrange
     var serialized = MessagePackSerializer.Serialize(input, Options);
@@ -52,7 +52,7 @@ public sealed class MessagePackHttpMethodFormatterTests
     var result = MessagePackSerializer.Deserialize<HttpMethodDto>(serialized, Options);
 
     // assert
-    result.Should().BeEquivalentTo(expected);
+    result.Should().BeEquivalentTo(input);
   }
 
   [Fact]

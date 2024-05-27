@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using System.Runtime.Serialization;
 using MessagePack;
 using SecTester.Repeater.Bus.Formatters;
 using SecTester.Repeater.Runners;
@@ -15,6 +17,15 @@ public record IncomingRequest(Uri Url) : HttpMessage, IRequest
   private const string UrlKey = "url";
   private const string MethodKey = "method";
 
+  private static readonly Dictionary<string, Protocol> ProtocolEntries = typeof(Protocol)
+    .GetFields(BindingFlags.Public | BindingFlags.Static)
+    .Select(field => new
+    {
+      Value = (Protocol)field.GetValue(null),
+      StringValue = field.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? field.Name
+    })
+    .ToDictionary(x => x.StringValue, x => x.Value);
+
   [Key(MethodKey)]
   [MessagePackFormatter(typeof(MessagePackHttpMethodFormatter))]
   public HttpMethod Method { get; set; } = HttpMethod.Get;
@@ -24,7 +35,7 @@ public record IncomingRequest(Uri Url) : HttpMessage, IRequest
 
   public static IncomingRequest FromDictionary(Dictionary<object, object> dictionary)
   {
-    var protocol = dictionary.TryGetValue(ProtocolKey, out var p) && p is string && Enum.TryParse<Protocol>(p.ToString(), out var e)
+    var protocol = dictionary.TryGetValue(ProtocolKey, out var p) && p is string && ProtocolEntries.TryGetValue(p.ToString(), out var e)
       ? e
       : Protocol.Http;
 

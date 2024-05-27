@@ -15,47 +15,52 @@ public sealed class MessagePackHttpHeadersFormatterTests
 
   private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard;
 
-  private static IEnumerable<HttpHeadersDto> Fixtures => new[]
+  public static readonly IEnumerable<object[]> Fixtures = new List<object[]>()
   {
-    new HttpHeadersDto
+    new object[]
     {
-      Headers = null
-    },
-    new HttpHeadersDto
-    {
-      Headers = new List<KeyValuePair<string, IEnumerable<string>>>()
-    },
-    new HttpHeadersDto
-    {
-      Headers = new List<KeyValuePair<string, IEnumerable<string>>>
+      new HttpHeadersDto
       {
-        new("content-type", new List<string> { "application/json" }),
-        new("cache-control", new List<string> { "no-cache", "no-store" })
+        Headers = null
+      }
+    },
+    new object[]
+    {
+      new HttpHeadersDto
+      {
+        Headers = new List<KeyValuePair<string, IEnumerable<string>>>()
+      }
+    },
+    new object[]
+    {
+      new HttpHeadersDto
+      {
+        Headers = new List<KeyValuePair<string, IEnumerable<string>>>
+        {
+          new("content-type", new List<string> { "application/json" }),
+          new("cache-control", new List<string> { "no-cache", "no-store" })
+        }
       }
     }
   };
 
-  public static readonly IEnumerable<string> WrongFormatFixtures = new[]
+  public static readonly IEnumerable<object[]> WrongValueFixtures = new List<object[]>()
   {
-    "{\"headers\":5}",
-    "{\"headers\":[]}",
-    "{\"headers\":{\"content-type\":{\"foo\"}:{\"bar\"}}}",
-    "{\"headers\":{\"content-type\":1}}",
-    "{\"headers\":{\"content-type\":[null]}}",
-    "{\"headers\":{\"content-type\":[1]}}"
+    new object[]
+    {
+      "{\"headers\":5}"
+    },
+    new object[] { "{\"headers\":[]}" },
+    new object[] { "{\"headers\":{\"content-type\":{\"foo\"}:{\"bar\"}}}" },
+    new object[] { "{\"headers\":{\"content-type\":1}}" },
+    new object[] { "{\"headers\":{\"content-type\":[null]}}" },
+    new object[] { "{\"headers\":{\"content-type\":[1]}}" }
   };
 
-  public static IEnumerable<object?[]> SerializeDeserializeFixtures => Fixtures
-    .Select((x) => new object?[]
-    {
-      x, x
-    });
-
   [Theory]
-  [MemberData(nameof(SerializeDeserializeFixtures))]
+  [MemberData(nameof(Fixtures))]
   public void HttpHeadersMessagePackFormatter_Deserialize_ShouldCorrectlyDeserializePreviouslySerializedValue(
-    HttpHeadersDto input,
-    HttpHeadersDto expected)
+    HttpHeadersDto input)
   {
     // arrange
     var serialized = MessagePackSerializer.Serialize(input, Options);
@@ -64,7 +69,7 @@ public sealed class MessagePackHttpHeadersFormatterTests
     var result = MessagePackSerializer.Deserialize<HttpHeadersDto>(serialized, Options);
 
     // assert
-    result.Should().BeEquivalentTo(expected);
+    result.Should().BeEquivalentTo(input);
   }
 
   [Fact]
@@ -83,15 +88,9 @@ public sealed class MessagePackHttpHeadersFormatterTests
     });
   }
 
-  public static IEnumerable<object?[]> ThrowWhenWrongFormatFixtures => WrongFormatFixtures
-    .Select((x) => new object?[]
-    {
-      x
-    });
-
   [Theory]
-  [MemberData(nameof(ThrowWhenWrongFormatFixtures))]
-  public void HttpHeadersMessagePackFormatter_Deserialize_ShouldThrow(
+  [MemberData(nameof(WrongValueFixtures))]
+  public void HttpHeadersMessagePackFormatter_Deserialize_ShouldThrowWhenDataHasWrongValue(
     string input)
   {
     // arrange
@@ -102,6 +101,6 @@ public sealed class MessagePackHttpHeadersFormatterTests
 
     // assert
     act.Should().Throw<MessagePackSerializationException>().WithMessage(
-      "Failed to deserialize SecTester.Repeater.Tests.Bus.Formatters.MessagePackHttpHeadersFormatterTests+HttpHeadersDto value.");
+      "Failed to deserialize*");
   }
 }

@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <Folder Include="Api"/>
+    <Folder Include="Bus\Formatters\" />
     <Folder Include="Extensions"/>
-    <Folder Include="Internal"/>
     <Folder Include="Runners"/>
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -64,7 +65,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
       }
 
       var ct = new CancellationTokenSource(_options.AckTimeout);
-      var request = response.GetValue<IncomingRequest>();
+      var request = IncomingRequest.FromDictionary(response.GetValue<Dictionary<object, object>>());
       var result = await RequestReceived.Invoke(request).ConfigureAwait(false);
       await response.CallbackAsync(ct.Token, result).ConfigureAwait(false);
     });

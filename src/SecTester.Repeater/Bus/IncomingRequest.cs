@@ -6,16 +6,19 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
 using MessagePack;
-using SecTester.Repeater.Bus.Formatters;
+using SecTester.Repeater.Internal;
 using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;
 
 [MessagePackObject]
-public record IncomingRequest(Uri Url) : HttpMessage, IRequest
+public record IncomingRequest(Uri Url) : IRequest
 {
   private const string UrlKey = "url";
   private const string MethodKey = "method";
+  private const string HeadersKey = "headers";
+  private const string BodyKey = "body";
+  private const string ProtocolKey = "protocol";
 
   private static readonly Dictionary<string, Protocol> ProtocolEntries = typeof(Protocol)
     .GetFields(BindingFlags.Public | BindingFlags.Static)
@@ -26,8 +29,18 @@ public record IncomingRequest(Uri Url) : HttpMessage, IRequest
     })
     .ToDictionary(x => x.StringValue, x => x.Value);
 
+
+  [Key(ProtocolKey)]
+  public Protocol Protocol { get; set; } = Protocol.Http;
+
+  [Key(HeadersKey)]
+  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; set; } =
+    new List<KeyValuePair<string, IEnumerable<string>>>();
+
+  [Key(BodyKey)]
+  public string? Body { get; set; }
+
   [Key(MethodKey)]
-  [MessagePackFormatter(typeof(MessagePackHttpMethodFormatter))]
   public HttpMethod Method { get; set; } = HttpMethod.Get;
 
   [Key(UrlKey)]

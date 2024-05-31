@@ -21,7 +21,7 @@ public sealed class MessagePackHttpHeadersFormatterTests
     },
     new object[]
     {
-      new List<KeyValuePair<string, IEnumerable<string>>>()
+      Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>()
 
     },
     new object[]
@@ -30,7 +30,7 @@ public sealed class MessagePackHttpHeadersFormatterTests
         {
           new("content-type", new List<string> { "application/json" }),
           new("cache-control", new List<string> { "no-cache", "no-store" })
-        }
+        }.AsEnumerable()
     }
   };
 
@@ -50,48 +50,15 @@ public sealed class MessagePackHttpHeadersFormatterTests
   [Theory]
   [MemberData(nameof(Fixtures))]
   public void HttpHeadersMessagePackFormatter_Deserialize_ShouldCorrectlyDeserializePreviouslySerializedValue(
-    List<KeyValuePair<string, IEnumerable<string>>>? input)
+    IEnumerable<KeyValuePair<string, IEnumerable<string>>>? input)
   {
     // arrange
     var serialized = MessagePackSerializer.Serialize(input, Options);
 
     // act
-    var result = MessagePackSerializer.Deserialize<List<KeyValuePair<string, IEnumerable<string>>>>(serialized, Options);
+    var result = MessagePackSerializer.Deserialize<IEnumerable<KeyValuePair<string, IEnumerable<string>>>>(serialized, Options);
 
     // assert
     result.Should().BeEquivalentTo(input);
   }
-/*
-  [Fact]
-  public void HttpHeadersMessagePackFormatter_Deserialize_ShouldCorrectlyHandleMissingValue()
-  {
-    // arrange
-    var binary = MessagePackSerializer.ConvertFromJson("{}", Options);
-
-    // act
-    var result = MessagePackSerializer.Deserialize<HttpHeadersDto>(binary, Options);
-
-    // assert
-    result.Should().BeEquivalentTo(new HttpHeadersDto
-    {
-      Headers = null
-    });
-  }
-
-  [Theory]
-  [MemberData(nameof(WrongValueFixtures))]
-  public void HttpHeadersMessagePackFormatter_Deserialize_ShouldThrowWhenDataHasWrongValue(
-    string input)
-  {
-    // arrange
-    var binary = MessagePackSerializer.ConvertFromJson(input, Options);
-
-    // act
-    var act = () => MessagePackSerializer.Deserialize<HttpHeadersDto>(binary, Options);
-
-    // assert
-    act.Should().Throw<MessagePackSerializationException>().WithMessage(
-      "Failed to deserialize*");
-  }
-  */
 }

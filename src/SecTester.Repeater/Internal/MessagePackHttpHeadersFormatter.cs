@@ -10,10 +10,10 @@ namespace SecTester.Repeater.Internal;
 // https://github.com/msgpack/msgpack/blob/master/spec.md#nil-format
 
 internal class MessagePackHttpHeadersFormatter : IMessagePackFormatter<
-  List<KeyValuePair<string, IEnumerable<string>>>?
+  IEnumerable<KeyValuePair<string, IEnumerable<string>>>?
 >
 {
-  public void Serialize(ref MessagePackWriter writer, List<KeyValuePair<string, IEnumerable<string>>>? value,
+  public void Serialize(ref MessagePackWriter writer, IEnumerable<KeyValuePair<string, IEnumerable<string>>>? value,
     MessagePackSerializerOptions options)
   {
     if (value == null)
@@ -59,7 +59,7 @@ internal class MessagePackHttpHeadersFormatter : IMessagePackFormatter<
     }
   }
 
-  public List<KeyValuePair<string, IEnumerable<string>>>? Deserialize(ref MessagePackReader reader,
+  public IEnumerable<KeyValuePair<string, IEnumerable<string>>>? Deserialize(ref MessagePackReader reader,
     MessagePackSerializerOptions options)
   {
     if (reader.NextMessagePackType == MessagePackType.Nil)
@@ -87,7 +87,7 @@ internal class MessagePackHttpHeadersFormatter : IMessagePackFormatter<
     }
   }
 
-  private static List<KeyValuePair<string, IEnumerable<string>>> DeserializeMap(ref MessagePackReader reader, int length,
+  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> DeserializeMap(ref MessagePackReader reader, int length,
     MessagePackSerializerOptions options)
   {
     var result = new List<KeyValuePair<string, IEnumerable<string>>>(length);

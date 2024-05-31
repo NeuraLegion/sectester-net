@@ -27,15 +27,20 @@ public record IncomingRequest(Uri Url) : IRequest
       Value = (Protocol)field.GetValue(null),
       StringValue = field.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? field.Name
     })
-    .ToDictionary(x => x.StringValue, x => x.Value);
-
+    .ToDictionary(x => MessagePackNamingPolicy.SnakeCase.ConvertName(x.StringValue), x => x.Value);
 
   [Key(ProtocolKey)]
   public Protocol Protocol { get; set; } = Protocol.Http;
 
+  private IEnumerable<KeyValuePair<string, IEnumerable<string>>> _headers = Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>();
+
   [Key(HeadersKey)]
-  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; set; } =
-    new List<KeyValuePair<string, IEnumerable<string>>>();
+  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers
+  {
+    get => _headers;
+    // ADHOC: convert from a kind of assignable type to formatter resolvable type
+    set => _headers = value.AsEnumerable();
+  }
 
   [Key(BodyKey)]
   public string? Body { get; set; }
@@ -48,9 +53,11 @@ public record IncomingRequest(Uri Url) : IRequest
 
   public static IncomingRequest FromDictionary(Dictionary<object, object> dictionary)
   {
-    var protocol = dictionary.TryGetValue(ProtocolKey, out var p) && p is string && ProtocolEntries.TryGetValue(p.ToString(), out var e)
-      ? e
-      : Protocol.Http;
+    var protocol = !dictionary.ContainsKey(ProtocolKey) || (dictionary.TryGetValue(ProtocolKey, out var p1) && p1 is null)
+      ? Protocol.Http
+      : dictionary.TryGetValue(ProtocolKey, out var p2) && p2 is string && ProtocolEntries.TryGetValue(p2.ToString(), out var e)
+        ? e
+        : throw new InvalidDataException(FormatPropertyError(ProtocolKey));
 
     var uri = dictionary.TryGetValue(UrlKey, out var u) && u is string
       ? new Uri(u.ToString())
@@ -64,7 +71,7 @@ public record IncomingRequest(Uri Url) : IRequest
 
     var headers = dictionary.TryGetValue(HeadersKey, out var h) && h is Dictionary<object, object> value
       ? MapHeaders(value)
-      : new List<KeyValuePair<string, IEnumerable<string>>>();
+      : Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>();
 
     return new IncomingRequest(uri)
     {
@@ -75,32 +82,13 @@ public record IncomingRequest(Uri Url) : IRequest
     };
   }
 
-  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> MapHeaders(Dictionary<object, object> headers)
-  {
-    var result = new List<KeyValuePair<string, IEnumerable<string>>>(headers?.Count ?? 0);
-
-    foreach (var kvp in headers)
+  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> MapHeaders(Dictionary<object, object> headers) =>
+    headers.Select(kvp => kvp.Value switch
     {
-      var key = kvp.Key.ToString();
+      IEnumerable<object> strings => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), strings.Select(x => x.ToString())),
+      null => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), Enumerable.Empty<string>()),
+      _ => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), new[] { kvp.Value.ToString() })
+    });
 
-      switch (kvp.Value)
-      {
-        case null:
-          result.Add(new KeyValuePair<string, IEnumerable<string>>(key, new List<string>()));
-          continue;
-        case string:
-          result.Add(new KeyValuePair<string, IEnumerable<string>>(key, new List<string>
-            { kvp.Value.ToString() }));
-          continue;
-        case object[] objects:
-          result.Add(new KeyValuePair<string, IEnumerable<string>>(key,
-            objects.OfType<string>().Select(value => value.ToString()).ToList()));
-          continue;
-      }
-    }
-
-    return result;
-  }
-
-  private static string FormatPropertyError(string propName) => $"{propName} is either null or has an invalid data type";
+  private static string FormatPropertyError(string propName) => $"{propName} is either null or has an invalid data type or value";
 }

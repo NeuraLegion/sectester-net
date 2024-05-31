@@ -36,7 +36,10 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
       StatusCode = 204
     };
     _connection.Connect().Returns(Task.CompletedTask);
-    _socketIoMessage.GetValue<IncomingRequest>().Returns(new IncomingRequest(Url));
+    _socketIoMessage.GetValue<Dictionary<object, object>>().Returns(new Dictionary<object, object>()
+    {
+      {"url",  Url.ToString()}
+    });
     _connection.On("request", Arg.Invoke(_socketIoMessage));
     _sut.RequestReceived += _ => Task.FromResult(result);
 

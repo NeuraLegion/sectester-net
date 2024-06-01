@@ -1,6 +1,5 @@
 using MessagePack;
 using MessagePack.Resolvers;
-using SecTester.Repeater.Internal;
 
 namespace SecTester.Repeater.Internal;
 

@@ -44,7 +44,7 @@ public class IncomingRequestTests
 
     var serialized = serializer.Serialize(EngineIO.V4, "request", 1, "/some", new object[] { input }).First();
 
-    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(serialized.Binary ,Options);
+    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(serialized.Binary, Options);
 
     var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
 
@@ -64,7 +64,7 @@ public class IncomingRequestTests
 
     var serializer = new SocketIOMessagePackSerializer(Options);
 
-    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson) ,Options);
+    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson), Options);
 
     var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
 
@@ -104,7 +104,7 @@ public class IncomingRequestTests
 
     var serializer = new SocketIOMessagePackSerializer(Options);
 
-    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson) ,Options);
+    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson), Options);
 
     var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
 
@@ -112,7 +112,7 @@ public class IncomingRequestTests
     var result = IncomingRequest.FromDictionary(deserializedDictionary);
 
     // assert
-    result.Should().BeEquivalentTo(new IncomingRequest(new Uri("https://foo.bar/1")){ Protocol = Protocol.Http});
+    result.Should().BeEquivalentTo(new IncomingRequest(new Uri("https://foo.bar/1")) { Protocol = Protocol.Http });
   }
 
   [Fact]
@@ -124,7 +124,7 @@ public class IncomingRequestTests
 
     var serializer = new SocketIOMessagePackSerializer(Options);
 
-    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson) ,Options);
+    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson), Options);
 
     var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
 

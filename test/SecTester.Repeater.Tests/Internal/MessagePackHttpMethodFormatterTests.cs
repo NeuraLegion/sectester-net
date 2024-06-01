@@ -1,5 +1,4 @@
 using MessagePack;
-using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using SecTester.Repeater.Internal;
 
@@ -7,12 +6,12 @@ namespace SecTester.Repeater.Tests.Internal;
 
 public sealed class MessagePackHttpMethodFormatterTests
 {
-   private static readonly MessagePackSerializerOptions Options = new(
-    CompositeResolver.Create(
-      CompositeResolver.Create(new MessagePackHttpMethodFormatter()),
-      BuiltinResolver.Instance
-    )
-  );
+  private static readonly MessagePackSerializerOptions Options = new(
+   CompositeResolver.Create(
+     CompositeResolver.Create(new MessagePackHttpMethodFormatter()),
+     BuiltinResolver.Instance
+   )
+ );
 
   public static readonly IEnumerable<object[]> Fixture = new List<object[]>
   {

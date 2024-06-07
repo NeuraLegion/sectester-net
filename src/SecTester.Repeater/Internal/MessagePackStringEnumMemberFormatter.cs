@@ -20,18 +20,18 @@ internal class MessagePackStringEnumMemberFormatter<T> : IMessagePackFormatter<T
     })
     .ToDictionary(x => x.Value, x => x.StringValue);
 
-  private readonly Dictionary<string, T> CasedStringToEnum;
-  private readonly Dictionary<T, string> CasedEnumToString;
+  private readonly Dictionary<string, T> _casedStringToEnum;
+  private readonly Dictionary<T, string> _casedEnumToString;
 
   public MessagePackStringEnumMemberFormatter(MessagePackNamingPolicy namingPolicy)
   {
-    this.CasedEnumToString = EnumToString.ToDictionary(x => x.Key, x => namingPolicy.ConvertName(x.Value));
-    this.CasedStringToEnum = EnumToString.ToDictionary(x => namingPolicy.ConvertName(x.Value), x => x.Key);
+    this._casedEnumToString = EnumToString.ToDictionary(x => x.Key, x => namingPolicy.ConvertName(x.Value));
+    this._casedStringToEnum = EnumToString.ToDictionary(x => namingPolicy.ConvertName(x.Value), x => x.Key);
   }
 
   public void Serialize(ref MessagePackWriter writer, T value, MessagePackSerializerOptions options)
   {
-    if (!CasedEnumToString.TryGetValue(value, out var stringValue))
+    if (!_casedEnumToString.TryGetValue(value, out var stringValue))
     {
       throw new MessagePackSerializationException($"No string representation found for {value}");
     }
@@ -43,7 +43,7 @@ internal class MessagePackStringEnumMemberFormatter<T> : IMessagePackFormatter<T
   {
     var stringValue = reader.ReadString();
 
-    if (null == stringValue || !CasedStringToEnum.TryGetValue(stringValue, out var enumValue))
+    if (null == stringValue || !_casedStringToEnum.TryGetValue(stringValue, out var enumValue))
     {
       throw new MessagePackSerializationException($"Unable to parse '{stringValue}' to {typeof(T).Name}.");
     }

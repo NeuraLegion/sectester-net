@@ -56,7 +56,7 @@ public class IncomingRequestTests
   }
 
   [Fact]
-  public void IncomingRequest_FromDictionary_ShouldThrowWhenRequiredPropertyWasNotProvided()
+  public void IncomingRequest_FromDictionary_ShouldThrowWhenProtocolIsInvalid()
   {
     // arrange
     var packJson =
@@ -72,7 +72,7 @@ public class IncomingRequestTests
     var act = () => IncomingRequest.FromDictionary(deserializedDictionary);
 
     // assert
-    act.Should().Throw<InvalidDataException>();
+    act.Should().Throw<ArgumentException>();
   }
 
   [Fact]
@@ -113,25 +113,5 @@ public class IncomingRequestTests
 
     // assert
     result.Should().BeEquivalentTo(new IncomingRequest(new Uri("https://foo.bar/1")) { Protocol = Protocol.Http });
-  }
-
-  [Fact]
-  public void IncomingRequest_FromDictionary_ShouldThrowWhenProtocolIsNotParsable()
-  {
-    // arrange
-    var packJson =
-      "{\"type\":2,\"data\":[\"request\",{\"protocol\":\"ws\",\"url\":\"https://foo.bar/1\"}],\"options\":{\"compress\":true},\"id\":1,\"nsp\":\"/some\"}";
-
-    var serializer = new SocketIOMessagePackSerializer(Options);
-
-    var deserializedPackMessage = MessagePackSerializer.Deserialize<PackMessage>(MessagePackSerializer.ConvertFromJson(packJson), Options);
-
-    var deserializedDictionary = serializer.Deserialize<Dictionary<object, object>>(deserializedPackMessage, 1);
-
-    // act
-    var act = () => IncomingRequest.FromDictionary(deserializedDictionary);
-
-    // assert
-    act.Should().Throw<InvalidDataException>();
   }
 }

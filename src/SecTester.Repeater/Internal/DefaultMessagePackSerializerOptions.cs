@@ -3,7 +3,7 @@ using MessagePack.Resolvers;
 
 namespace SecTester.Repeater.Internal;
 
-internal class DefaultMessagePackSerializerOptions
+internal static class DefaultMessagePackSerializerOptions
 {
   internal static readonly MessagePackSerializerOptions Instance = new(
     CompositeResolver.Create(

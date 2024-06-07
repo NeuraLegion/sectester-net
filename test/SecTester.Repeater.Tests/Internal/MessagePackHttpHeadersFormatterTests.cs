@@ -13,24 +13,23 @@ public sealed class MessagePackHttpHeadersFormatterTests
     )
   );
 
-  public static readonly IEnumerable<object[]> Fixtures = new List<object[]>()
+  public static readonly IEnumerable<object?[]> Fixtures = new List<object?[]>()
   {
-    new object[]
+    new object?[]
     {
       null
     },
     new object[]
     {
       Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>()
-
     },
-    new object[]
+    new object?[]
     {
       new List<KeyValuePair<string, IEnumerable<string>>>
         {
           new("content-type", new List<string> { "application/json" }),
           new("cache-control", new List<string> { "no-cache", "no-store" })
-        }.AsEnumerable()
+        }
     }
   };
 

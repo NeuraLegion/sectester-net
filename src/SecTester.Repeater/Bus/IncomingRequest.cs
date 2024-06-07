@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Runtime.Serialization;
 using MessagePack;
 using SecTester.Repeater.Internal;
 using SecTester.Repeater.Runners;
@@ -20,75 +17,66 @@ public record IncomingRequest(Uri Url) : IRequest
   private const string BodyKey = "body";
   private const string ProtocolKey = "protocol";
 
-  private static readonly Dictionary<string, Protocol> ProtocolEntries = typeof(Protocol)
-    .GetFields(BindingFlags.Public | BindingFlags.Static)
-    .Select(field => new
-    {
-      Value = (Protocol)field.GetValue(null),
-      StringValue = field.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? field.Name
-    })
-    .ToDictionary(x => MessagePackNamingPolicy.SnakeCase.ConvertName(x.StringValue), x => x.Value);
+  [Key(ProtocolKey)] public Protocol Protocol { get; set; } = Protocol.Http;
 
-  [Key(ProtocolKey)]
-  public Protocol Protocol { get; set; } = Protocol.Http;
+  [Key(HeadersKey)] public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; set; } = new Dictionary<string, IEnumerable<string>>();
 
-  private IEnumerable<KeyValuePair<string, IEnumerable<string>>> _headers = Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>();
+  [Key(BodyKey)] public string? Body { get; set; }
 
-  [Key(HeadersKey)]
-  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers
-  {
-    get => _headers;
-    // ADHOC: convert from a kind of assignable type to formatter resolvable type
-    set => _headers = value.AsEnumerable();
-  }
+  [Key(MethodKey)] public HttpMethod Method { get; set; } = HttpMethod.Get;
 
-  [Key(BodyKey)]
-  public string? Body { get; set; }
-
-  [Key(MethodKey)]
-  public HttpMethod Method { get; set; } = HttpMethod.Get;
-
-  [Key(UrlKey)]
-  public Uri Url { get; set; } = Url ?? throw new ArgumentNullException(nameof(Url));
+  [Key(UrlKey)] public Uri Url { get; set; } = Url ?? throw new ArgumentNullException(nameof(Url));
 
   public static IncomingRequest FromDictionary(Dictionary<object, object> dictionary)
   {
-    var protocol = !dictionary.ContainsKey(ProtocolKey) || (dictionary.TryGetValue(ProtocolKey, out var p1) && p1 is null)
-      ? Protocol.Http
-      : dictionary.TryGetValue(ProtocolKey, out var p2) && p2 is string && ProtocolEntries.TryGetValue(p2.ToString(), out var e)
-        ? e
-        : throw new InvalidDataException(FormatPropertyError(ProtocolKey));
+    var protocol = GetProtocolFromDictionary(dictionary);
+    var headers = GetHeadersFromDictionary(dictionary);
+    var body = GetBodyFromDictionary(dictionary);
+    var method = GetMethodFromDictionary(dictionary);
+    var url = GetUrlFromDictionary(dictionary);
 
-    var uri = dictionary.TryGetValue(UrlKey, out var u) && u is string
-      ? new Uri(u.ToString())
-      : throw new InvalidDataException(FormatPropertyError(UrlKey));
-
-    var method = dictionary.TryGetValue(MethodKey, out var m) && m is string
-      ? new HttpMethod(m.ToString())
-      : HttpMethod.Get;
-
-    var body = dictionary.TryGetValue(BodyKey, out var b) && b is string ? b.ToString() : null;
-
-    var headers = dictionary.TryGetValue(HeadersKey, out var h) && h is Dictionary<object, object> value
-      ? MapHeaders(value)
-      : Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>();
-
-    return new IncomingRequest(uri)
+    return new IncomingRequest(url!)
     {
       Protocol = protocol,
+      Headers = headers,
       Body = body,
-      Method = method,
-      Headers = headers
+      Method = method
     };
   }
 
-  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> MapHeaders(Dictionary<object, object> headers) =>
-    headers.Select(kvp => kvp.Value switch
-    {
-      IEnumerable<object> strings => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), strings.Select(x => x.ToString())),
-      null => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), Enumerable.Empty<string>()),
-      _ => new KeyValuePair<string, IEnumerable<string>>(kvp.Key.ToString(), new[] { kvp.Value.ToString() })
-    });
+  private static Protocol GetProtocolFromDictionary(Dictionary<object, object> dictionary) =>
+    dictionary.TryGetValue(ProtocolKey, out var protocolObj) && protocolObj is string protocolStr
+      ? (Protocol)Enum.Parse(typeof(Protocol), protocolStr, true)
+      : Protocol.Http;
 
-  private static string FormatPropertyError(string propName) => $"{propName} is either null or has an invalid data type or value";
+  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> GetHeadersFromDictionary(Dictionary<object, object> dictionary) =>
+    dictionary.TryGetValue(HeadersKey, out var headersObj) && headersObj is Dictionary<object, object> headersDict
+      ? ConvertToHeaders(headersDict)
+      : new Dictionary<string, IEnumerable<string>>();
+
+  private static string? GetBodyFromDictionary(Dictionary<object, object> dictionary) =>
+    dictionary.TryGetValue(BodyKey, out var bodyObj) ? bodyObj?.ToString() : null;
+
+  private static HttpMethod GetMethodFromDictionary(Dictionary<object, object> dictionary) =>
+    dictionary.TryGetValue(MethodKey, out var methodObj) && methodObj is string methodStr
+      ? HttpMethods.Items.TryGetValue(methodStr, out var m) && m is not null
+        ? m
+        : HttpMethod.Get
+      : HttpMethod.Get;
+
+  private static Uri? GetUrlFromDictionary(Dictionary<object, object> dictionary) =>
+    dictionary.TryGetValue(UrlKey, out var urlObj) && urlObj is string urlStr
+      ? new Uri(urlStr)
+      : null;
+
+  private static IEnumerable<KeyValuePair<string, IEnumerable<string>>> ConvertToHeaders(Dictionary<object, object> headers) =>
+    headers.ToDictionary(
+      kvp => kvp.Key.ToString()!,
+      kvp => kvp.Value switch
+      {
+        IEnumerable<object> list => list.Select(v => v.ToString()!),
+        string str => new[] { str },
+        _ => Enumerable.Empty<string>()
+      }
+    );
 }

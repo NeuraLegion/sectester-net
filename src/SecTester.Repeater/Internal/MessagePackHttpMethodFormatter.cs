@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using MessagePack;
 using MessagePack.Formatters;
 
@@ -10,27 +6,6 @@ namespace SecTester.Repeater.Internal;
 
 internal class MessagePackHttpMethodFormatter : IMessagePackFormatter<HttpMethod?>
 {
-  private static readonly IEnumerable<HttpMethod> BaseMethods = typeof(HttpMethod)
-    .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-    .Where(x => x.PropertyType.IsAssignableFrom(typeof(HttpMethod)))
-    .Select(x => x.GetValue(null))
-    .Cast<HttpMethod>();
-
-  private static readonly IEnumerable<HttpMethod> CustomMethods = new List<HttpMethod>
-  {
-    new("PATCH"),
-    new("COPY"),
-    new("LINK"),
-    new("UNLINK"),
-    new("PURGE"),
-    new("LOCK"),
-    new("UNLOCK"),
-    new("PROPFIND"),
-    new("VIEW")
-  };
-
-  private static readonly IDictionary<string, HttpMethod> Methods = BaseMethods.Concat(CustomMethods).Distinct()
-    .ToDictionary(x => x.Method, x => x, StringComparer.InvariantCultureIgnoreCase);
   public void Serialize(ref MessagePackWriter writer, HttpMethod? value, MessagePackSerializerOptions options)
   {
     if (null == value)
@@ -63,7 +38,7 @@ internal class MessagePackHttpMethodFormatter : IMessagePackFormatter<HttpMethod
   {
     var token = reader.ReadString();
 
-    if (token is null || !Methods.TryGetValue(token, out var method))
+    if (token is null || !HttpMethods.Items.TryGetValue(token, out var method))
     {
       throw new MessagePackSerializationException(
         $"Unexpected value {token} when parsing the {nameof(HttpMethod)}.");

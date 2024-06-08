@@ -18,6 +18,10 @@ runs:
       with:
         dotnet-version: 6.x.x
 
+    - name: Install dotnet-format
+      if: runner.os == 'Windows'
+      run: dotnet tool install -g dotnet-format
+
     - name: Dependency Caching
       uses: actions/cache@v3
       with:

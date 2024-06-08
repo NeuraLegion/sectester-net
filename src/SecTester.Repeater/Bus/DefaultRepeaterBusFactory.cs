@@ -5,6 +5,7 @@ using SecTester.Core;
 using SecTester.Core.Utils;
 using SocketIO.Serializer.MessagePack;
 using SocketIOClient;
+using SocketIOClient.Transport;
 
 namespace SecTester.Repeater.Bus;
 
@@ -37,7 +38,7 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
       ReconnectionAttempts = options.ReconnectionAttempts,
       ReconnectionDelayMax = options.ReconnectionDelayMax,
       ConnectionTimeout = options.ConnectionTimeout,
-      AutoUpgrade = false,
+      Transport = TransportProtocol.WebSocket,
       Auth = new { token = _config.Credentials.Token, domain = repeaterId }
     })
     {

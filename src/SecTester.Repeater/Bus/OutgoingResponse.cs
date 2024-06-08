@@ -4,14 +4,24 @@ using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;
 
-[MessagePackObject(true)]
+[MessagePackObject]
 public record OutgoingResponse : IResponse
 {
-  public int? StatusCode { get; set; }
-  public string? Body { get; set; }
-  public string? Message { get; set; }
-  public string? ErrorCode { get; set; }
+  [Key("protocol")]
   public Protocol Protocol { get; set; } = Protocol.Http;
-  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; set; } =
-    new List<KeyValuePair<string, IEnumerable<string>>>();
+
+  [Key("statusCode")]
+  public int? StatusCode { get; set; }
+
+  [Key("body")]
+  public string? Body { get; set; }
+
+  [Key("message")]
+  public string? Message { get; set; }
+
+  [Key("errorCode")]
+  public string? ErrorCode { get; set; }
+
+  [Key("headers")]
+  public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; set; } = new Dictionary<string, IEnumerable<string>>();
 }

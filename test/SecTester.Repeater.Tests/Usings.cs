@@ -1,7 +1,10 @@
 global using System.Net;
 global using System.Net.Sockets;
+global using System.Net.Http.Json;
 global using System.Net.WebSockets;
 global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using System.Timers;
 global using FluentAssertions;
@@ -11,6 +14,7 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.AspNetCore.TestHost;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using NSubstitute;
 global using NSubstitute.ClearExtensions;
@@ -27,4 +31,9 @@ global using SecTester.Repeater.Bus;
 global using SecTester.Repeater.Extensions;
 global using SecTester.Repeater.Runners;
 global using SecTester.Repeater.Tests.Mocks;
+global using SecTester.Repeater.Commands;
+global using SecTester.Repeater.Dispatchers;
+global using SecTester.Repeater.Exceptions;
+global using SecTester.Repeater.RetryStrategies;
 global using Xunit;
+

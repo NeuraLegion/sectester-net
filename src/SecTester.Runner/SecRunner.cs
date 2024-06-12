@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using SecTester.Bus.Extensions;
 using SecTester.Core;
 using SecTester.Core.Extensions;
 using SecTester.Repeater;
@@ -51,7 +50,6 @@ public class SecRunner : IAsyncDisposable
 
     var collection = new ServiceCollection()
       .AddSecTesterConfig(configuration)
-      .AddSecTesterBus()
       .AddSecTesterRepeater()
       .AddSecTesterScan()
       .AddScoped<IFormatter, DefaultFormatter>()

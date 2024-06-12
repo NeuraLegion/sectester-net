@@ -8,7 +8,7 @@ public class MessageTypeAttributeTests
   public void EventNameAttribute_SetsCustomName()
   {
     // arrange
-    var info = typeof(TestEvent2);
+    var info = typeof(TestMessage2);
 
     // act
     var attribute = info.GetCustomAttributes(typeof(MessageTypeAttribute), true).FirstOrDefault();

@@ -12,7 +12,6 @@
     <Folder Include="Bus"/>
     <Folder Include="CredentialProviders"/>
     <Folder Include="Extensions"/>
-    <Folder Include="Fixtures"/>
     <Folder Include="Logger"/>
     <Folder Include="Utils"/>
   </ItemGroup>

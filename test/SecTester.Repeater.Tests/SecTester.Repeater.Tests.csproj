@@ -6,12 +6,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\SecTester.Repeater\SecTester.Repeater.csproj"/>
+    <ProjectReference Include="..\..\src\SecTester.Scan\SecTester.Scan.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Api"/>
     <Folder Include="Bus"/>
-    <Folder Include="Extensions"/>
+    <Folder Include="Exceptions\" />
     <Folder Include="Mocks"/>
     <Folder Include="Runners"/>
   </ItemGroup>

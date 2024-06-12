@@ -1,5 +1,5 @@
 using System.Net.Http;
-using SecTester.Bus.Commands;
+using SecTester.Repeater.Commands;
 using SecTester.Core;
 
 namespace SecTester.Repeater.Api;

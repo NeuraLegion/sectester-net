@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace SecTester.Repeater.Internal;
 
-public class HttpMethods
+public static class HttpMethods
 {
   public static IDictionary<string, HttpMethod> Items { get; } = typeof(HttpMethod)
       .GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)

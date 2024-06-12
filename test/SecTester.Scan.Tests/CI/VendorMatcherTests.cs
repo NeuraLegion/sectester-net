@@ -4,7 +4,8 @@ public class VendorMatcherTests
 {
   private readonly JsonSerializerOptions _options = new()
   {
-    PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    PropertyNameCaseInsensitive = true,
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
   };
 
   public static readonly IEnumerable<object[]> MatchEnvInput = new List<object[]>

@@ -2,8 +2,8 @@ using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using SecTester.Repeater.Exceptions;
 using SecTester.Core.Bus;
+using SecTester.Repeater.Exceptions;
 
 namespace SecTester.Repeater.RetryStrategies;
 

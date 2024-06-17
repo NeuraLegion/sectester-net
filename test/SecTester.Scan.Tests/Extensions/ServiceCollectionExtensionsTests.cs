@@ -1,4 +1,4 @@
-using SecTester.Core.Extensions;
+using SecTester.Repeater.Extensions;
 
 namespace SecTester.Scan.Tests.Extensions;
 
@@ -19,7 +19,7 @@ public class ServiceCollectionExtensionsTests
   {
     // arrange
     _services.AddSecTesterConfig(_config);
-    _services.AddSecTesterBus();
+    _services.AddSecTesterRepeater();
 
     // act
     _services.AddSecTesterScan();
@@ -35,7 +35,7 @@ public class ServiceCollectionExtensionsTests
   {
     // arrange
     _services.AddSecTesterConfig(_config);
-    _services.AddSecTesterBus();
+    _services.AddSecTesterRepeater();
 
     // act
     _services.AddSecTesterScan();
@@ -51,7 +51,7 @@ public class ServiceCollectionExtensionsTests
   {
     // arrange
     _services.AddSecTesterConfig(_config);
-    _services.AddSecTesterBus();
+    _services.AddSecTesterRepeater();
 
     // act
     _services.AddSecTesterScan();

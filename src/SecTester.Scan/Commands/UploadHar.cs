@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using SecTester.Bus.Commands;
-using SecTester.Bus.Dispatchers;
+using SecTester.Core.Commands;
+using SecTester.Core.Dispatchers;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan.Commands;

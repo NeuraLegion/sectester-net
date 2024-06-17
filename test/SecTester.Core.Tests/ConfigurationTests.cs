@@ -4,20 +4,20 @@ public class ConfigurationTests
 {
   public static IEnumerable<object[]> Hostnames => new List<object[]>
   {
-    new object[] { "localhost", new { Bus = "amqp://localhost:5672", Api = "http://localhost:8000" } },
-    new object[] { "localhost:8080", new { Bus = "amqp://localhost:5672", Api = "http://localhost:8000" } },
-    new object[] { "http://localhost", new { Bus = "amqp://localhost:5672", Api = "http://localhost:8000" } },
-    new object[] { "http://localhost:8080", new { Bus = "amqp://localhost:5672", Api = "http://localhost:8000" } },
-    new object[] { "127.0.0.1", new { Bus = "amqp://127.0.0.1:5672", Api = "http://127.0.0.1:8000" } },
-    new object[] { "127.0.0.1:8080", new { Bus = "amqp://127.0.0.1:5672", Api = "http://127.0.0.1:8000" } },
-    new object[] { "http://127.0.0.1", new { Bus = "amqp://127.0.0.1:5672", Api = "http://127.0.0.1:8000" } },
-    new object[] { "http://127.0.0.1:8080", new { Bus = "amqp://127.0.0.1:5672", Api = "http://127.0.0.1:8000" } },
-    new object[] { "example.com", new { Bus = "amqps://amq.example.com:5672", Api = "https://example.com" } },
-    new object[] { "example.com:443", new { Bus = "amqps://amq.example.com:5672", Api = "https://example.com" } },
-    new object[] { "http://example.com", new { Bus = "amqps://amq.example.com:5672", Api = "https://example.com" } },
+    new object[] { "localhost", new {  Api = "http://localhost:8000" } },
+    new object[] { "localhost:8080", new {  Api = "http://localhost:8000" } },
+    new object[] { "http://localhost", new {  Api = "http://localhost:8000" } },
+    new object[] { "http://localhost:8080", new {  Api = "http://localhost:8000" } },
+    new object[] { "127.0.0.1", new {  Api = "http://127.0.0.1:8000" } },
+    new object[] { "127.0.0.1:8080", new {  Api = "http://127.0.0.1:8000" } },
+    new object[] { "http://127.0.0.1", new {  Api = "http://127.0.0.1:8000" } },
+    new object[] { "http://127.0.0.1:8080", new {  Api = "http://127.0.0.1:8000" } },
+    new object[] { "example.com", new {  Api = "https://example.com" } },
+    new object[] { "example.com:443", new {  Api = "https://example.com" } },
+    new object[] { "http://example.com", new {  Api = "https://example.com" } },
     new object[]
     {
-      "http://example.com:443", new { Bus = "amqps://amq.example.com:5672", Api = "https://example.com" }
+      "http://example.com:443", new {  Api = "https://example.com" }
     }
   };
 

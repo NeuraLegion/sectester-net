@@ -1,4 +1,4 @@
-using SecTester.Bus.Commands;
+using SecTester.Core.Commands;
 using SecTester.Scan.Models;
 
 namespace SecTester.Scan.Commands;

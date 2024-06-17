@@ -17,8 +17,6 @@ namespace SecTester.Core
     private readonly string[] _loopbackAddresses = { "localhost", "127.0.0.1", "::1" };
     private readonly List<ICredentialProvider> _credentialProviders;
 
-    public string Bus { get; private set; }
-
     public string Api { get; private set; }
 
     public Credentials? Credentials { get; private set; }
@@ -91,12 +89,10 @@ namespace SecTester.Core
 
       if (_loopbackAddresses.Any(address => address == host))
       {
-        Bus = $"amqp://{host}:5672";
         Api = $"http://{host}:8000";
       }
       else
       {
-        Bus = $"amqps://amq.{host}:5672";
         Api = $"https://{host}";
       }
     }

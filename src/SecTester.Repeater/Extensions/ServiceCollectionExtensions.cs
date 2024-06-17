@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
+using SecTester.Core.Extensions;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Api;
 using SecTester.Repeater.Bus;
@@ -12,15 +13,13 @@ namespace SecTester.Repeater.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection)
-  {
-    return AddSecTesterRepeater(collection, new RequestRunnerOptions());
-  }
+  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection) =>
+    AddSecTesterRepeater(collection, new RequestRunnerOptions());
 
-  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, RequestRunnerOptions options)
-  {
-    return collection
+  public static IServiceCollection AddSecTesterRepeater(this IServiceCollection collection, RequestRunnerOptions options) =>
+    collection
       .AddSingleton(options)
+      .AddHttpCommandDispatcher()
       .AddSingleton<IRepeaterBusFactory, DefaultRepeaterBusFactory>()
       .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<IRepeaters, DefaultRepeaters>()
@@ -30,17 +29,16 @@ public static class ServiceCollectionExtensions
         protocol => sp.GetServices<IRequestRunner>().FirstOrDefault(x => x.Protocol == protocol)
       )
       .AddHttpClientForHttpRequestRunner();
-  }
 
   private static IServiceCollection AddHttpClientForHttpRequestRunner(this IServiceCollection collection)
   {
-    collection.AddHttpClient(nameof(HttpRequestRunner), ConfigureHttpClient)
-      .ConfigurePrimaryHttpMessageHandler(CreateHttpMessageHandler);
+    collection.AddHttpClient(nameof(HttpRequestRunner), ConfigureHttpClientForHttpRequestRunner)
+      .ConfigurePrimaryHttpMessageHandler(CreateHttpMessageHandlerForHttpRequestRunner);
 
     return collection;
   }
 
-  private static HttpMessageHandler CreateHttpMessageHandler(IServiceProvider sp)
+  private static HttpMessageHandler CreateHttpMessageHandlerForHttpRequestRunner(IServiceProvider sp)
   {
     var config = sp.GetRequiredService<RequestRunnerOptions>();
     var proxy = config.ProxyUrl is not null ? new WebProxy(config.ProxyUrl) : null;
@@ -54,7 +52,7 @@ public static class ServiceCollectionExtensions
     };
   }
 
-  private static void ConfigureHttpClient(IServiceProvider sp, HttpClient client)
+  private static void ConfigureHttpClientForHttpRequestRunner(IServiceProvider sp, HttpClient client)
   {
     var config = sp.GetRequiredService<RequestRunnerOptions>();
 
@@ -71,4 +69,6 @@ public static class ServiceCollectionExtensions
       client.DefaultRequestHeaders.Add("Keep-Alive", config.Timeout.ToString());
     }
   }
+
+
 }

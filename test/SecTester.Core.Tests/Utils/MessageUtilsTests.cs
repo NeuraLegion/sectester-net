@@ -8,11 +8,11 @@ public class MessageUtilsTests
   {
     new object[]
     {
-      typeof(TestEvent), nameof(TestEvent)
+      typeof(TestMessage), nameof(TestMessage)
     },
     new object[]
     {
-      typeof(TestEvent2), "custom"
+      typeof(TestMessage2), "custom"
     }
   };
 
@@ -31,17 +31,17 @@ public class MessageUtilsTests
   public void MessageUtils_GivenGenericType_ReturnsType()
   {
     // act
-    var result = MessageUtils.GetMessageType<TestEvent>();
+    var result = MessageUtils.GetMessageType<TestMessage>();
 
     // assert
-    result.Should().Be("TestEvent");
+    result.Should().Be("TestMessage");
   }
 
   [Fact]
   public void MessageUtils_GivenGenericTypeWithAttribute_ReturnsType()
   {
     // act
-    var result = MessageUtils.GetMessageType<TestEvent2>();
+    var result = MessageUtils.GetMessageType<TestMessage2>();
 
     // assert
     result.Should().Be("custom");

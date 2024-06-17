@@ -41,9 +41,9 @@ await using var repeater = await repeaterFactory.CreateRepeater(new RepeaterOpti
 
 The `CreateRepeater` method accepts the options described below:
 
-| Option                 | Description                                                                                           |
-| :--------------------- | ----------------------------------------------------------------------------------------------------- |
-| `namePrefix`           | Enter a name prefix that will be used as a constant part of the unique name. By default, `sectester`. |
+| Option                 | Description                                                                                                        |
+| :--------------------- |--------------------------------------------------------------------------------------------------------------------|
+| `namePrefix`           | Enter a name prefix that will be used as a constant part of the unique name. By default, the host name value used. |
 
 The `Repeater` instance provides the `Start` method. This method is required to establish a connection with the Bright cloud engine and interact with other services.
 

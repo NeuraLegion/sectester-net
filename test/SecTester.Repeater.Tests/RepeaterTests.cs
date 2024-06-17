@@ -15,7 +15,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   public RepeaterTests()
   {
     var version = new Version(Version);
-    _sut = new Repeater(Id, _bus, version, _logger, _ansiCodeColorizer, _resolver);
+    _sut = new Repeater(_bus, version, _logger, _ansiCodeColorizer, _resolver);
   }
 
   public async ValueTask DisposeAsync()
@@ -39,11 +39,14 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   [Fact]
   public async Task Start_DeploysItself()
   {
+    // arrange
+    _bus.Deploy(null, Arg.Any<CancellationToken>()).Returns(Task.FromResult<string>(Id));
+
     // act
     await _sut.Start();
 
     // assert
-    await _bus.Received().Deploy(Id, Arg.Any<CancellationToken>());
+    _sut.RepeaterId.Should().Be(Id);
   }
 
   [Fact]

@@ -5,7 +5,7 @@ namespace SecTester.Repeater;
 public record RepeaterOptions
 {
   private const int MaxPrefixLength = 44;
-  private readonly string _namePrefix = "sectester";
+  private readonly string _namePrefix = System.Net.Dns.GetHostName();
 
   public string NamePrefix
   {
@@ -19,6 +19,4 @@ public record RepeaterOptions
       _namePrefix = value;
     }
   }
-
-  public string? Description { get; init; }
 }

@@ -1,7 +1,6 @@
 using NSubstitute.ExceptionExtensions;
 using SecTester.Core;
 using SecTester.Repeater;
-using SecTester.Repeater.Api;
 
 namespace SecTester.Runner.Tests;
 
@@ -16,7 +15,6 @@ public class SecRunnerTests
   private readonly RepeaterOptions _options = new();
   private readonly IRepeater _repeater = Substitute.For<IRepeater>();
   private readonly IRepeaterFactory _repeaterFactory = Substitute.For<IRepeaterFactory>();
-  private readonly IRepeaters _repeatersManager = Substitute.For<IRepeaters>();
   private readonly IScanFactory _scanFactory = Substitute.For<IScanFactory>();
   private readonly ICredentialProvider _credentialProvider = Substitute.For<ICredentialProvider>();
 
@@ -26,7 +24,7 @@ public class SecRunnerTests
   {
     _repeater.RepeaterId.Returns(RepeaterId);
     _repeaterFactory.CreateRepeater(_options).Returns(_repeater);
-    _sut = new SecRunner(_configuration, _repeaterFactory, _scanFactory, _repeatersManager, _formatter);
+    _sut = new SecRunner(_configuration, _repeaterFactory, _scanFactory, _formatter);
   }
 
   [Fact]
@@ -120,19 +118,6 @@ public class SecRunnerTests
   }
 
   [Fact]
-  public async Task Clear_DeletesRepeater()
-  {
-    // arrange
-    await _sut.Init(_options);
-
-    // act
-    await _sut.Clear();
-
-    // assert
-    await _repeatersManager.Received(1).DeleteRepeater(RepeaterId);
-  }
-
-  [Fact]
   public async Task Clear_RepeaterRemoved_RepeaterIsNotDefined()
   {
     // arrange
@@ -214,19 +199,6 @@ public class SecRunnerTests
 
     // assert
     act.Should().Throw<InvalidOperationException>().WithMessage("Must be initialized first.");
-  }
-
-  [Fact]
-  public async Task DisposeAsync_RemoveRepeaters()
-  {
-    // arrange
-    await _sut.Init(_options);
-
-    // act
-    await _sut.DisposeAsync();
-
-    // assert
-    await _repeatersManager.Received(1).DeleteRepeater(RepeaterId);
   }
 
   [Fact]

@@ -151,13 +151,41 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   public async Task Deploy_Success()
   {
     // arrange
+    _socketIoMessage.GetValue<RepeaterInfo>().Returns(new RepeaterInfo(RepeaterId));
+    _connection.On("deployed", Arg.Invoke(_socketIoMessage));
+
+    // act
+    await _sut.Deploy(null);
+
+    // assert
+    await _connection.Received().EmitAsync("deploy", Arg.Is<object[]>(x => x.Length == 0));
+  }
+
+  [Fact]
+  public async Task Deploy_GivenRepeaterId_Success()
+  {
+    // arrange
+    _socketIoMessage.GetValue<RepeaterInfo>().Returns(new RepeaterInfo(RepeaterId));
     _connection.On("deployed", Arg.Invoke(_socketIoMessage));
 
     // act
     await _sut.Deploy(RepeaterId);
 
     // assert
-    await _connection.Received().EmitAsync("deploy", Arg.Is<RepeaterInfo>(x => x.RepeaterId.Equals(RepeaterId, StringComparison.OrdinalIgnoreCase)));
+    await _connection.Received().EmitAsync("deploy", Arg.Is<object[]>(x => x.Length == 1 && ((x[0] as RepeaterInfo)!).RepeaterId == RepeaterId));
+  }
+
+  [Fact]
+  public async Task Deploy_NotReceivingRepeaterId_ThrowsError()
+  {
+    // arrange
+    _connection.On("deployed", Arg.Invoke(_socketIoMessage));
+
+    // act
+    var act = () => _sut.Deploy(null);
+
+    // assert
+    await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("An error occured while repeater is being deployed");
   }
 
   [Fact]
@@ -168,7 +196,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     cancellationTokenSource.Cancel();
 
     // act
-    var act = () => _sut.Deploy(RepeaterId, cancellationTokenSource.Token);
+    var act = () => _sut.Deploy(null, cancellationTokenSource.Token);
 
     // assert
     await act.Should().ThrowAsync<OperationCanceledException>();

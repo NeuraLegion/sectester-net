@@ -21,16 +21,6 @@ public class ServiceCollectionExtensionsTests : IDisposable
   }
 
   [Fact]
-  public void AddSecTesterRepeater_RegistersRepeaters()
-  {
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    _sut.Received().AddScoped<IRepeaters, DefaultRepeaters>();
-  }
-
-  [Fact]
   public void AddSecTesterRepeater_RegistersTimerProvider()
   {
     // act

@@ -48,7 +48,7 @@ public class RepeaterOptionsTests
     result.Should().BeEquivalentTo(
       new
       {
-        NamePrefix = "sectester"
+        NamePrefix = System.Net.Dns.GetHostName()
       });
   }
 }

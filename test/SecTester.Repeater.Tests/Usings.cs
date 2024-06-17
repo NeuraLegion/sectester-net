@@ -23,7 +23,6 @@ global using SecTester.Core.Exceptions;
 global using SecTester.Core.RetryStrategies;
 global using SecTester.Core.Logger;
 global using SecTester.Core.Utils;
-global using SecTester.Repeater.Api;
 global using SecTester.Repeater.Bus;
 global using SecTester.Repeater.Extensions;
 global using SecTester.Repeater.Runners;

@@ -44,36 +44,6 @@ The `CreateRepeater` method accepts the options described below:
 | Option                 | Description                                                                                           |
 | :--------------------- | ----------------------------------------------------------------------------------------------------- |
 | `namePrefix`           | Enter a name prefix that will be used as a constant part of the unique name. By default, `sectester`. |
-| `description`          | Set a short description of the Repeater.                                                              |
-| `requestRunnerOptions` | Custom the request runner settings that will be used to execute requests to your application.         |
-
-The default `requestRunnerOptions` is as follows:
-
-```json
-{
-    "timeout": 30000, 
-    "maxContentLength": 100,
-    "reuseConnection": false,
-    "allowedMimes": [
-        "text/html",
-        "text/plain",
-        "text/css",
-        "text/javascript",
-        "text/markdown",
-        "text/xml",
-        "application/javascript",
-        "application/x-javascript",
-        "application/json",
-        "application/xml",
-        "application/x-www-form-urlencoded",
-        "application/msgpack",
-        "application/ld+json",
-        "application/graphql"
-      ]
-}
-```
-
-The `RequestRunnerOptions` exposes the following options that can used to customize the request runner's behavior: [RequestRunnerOptions.cs](https://github.com/NeuraLegion/sectester-net/blob/master/src/SecTester.Repeater/Runners/RequestRunnerOptions.cs)
 
 The `Repeater` instance provides the `Start` method. This method is required to establish a connection with the Bright cloud engine and interact with other services.
 

@@ -1,6 +1,7 @@
 using System.Net.Http;
 using MessagePack;
 using MessagePack.Formatters;
+using SecTester.Core.Internal;
 
 namespace SecTester.Repeater.Internal;
 

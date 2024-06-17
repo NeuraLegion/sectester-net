@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using SecTester.Core.Bus;
 
-namespace SecTester.Repeater.Commands;
+namespace SecTester.Core.Commands;
 
 public record HttpRequest<TResult> : Command<TResult>
 {

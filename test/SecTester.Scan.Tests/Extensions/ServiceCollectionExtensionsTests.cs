@@ -1,4 +1,4 @@
-using SecTester.Core.Extensions;
+using SecTester.Repeater.Extensions;
 
 namespace SecTester.Scan.Tests.Extensions;
 

@@ -3,8 +3,6 @@ namespace SecTester.Repeater.Tests.Extensions;
 public class ServiceCollectionExtensionsTests : IDisposable
 {
   private readonly ServiceCollection _sut = Substitute.ForPartsOf<ServiceCollection>();
-  private readonly Configuration _config = new("app.brightsec.com",
-    new Credentials("0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk"));
 
   public void Dispose()
   {
@@ -125,70 +123,5 @@ public class ServiceCollectionExtensionsTests : IDisposable
     using var client = result.CreateClient(nameof(HttpRequestRunner));
 
     client.DefaultRequestHeaders.Should().BeEquivalentTo(headers);
-  }
-
-  [Fact]
-  public void AddSecTesterRepeater_ReturnHttpCommandDispatcherWithDefaultOptions()
-  {
-    // arrange
-    _sut.Add(new ServiceDescriptor(typeof(Configuration), _config));
-
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    using var provider = _sut.BuildServiceProvider();
-    var result = provider.GetRequiredService<ICommandDispatcher>();
-    result.Should().BeOfType<HttpCommandDispatcher>();
-  }
-
-  [Fact]
-  public void AddSecTesterRepeater_ReturnHttpCommandDispatcherConfig()
-  {
-    // arrange
-    _sut.Add(new ServiceDescriptor(typeof(Configuration), _config));
-
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    using var provider = _sut.BuildServiceProvider();
-    var result = provider.GetRequiredService<HttpCommandDispatcherConfig>();
-    result.Should().BeEquivalentTo(new
-    {
-      BaseUrl = _config.Api,
-      _config.Credentials!.Token
-    });
-  }
-
-  [Fact]
-  public void AddSecTesterRepeater_ReturnHttpClientWithPreconfiguredTimeout()
-  {
-    // arrange
-    _sut.Add(new ServiceDescriptor(typeof(Configuration), _config));
-
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    using var provider = _sut.BuildServiceProvider();
-    var factory = provider.GetRequiredService<IHttpClientFactory>();
-    using var httpClient = factory.CreateClient(nameof(HttpCommandDispatcher));
-    httpClient.Should().BeEquivalentTo(new
-    {
-      Timeout = TimeSpan.FromSeconds(10)
-    });
-  }
-
-  [Fact]
-  public void AddSecTesterRepeater_ConfigurationIsNotRegistered_ThrowError()
-  {
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    using var provider = _sut.BuildServiceProvider();
-    Func<ICommandDispatcher> act = () => provider.GetRequiredService<ICommandDispatcher>();
-    act.Should().Throw<Exception>();
   }
 }

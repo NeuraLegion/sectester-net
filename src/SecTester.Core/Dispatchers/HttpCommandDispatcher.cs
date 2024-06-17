@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Core.Bus;
 using SecTester.Core.Utils;
-using SecTester.Repeater.Commands;
-using SecTester.Repeater.Extensions;
+using SecTester.Core.Commands;
+using SecTester.Core.Extensions;
 
-namespace SecTester.Repeater.Dispatchers;
+namespace SecTester.Core.Dispatchers;
 
 public class HttpCommandDispatcher : ICommandDispatcher
 {

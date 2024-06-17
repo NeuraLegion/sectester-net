@@ -390,24 +390,24 @@
       "sectester.core": {
         "type": "Project",
         "dependencies": {
+          "Macross.Json.Extensions": "[3.0.0, )",
+          "Microsoft.Bcl.AsyncInterfaces": "[7.0.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
+          "Microsoft.Extensions.Http": "[6.0.0, )",
           "Microsoft.Extensions.Logging": "[6.0.0, )",
-          "Microsoft.Extensions.Logging.Console": "[6.0.0, )"
+          "Microsoft.Extensions.Logging.Console": "[6.0.0, )",
+          "System.Linq.Async": "[6.0.1, )",
+          "System.Text.Json": "[7.0.3, )",
+          "System.Threading.RateLimiting": "[7.0.0, )"
         }
       },
       "sectester.repeater": {
         "type": "Project",
         "dependencies": {
-          "Macross.Json.Extensions": "[3.0.0, )",
-          "Microsoft.Bcl.AsyncInterfaces": "[7.0.0, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[6.0.0, )",
-          "Microsoft.Extensions.Http": "[6.0.0, )",
           "SecTester.Core": "[0.41.4, )",
           "SocketIO.Serializer.MessagePack": "[3.1.2, )",
-          "SocketIOClient": "[3.1.1, )",
-          "System.Linq.Async": "[6.0.1, )",
-          "System.Text.Json": "[7.0.3, )",
-          "System.Threading.RateLimiting": "[7.0.0, )"
+          "SocketIOClient": "[3.1.1, )"
         }
       },
       "sectester.reporter": {

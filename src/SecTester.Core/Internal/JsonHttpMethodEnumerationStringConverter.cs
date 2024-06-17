@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SecTester.Repeater.Internal;
+namespace SecTester.Core.Internal;
 
 internal class JsonHttpMethodEnumerationStringConverter : JsonConverter<HttpMethod>
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SecTester.Repeater.Internal;
+namespace SecTester.Core.Internal;
 
 internal sealed class JsonHeadersConverter : JsonConverter<IEnumerable<KeyValuePair<string, IEnumerable<string>>>>
 {

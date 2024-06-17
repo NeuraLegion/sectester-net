@@ -1,5 +1,5 @@
 using SecTester.Core;
-using SecTester.Repeater.Commands;
+using SecTester.Core.Commands;
 
 namespace SecTester.Scan.Commands;
 

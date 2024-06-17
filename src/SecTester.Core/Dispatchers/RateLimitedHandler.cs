@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
-namespace SecTester.Repeater.Dispatchers;
+namespace SecTester.Core.Dispatchers;
 
 [ExcludeFromCodeCoverage]
 internal sealed class RateLimitedHandler

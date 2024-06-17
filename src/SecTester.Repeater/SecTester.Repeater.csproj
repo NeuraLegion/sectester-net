@@ -9,24 +9,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Linq.Async" Version="6.0.1"/>
-    <PackageReference Include="System.Text.Json" Version="7.0.3"/>
-    <PackageReference Include="System.Threading.RateLimiting" Version="7.0.0"/>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0"/>
     <PackageReference Include="SocketIOClient" Version="3.1.1" />
     <PackageReference Include="SocketIO.Serializer.MessagePack" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0"/>
-    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Api"/>
     <Folder Include="Bus" />
-    <Folder Include="Commands" />
-    <Folder Include="Dispatchers" />
-    <Folder Include="Exceptions" />
+    <Folder Include="Extensions" />
     <Folder Include="Internal" />
-    <Folder Include="RetryStrategies" />
     <Folder Include="Runners"/>
   </ItemGroup>
 

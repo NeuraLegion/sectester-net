@@ -1,9 +1,9 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SecTester.Repeater.Internal;
+using SecTester.Core.Internal;
 
-namespace SecTester.Repeater.Dispatchers;
+namespace SecTester.Core.Dispatchers;
 
 public static class MessageSerializer
 {

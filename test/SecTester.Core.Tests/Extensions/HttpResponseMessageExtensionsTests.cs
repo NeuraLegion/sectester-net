@@ -1,4 +1,7 @@
-namespace SecTester.Repeater.Tests.Extensions;
+using System.Net;
+using System.Text;
+
+namespace SecTester.Core.Tests.Extensions;
 
 public class HttpResponseMessageExtensionsTests
 {

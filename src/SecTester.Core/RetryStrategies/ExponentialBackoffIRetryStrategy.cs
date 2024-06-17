@@ -3,9 +3,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Core.Bus;
-using SecTester.Repeater.Exceptions;
+using SecTester.Core.Exceptions;
 
-namespace SecTester.Repeater.RetryStrategies;
+namespace SecTester.Core.RetryStrategies;
 
 public class ExponentialBackoffIRetryStrategy : IRetryStrategy
 {

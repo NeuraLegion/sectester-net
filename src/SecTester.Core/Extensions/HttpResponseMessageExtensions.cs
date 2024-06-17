@@ -4,9 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using SecTester.Repeater.Exceptions;
+using SecTester.Core.Exceptions;
 
-namespace SecTester.Repeater.Extensions;
+namespace SecTester.Core.Extensions;
 
 internal static class HttpResponseMessageExtensions
 {

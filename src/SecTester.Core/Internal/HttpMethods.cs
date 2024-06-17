@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 
-namespace SecTester.Repeater.Internal;
+namespace SecTester.Core.Internal;
 
 public static class HttpMethods
 {

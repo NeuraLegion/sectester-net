@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace SecTester.Repeater.Tests.Fixtures;
+namespace SecTester.Core.Tests.Fixtures;
 
 internal enum FooEnum
 {

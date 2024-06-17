@@ -1,7 +1,7 @@
 using System.Text.Json;
 using SecTester.Core.Utils;
 
-namespace SecTester.Repeater.Internal;
+namespace SecTester.Core.Internal;
 
 internal class JsonSnakeCaseNamingPolicy : JsonNamingPolicy
 {

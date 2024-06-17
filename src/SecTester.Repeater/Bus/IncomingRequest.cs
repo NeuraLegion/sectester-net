@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using MessagePack;
-using SecTester.Repeater.Internal;
+using SecTester.Core.Internal;
 using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Bus;

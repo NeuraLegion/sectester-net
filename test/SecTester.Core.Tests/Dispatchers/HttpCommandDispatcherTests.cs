@@ -1,6 +1,9 @@
-using SecTester.Repeater.Tests.Fixtures;
+using System.Net;
+using System.Net.Http.Json;
 
-namespace SecTester.Repeater.Tests.Dispatchers;
+using SecTester.Core.Tests.Fixtures;
+
+namespace SecTester.Core.Tests.Dispatchers;
 
 public class HttpCommandDispatcherTests : IDisposable
 {

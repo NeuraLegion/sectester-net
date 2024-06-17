@@ -2,15 +2,11 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
-using SecTester.Core;
-using SecTester.Core.Bus;
+using SecTester.Core.Extensions;
 using SecTester.Core.Utils;
 using SecTester.Repeater.Api;
 using SecTester.Repeater.Bus;
-using SecTester.Repeater.Dispatchers;
-using SecTester.Repeater.RetryStrategies;
 using SecTester.Repeater.Runners;
 
 namespace SecTester.Repeater.Extensions;
@@ -24,8 +20,6 @@ public static class ServiceCollectionExtensions
     collection
       .AddSingleton(options)
       .AddHttpCommandDispatcher()
-      .AddSingleton(new ExponentialBackoffOptions())
-      .AddSingleton<IRetryStrategy, ExponentialBackoffIRetryStrategy>()
       .AddSingleton<IRepeaterBusFactory, DefaultRepeaterBusFactory>()
       .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<IRepeaters, DefaultRepeaters>()
@@ -76,42 +70,5 @@ public static class ServiceCollectionExtensions
     }
   }
 
-  private static IServiceCollection AddHttpCommandDispatcher(this IServiceCollection collection) =>
-    collection
-      .AddScoped(sp =>
-      {
-        var config = sp.GetRequiredService<Configuration>();
-        return new HttpCommandDispatcherConfig(config.Api, config.Credentials!.Token, TimeSpan.FromSeconds(10));
-      })
-      .AddScoped<HttpCommandDispatcher>()
-      .AddScoped<ICommandDispatcher>(sp => sp.GetRequiredService<HttpCommandDispatcher>())
-      .AddHttpClientForHttpCommandDispatcher();
 
-  private static IServiceCollection AddHttpClientForHttpCommandDispatcher(this IServiceCollection collection)
-  {
-    collection
-      .AddHttpClient(nameof(HttpCommandDispatcher), ConfigureHttpClientForHttpCommandDispatcher)
-      .ConfigurePrimaryHttpMessageHandler(CreateHttpMessageHandlerForHttpCommandDispatcher);
-
-    return collection;
-  }
-
-  private static HttpMessageHandler CreateHttpMessageHandlerForHttpCommandDispatcher()
-  {
-    var options = new FixedWindowRateLimiterOptions
-    {
-      Window = TimeSpan.FromSeconds(60),
-      PermitLimit = 10,
-      QueueLimit = 5
-    };
-    var rateLimiter = new FixedWindowRateLimiter(options);
-
-    return new RateLimitedHandler(rateLimiter);
-  }
-
-  private static void ConfigureHttpClientForHttpCommandDispatcher(IServiceProvider sp, HttpClient client)
-  {
-    var config = sp.GetRequiredService<HttpCommandDispatcherConfig>();
-    client.Timeout = (TimeSpan)config.Timeout!;
-  }
 }

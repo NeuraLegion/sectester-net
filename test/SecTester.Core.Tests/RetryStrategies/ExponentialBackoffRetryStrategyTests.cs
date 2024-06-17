@@ -1,6 +1,8 @@
-using SecTester.Repeater.Tests.Fixtures;
+using System.Net;
+using System.Net.Sockets;
+using SecTester.Core.Tests.Fixtures;
 
-namespace SecTester.Repeater.Tests.RetryStrategies;
+namespace SecTester.Core.Tests.RetryStrategies;
 
 public class ExponentialBackoffRetryStrategyTests : IDisposable
 {

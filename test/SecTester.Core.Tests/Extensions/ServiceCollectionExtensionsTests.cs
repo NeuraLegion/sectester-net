@@ -4,6 +4,9 @@ public class ServiceCollectionExtensionsTests
 {
   private readonly ServiceCollection _services;
 
+  private readonly Configuration _config = new("app.brightsec.com",
+    new Credentials("0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk"));
+
   public ServiceCollectionExtensionsTests()
   {
     _services = new ServiceCollection();
@@ -71,5 +74,78 @@ public class ServiceCollectionExtensionsTests
     var logger = provider.GetRequiredService<ILogger<ServiceCollectionExtensionsTests>>();
     logger.IsEnabled(LogLevel.Information).Should().BeTrue();
     logger.IsEnabled(LogLevel.Debug).Should().BeFalse();
+  }
+
+
+  [Fact]
+  public void AddHttpCommandDispatcher_ReturnHttpCommandDispatcherWithDefaultOptions()
+  {
+    // arrange
+    var services = new ServiceCollection();
+    services.AddSecTesterConfig(_config);
+
+    // act
+    services.AddHttpCommandDispatcher();
+
+    // assert
+    using var provider = services.BuildServiceProvider();
+    var result = provider.GetRequiredService<ICommandDispatcher>();
+    result.Should().BeOfType<HttpCommandDispatcher>();
+  }
+
+  [Fact]
+  public void AddHttpCommandDispatcher_ReturnHttpCommandDispatcherConfig()
+  {
+    // arrange
+    var services = new ServiceCollection();
+    services.AddSecTesterConfig(_config);
+
+    // act
+    services.AddHttpCommandDispatcher();
+
+
+    // assert
+    using var provider = services.BuildServiceProvider();
+    var result = provider.GetRequiredService<HttpCommandDispatcherConfig>();
+    result.Should().BeEquivalentTo(new
+    {
+      BaseUrl = _config.Api,
+      _config.Credentials!.Token
+    });
+  }
+
+  [Fact]
+  public void AddHttpCommandDispatcher_ReturnHttpClientWithPreconfiguredTimeout()
+  {
+    // arrange
+    var services = new ServiceCollection();
+    services.AddSecTesterConfig(_config);
+
+    // act
+    services.AddHttpCommandDispatcher();
+
+    // assert
+    using var provider = services.BuildServiceProvider();
+    var factory = provider.GetRequiredService<IHttpClientFactory>();
+    using var httpClient = factory.CreateClient(nameof(HttpCommandDispatcher));
+    httpClient.Should().BeEquivalentTo(new
+    {
+      Timeout = TimeSpan.FromSeconds(10)
+    });
+  }
+
+  [Fact]
+  public void AddHttpCommandDispatcher_ConfigurationIsNotRegistered_ThrowError()
+  {
+    // arrange
+    var services = new ServiceCollection();
+
+    // act
+    services.AddHttpCommandDispatcher();
+
+    // assert
+    using var provider = services.BuildServiceProvider();
+    Func<ICommandDispatcher> act = () => provider.GetRequiredService<ICommandDispatcher>();
+    act.Should().Throw<Exception>();
   }
 }

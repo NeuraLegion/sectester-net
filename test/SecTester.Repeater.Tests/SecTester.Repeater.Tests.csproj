@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\SecTester.Repeater\SecTester.Repeater.csproj"/>
-    <ProjectReference Include="..\..\src\SecTester.Scan\SecTester.Scan.csproj" />
   </ItemGroup>
 
   <ItemGroup>

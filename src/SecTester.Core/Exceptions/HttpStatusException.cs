@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace SecTester.Repeater.Exceptions;
+namespace SecTester.Core.Exceptions;
 
 public class HttpStatusException : HttpRequestException
 {

@@ -11,8 +11,16 @@
   <ItemGroup>
     <Folder Include="Bus"/>
     <Folder Include="CredentialProviders"/>
+    <Folder Include="Dispatchers"/>
     <Folder Include="Extensions"/>
+    <Folder Include="Fixtures"/>
     <Folder Include="Logger"/>
+    <Folder Include="RetryStrategies"/>
     <Folder Include="Utils"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11"/>
+    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
   </ItemGroup>
 </Project>

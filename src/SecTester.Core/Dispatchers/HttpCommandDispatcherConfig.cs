@@ -1,5 +1,5 @@
 using System;
 
-namespace SecTester.Repeater.Dispatchers;
+namespace SecTester.Core.Dispatchers;
 
 public sealed record HttpCommandDispatcherConfig(string BaseUrl, string Token, TimeSpan? Timeout = null);

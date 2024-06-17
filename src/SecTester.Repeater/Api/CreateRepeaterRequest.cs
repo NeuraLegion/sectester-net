@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Text;
-using SecTester.Repeater.Commands;
-using SecTester.Repeater.Dispatchers;
+using SecTester.Core.Commands;
+using SecTester.Core.Dispatchers;
 
 namespace SecTester.Repeater.Api;
 

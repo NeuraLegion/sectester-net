@@ -40,7 +40,7 @@ public class RepeaterTests : IDisposable, IAsyncDisposable
   public async Task Start_DeploysItself()
   {
     // arrange
-    _bus.Deploy(Arg.Any<string?>(), Arg.Any<CancellationToken?>()).Returns(Task.FromResult<string>(Id));
+    _bus.Deploy(Arg.Any<CancellationToken?>()).Returns(Task.FromResult<string>(Id));
 
     // act
     await _sut.Start();

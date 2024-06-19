@@ -11,7 +11,6 @@ namespace SecTester.Repeater;
 
 public delegate IRequestRunner? RequestRunnerResolver(Protocol key);
 
-
 public class Repeater : IRepeater
 {
   private readonly IRepeaterBus _bus;
@@ -21,10 +20,9 @@ public class Repeater : IRepeater
   private readonly IAnsiCodeColorizer _ansiCodeColorizer;
   private readonly RequestRunnerResolver _requestRunnersAccessor;
 
-  public Repeater(string repeaterId, IRepeaterBus bus, Version version, ILogger<Repeater> logger,
+  public Repeater(IRepeaterBus bus, Version version, ILogger<Repeater> logger,
     IAnsiCodeColorizer ansiCodeColorizer, RequestRunnerResolver requestRunnersAccessor)
   {
-    RepeaterId = repeaterId ?? throw new ArgumentNullException(nameof(repeaterId));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _version = version ?? throw new ArgumentNullException(nameof(version));
     _bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -33,7 +31,7 @@ public class Repeater : IRepeater
   }
 
   public RunningStatus Status { get; private set; } = RunningStatus.Off;
-  public string RepeaterId { get; }
+  public string RepeaterId { get; private set; } = string.Empty;
 
   public async ValueTask DisposeAsync()
   {
@@ -60,7 +58,7 @@ public class Repeater : IRepeater
       SubscribeToEvents();
 
       await _bus.Connect().ConfigureAwait(false);
-      await _bus.Deploy(RepeaterId, cancellationToken).ConfigureAwait(false);
+      RepeaterId = await _bus.Deploy(RepeaterId, cancellationToken).ConfigureAwait(false);
 
       Status = RunningStatus.Running;
     }
@@ -94,7 +92,7 @@ public class Repeater : IRepeater
     }
   }
 
-  public async Task<OutgoingResponse> HandleIncomingRequest(IncomingRequest message)
+  private async Task<OutgoingResponse> HandleIncomingRequest(IncomingRequest message)
   {
     var runner = _requestRunnersAccessor(message.Protocol);
 

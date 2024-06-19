@@ -5,7 +5,6 @@ using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SecTester.Core.Extensions;
 using SecTester.Core.Utils;
-using SecTester.Repeater.Api;
 using SecTester.Repeater.Bus;
 using SecTester.Repeater.Runners;
 
@@ -22,7 +21,6 @@ public static class ServiceCollectionExtensions
       .AddHttpCommandDispatcher()
       .AddSingleton<IRepeaterBusFactory, DefaultRepeaterBusFactory>()
       .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
-      .AddScoped<IRepeaters, DefaultRepeaters>()
       .AddScoped<ITimerProvider, SystemTimerProvider>()
       .AddScoped<IRequestRunner, HttpRequestRunner>()
       .AddScoped<RequestRunnerResolver>(sp =>

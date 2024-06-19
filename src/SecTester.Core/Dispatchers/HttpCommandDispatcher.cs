@@ -6,9 +6,9 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using SecTester.Core.Bus;
-using SecTester.Core.Utils;
 using SecTester.Core.Commands;
 using SecTester.Core.Extensions;
+using SecTester.Core.Utils;
 
 namespace SecTester.Core.Dispatchers;
 

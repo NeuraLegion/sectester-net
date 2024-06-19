@@ -22,7 +22,7 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
     _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
   }
 
-  public IRepeaterBus Create(string repeaterId)
+  public IRepeaterBus Create(string? namePrefix = default)
   {
     if (_config.Credentials is null)
     {
@@ -39,7 +39,7 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
       ReconnectionDelayMax = options.ReconnectionDelayMax,
       ConnectionTimeout = options.ConnectionTimeout,
       Transport = TransportProtocol.WebSocket,
-      Auth = new { token = _config.Credentials.Token, domain = repeaterId }
+      Auth = new { token = _config.Credentials.Token, domain = namePrefix ?? System.Net.Dns.GetHostName() }
     })
     {
       Serializer = new SocketIOMessagePackSerializer()

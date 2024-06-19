@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SecTester.Core;
 using SecTester.Core.Extensions;
 using SecTester.Repeater;
-using SecTester.Repeater.Api;
 using SecTester.Repeater.Extensions;
 using SecTester.Reporter;
 using SecTester.Scan;
@@ -18,17 +17,15 @@ public class SecRunner : IAsyncDisposable
   private readonly Configuration _configuration;
   private readonly IFormatter _formatter;
   private readonly IRepeaterFactory _repeaterFactory;
-  private readonly IRepeaters _repeatersManager;
   private readonly IScanFactory _scanFactory;
   private IRepeater? _repeater;
 
-  public SecRunner(Configuration configuration, IRepeaterFactory repeaterFactory, IScanFactory scanFactory, IRepeaters repeatersManager,
+  public SecRunner(Configuration configuration, IRepeaterFactory repeaterFactory, IScanFactory scanFactory,
     IFormatter formatter)
   {
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     _repeaterFactory = repeaterFactory ?? throw new ArgumentNullException(nameof(repeaterFactory));
     _scanFactory = scanFactory ?? throw new ArgumentNullException(nameof(scanFactory));
-    _repeatersManager = repeatersManager ?? throw new ArgumentNullException(nameof(repeatersManager));
     _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
   }
 
@@ -80,7 +77,6 @@ public class SecRunner : IAsyncDisposable
       if (_repeater is not null)
       {
         await _repeater.Stop(cancellationToken).ConfigureAwait(false);
-        await _repeatersManager.DeleteRepeater(_repeater.RepeaterId).ConfigureAwait(false);
         await _repeater.DisposeAsync().ConfigureAwait(false);
       }
     }

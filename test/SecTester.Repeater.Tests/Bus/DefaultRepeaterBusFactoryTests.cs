@@ -2,7 +2,6 @@ namespace SecTester.Repeater.Tests.Bus;
 
 public class DefaultRepeaterBusFactoryTests : IDisposable
 {
-  private const string Id = "g5MvgM74sweGcK1U6hvs76";
   private const string Hostname = "app.brightsec.com";
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 
@@ -32,7 +31,7 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
     DefaultRepeaterBusFactory sut = new(config, _loggerFactory, _serviceScopeFactory);
 
     // act
-    await using var bus = sut.Create(Id);
+    await using var bus = sut.Create();
 
     // assert
     bus.Should().BeAssignableTo<IRepeaterBus>();
@@ -48,7 +47,7 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
     // act
     var act = async () =>
     {
-      await using var _ = sut.Create(Id);
+      await using var _ = sut.Create();
     };
 
     // assert

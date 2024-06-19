@@ -58,7 +58,7 @@ public class Repeater : IRepeater
       SubscribeToEvents();
 
       await _bus.Connect().ConfigureAwait(false);
-      RepeaterId = await _bus.Deploy(cancellationToken).ConfigureAwait(false);
+      RepeaterId = await _bus.Deploy(RepeaterId, cancellationToken).ConfigureAwait(false);
 
       Status = RunningStatus.Running;
     }

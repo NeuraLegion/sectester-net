@@ -162,6 +162,20 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   }
 
   [Fact]
+  public async Task Deploy_GivenRepeaterId_Success()
+  {
+    // arrange
+    _socketIoMessage.GetValue<RepeaterInfo>().Returns(new RepeaterInfo(RepeaterId));
+    _connection.On("deployed", Arg.Invoke(_socketIoMessage));
+
+    // act
+    await _sut.Deploy(RepeaterId);
+
+    // assert
+    await _connection.Received().EmitAsync("deploy", Arg.Is<object[]>(x => x.Length == 1 && ((x[0] as RepeaterInfo)!).RepeaterId == RepeaterId));
+  }
+
+  [Fact]
   public async Task Deploy_NotReceivingRepeaterId_ThrowsError()
   {
     // arrange
@@ -182,7 +196,7 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     cancellationTokenSource.Cancel();
 
     // act
-    var act = () => _sut.Deploy(cancellationTokenSource.Token);
+    var act = () => _sut.Deploy(null, cancellationTokenSource.Token);
 
     // assert
     await act.Should().ThrowAsync<OperationCanceledException>();

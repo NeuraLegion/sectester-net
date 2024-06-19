@@ -90,7 +90,7 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
     GC.SuppressFinalize(this);
   }
 
-  public async Task<string> Deploy(CancellationToken? cancellationToken = null)
+  public async Task<string> Deploy(string? repeaterId, CancellationToken? cancellationToken = null)
   {
     try
     {
@@ -98,8 +98,10 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 
       _connection.On("deployed", response => tcs.TrySetResult(response.GetValue<RepeaterInfo>()));
 
+      var args = string.IsNullOrWhiteSpace(repeaterId) ? Array.Empty<object>() : new object[] { new RepeaterInfo(repeaterId!) };
+
       await _connection
-        .EmitAsync("deploy", Array.Empty<object>())
+        .EmitAsync("deploy", args)
         .ConfigureAwait(false);
 
       using var _ = cancellationToken?.Register(() => tcs.TrySetCanceled());

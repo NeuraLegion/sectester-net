@@ -31,16 +31,6 @@ public class ServiceCollectionExtensionsTests : IDisposable
   }
 
   [Fact]
-  public void AddSecTesterRepeater_RegistersTimerProvider()
-  {
-    // act
-    _sut.AddSecTesterRepeater();
-
-    // assert
-    _sut.Received().AddScoped<ITimerProvider, SystemTimerProvider>();
-  }
-
-  [Fact]
   public void AddSecTesterRepeater_WithTimeout_RegistersHttpClient()
   {
     // arrange

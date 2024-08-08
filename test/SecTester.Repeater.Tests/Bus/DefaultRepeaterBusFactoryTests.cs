@@ -7,11 +7,9 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly ITimerProvider _timerProvider = Substitute.For<ITimerProvider>();
 
   public void Dispose()
   {
-    _timerProvider.ClearSubstitute();
     _loggerFactory.ClearSubstitute();
     GC.SuppressFinalize(this);
   }

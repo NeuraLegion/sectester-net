@@ -1,8 +1,6 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SecTester.Core;
-using SecTester.Core.Utils;
 using SocketIO.Serializer.MessagePack;
 using SocketIOClient;
 using SocketIOClient.Transport;
@@ -13,13 +11,11 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
 {
   private readonly Configuration _config;
   private readonly ILoggerFactory _loggerFactory;
-  private readonly IServiceScopeFactory _scopeFactory;
 
-  public DefaultRepeaterBusFactory(Configuration config, ILoggerFactory loggerFactory, IServiceScopeFactory scopeFactory)
+  public DefaultRepeaterBusFactory(Configuration config, ILoggerFactory loggerFactory)
   {
     _config = config ?? throw new ArgumentNullException(nameof(config));
     _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-    _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
   }
 
   public IRepeaterBus Create(string repeaterId)
@@ -46,9 +42,6 @@ public class DefaultRepeaterBusFactory : IRepeaterBusFactory
     };
     var wrapper = new SocketIoConnection(client);
 
-    var scope = _scopeFactory.CreateAsyncScope();
-    var timerProvider = scope.ServiceProvider.GetRequiredService<ITimerProvider>();
-
-    return new SocketIoRepeaterBus(options, wrapper, timerProvider, _loggerFactory.CreateLogger<IRepeaterBus>());
+    return new SocketIoRepeaterBus(options, wrapper, _loggerFactory.CreateLogger<IRepeaterBus>());
   }
 }

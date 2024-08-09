@@ -7,21 +7,19 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   private static readonly SocketIoRepeaterBusOptions Options = new(Url);
 
   private readonly ISocketIoConnection _connection = Substitute.For<ISocketIoConnection>();
-  private readonly ITimerProvider _heartbeat = Substitute.For<ITimerProvider>();
   private readonly ILogger<IRepeaterBus> _logger = Substitute.For<ILogger<IRepeaterBus>>();
   private readonly ISocketIoMessage _socketIoMessage = Substitute.For<ISocketIoMessage>();
   private readonly SocketIoRepeaterBus _sut;
 
   public SocketIoRepeaterBusTests()
   {
-    _sut = new SocketIoRepeaterBus(Options, _connection, _heartbeat, _logger);
+    _sut = new SocketIoRepeaterBus(Options, _connection, _logger);
   }
 
   public void Dispose()
   {
     _socketIoMessage.ClearSubstitute();
     _connection.ClearSubstitute();
-    _heartbeat.ClearSubstitute();
     _logger.ClearSubstitute();
 
     GC.SuppressFinalize(this);
@@ -118,36 +116,6 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
   }
 
   [Fact]
-  public async Task Connect_SchedulesPing()
-  {
-    // arrange
-    _connection.Connect().Returns(Task.CompletedTask);
-
-    // act
-    await _sut.Connect();
-
-    // assert
-    _heartbeat.Received().Elapsed += Arg.Any<ElapsedEventHandler>();
-    _heartbeat.Received().Start();
-  }
-
-  [Fact]
-  public async Task Connect_ShouldSendPingMessage()
-  {
-    // arrange
-    var elapsedEventArgs = EventArgs.Empty as ElapsedEventArgs;
-    _connection.Connect().Returns(Task.CompletedTask);
-    await _sut.Connect();
-
-    // act
-    _heartbeat.Elapsed += Raise.Event<ElapsedEventHandler>(new object(), elapsedEventArgs);
-
-    // assert
-    _heartbeat.Interval.Should().BeGreaterOrEqualTo(10_000);
-    await _connection.Received(2).EmitAsync("ping");
-  }
-
-  [Fact]
   public async Task Deploy_Success()
   {
     // arrange
@@ -197,18 +165,5 @@ public sealed class SocketIoRepeaterBusTests : IDisposable
     // assert
     await _connection.DidNotReceive().Disconnect();
     _connection.Received().Dispose();
-  }
-
-  [Fact]
-  public async Task DisposeAsync_StopsPingMessages()
-  {
-    // arrange
-    _connection.Connected.Returns(true);
-
-    // act
-    await _sut.DisposeAsync();
-
-    // assert
-    _heartbeat.Received().Stop();
   }
 }

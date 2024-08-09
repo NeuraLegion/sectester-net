@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Microsoft.Extensions.Logging;
-using SecTester.Core.Utils;
 
 namespace SecTester.Repeater.Bus;
 
@@ -12,16 +10,14 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
 {
   private static readonly TimeSpan PingInterval = TimeSpan.FromSeconds(10);
 
-  private readonly ITimerProvider _heartbeat;
   private readonly ISocketIoConnection _connection;
   private readonly ILogger<IRepeaterBus> _logger;
   private readonly SocketIoRepeaterBusOptions _options;
 
-  internal SocketIoRepeaterBus(SocketIoRepeaterBusOptions options, ISocketIoConnection connection, ITimerProvider heartbeat, ILogger<IRepeaterBus> logger)
+  internal SocketIoRepeaterBus(SocketIoRepeaterBusOptions options, ISocketIoConnection connection, ILogger<IRepeaterBus> logger)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-    _heartbeat = heartbeat ?? throw new ArgumentNullException(nameof(heartbeat));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
@@ -36,8 +32,6 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
       DelegateEvents();
 
       await _connection.Connect().ConfigureAwait(false);
-
-      await SchedulePing().ConfigureAwait(false);
 
       _logger.LogDebug("Repeater connected to {BaseUrl}", _options.BaseUrl);
     }
@@ -75,8 +69,6 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
   {
     if (_connection is { Connected: true })
     {
-      _heartbeat.Elapsed -= Ping;
-      _heartbeat.Stop();
       await _connection.Disconnect().ConfigureAwait(false);
       _logger.LogDebug("Repeater disconnected from {BaseUrl}", _options.BaseUrl);
     }
@@ -110,23 +102,5 @@ internal sealed class SocketIoRepeaterBus : IRepeaterBus
     {
       _connection.Off("deployed");
     }
-  }
-
-  private async Task SchedulePing()
-  {
-    await Ping().ConfigureAwait(false);
-    _heartbeat.Interval = PingInterval.TotalMilliseconds;
-    _heartbeat.Elapsed += Ping;
-    _heartbeat.Start();
-  }
-
-  private async void Ping(object sender, ElapsedEventArgs args)
-  {
-    await Ping().ConfigureAwait(false);
-  }
-
-  private async Task Ping()
-  {
-    await _connection.EmitAsync("ping").ConfigureAwait(false);
   }
 }

@@ -23,7 +23,6 @@ public static class ServiceCollectionExtensions
       .AddSingleton<IRepeaterBusFactory, DefaultRepeaterBusFactory>()
       .AddScoped<IRepeaterFactory, DefaultRepeaterFactory>()
       .AddScoped<IRepeaters, DefaultRepeaters>()
-      .AddScoped<ITimerProvider, SystemTimerProvider>()
       .AddScoped<IRequestRunner, HttpRequestRunner>()
       .AddScoped<RequestRunnerResolver>(sp =>
         protocol => sp.GetServices<IRequestRunner>().FirstOrDefault(x => x.Protocol == protocol)

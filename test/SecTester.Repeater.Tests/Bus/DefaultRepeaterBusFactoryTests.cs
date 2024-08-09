@@ -7,19 +7,9 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
   private const string Token = "0zmcwpe.nexr.0vlon8mp7lvxzjuvgjy88olrhadhiukk";
 
   private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
-  private readonly ITimerProvider _timerProvider = Substitute.For<ITimerProvider>();
-  private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-
-  public DefaultRepeaterBusFactoryTests()
-  {
-    // ADHOC: since GetRequiredService is part of extension we should explicitly mock an instance method
-    _serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetService(typeof(ITimerProvider)).Returns(_timerProvider);
-  }
 
   public void Dispose()
   {
-    _timerProvider.ClearSubstitute();
-    _serviceScopeFactory.ClearSubstitute();
     _loggerFactory.ClearSubstitute();
     GC.SuppressFinalize(this);
   }
@@ -29,7 +19,7 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
   {
     // arrange
     Configuration config = new(Hostname, new Credentials(Token));
-    DefaultRepeaterBusFactory sut = new(config, _loggerFactory, _serviceScopeFactory);
+    DefaultRepeaterBusFactory sut = new(config, _loggerFactory);
 
     // act
     await using var bus = sut.Create(Id);
@@ -43,7 +33,7 @@ public class DefaultRepeaterBusFactoryTests : IDisposable
   {
     // arrange
     Configuration config = new(Hostname);
-    DefaultRepeaterBusFactory sut = new(config, _loggerFactory, _serviceScopeFactory);
+    DefaultRepeaterBusFactory sut = new(config, _loggerFactory);
 
     // act
     var act = async () =>

@@ -41,7 +41,7 @@ jobs:
       - name: Create Nuget Packages
         run: dotnet pack -c Release --no-build --nologo
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: build
           path: |

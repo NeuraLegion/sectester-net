@@ -53,7 +53,7 @@ public class DefaultScansTests : IDisposable
     Smart = true,
     Tests = new[]
     {
-      TestType.Csrf, TestType.Jwt
+      TestType.CrossSiteScripting, TestType.BrokenJwtAuthentication
     },
     DiscoveryTypes = new[]
     {

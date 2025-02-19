@@ -67,7 +67,7 @@ To start scanning your application, first you have to create a `SecScan` instanc
 
 ```csharp
 await using var scan = await runner.CreateScan(new ScanSettingsBuilder()
-    .WithTests(new List<TestType> { TestType.Xss }));
+    .WithTests(new List<TestType> { TestType.CrossSiteScripting }));
 ```
 
 Below you will find a list of parameters that can be used to configure a `Scan`:
@@ -162,7 +162,7 @@ public class OrdersApiTests : IClassFixture<SecRunnerFixture>, IAsyncDisposable
     _test = _fixture
       .Runner
       .CreateScan(new ScanSettingsBuilder()
-        .WithTests(new List<TestType> { TestType.Xss }))
+        .WithTests(new List<TestType> { TestType.CrossSiteScripting }))
       .Threshold(Severity.Medium)
       .Timeout(TimeSpan.FromMinutes(5));
   }

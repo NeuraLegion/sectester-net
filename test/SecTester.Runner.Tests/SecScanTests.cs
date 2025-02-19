@@ -15,7 +15,7 @@ public class SecScanTests : IDisposable
   private readonly SecScan _sut;
 
   private readonly Target _target = new(Url);
-  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.HeaderSecurity };
+  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.CrossSiteRequestForgery };
 
   private readonly TimeSpan _timeout = TimeSpan.FromHours(1);
 

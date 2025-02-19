@@ -7,7 +7,7 @@ public class ScanSettingsTests
   private const string DefaultName = "GET example.com";
 
   private readonly Target _target = new(Url);
-  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.HeaderSecurity };
+  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.CrossSiteScripting };
 
   public static readonly IEnumerable<object[]> InvalidNames = new List<object[]>
   {
@@ -77,7 +77,7 @@ public class ScanSettingsTests
     // arrange
     var input = new List<TestType>
     {
-      TestType.Csrf, TestType.Csrf
+      TestType.CrossSiteRequestForgery, TestType.CrossSiteRequestForgery
     };
     var expected = input.Distinct();
 

@@ -13,13 +13,13 @@ runs:
     # Note, the following is needed on the windows-2019 image only.
     # All other versions of .NET we need are pre-installed on the GitHub Actions virtual images.
     - name: Install .NET 6 SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       if: runner.os == 'Windows'
       with:
         dotnet-version: 6.0.423
 
     - name: Dependency Caching
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}

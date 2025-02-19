@@ -33,7 +33,7 @@ The factory exposes the `CreateScan` method that returns a new [Scan instance](#
 ```csharp
 await using var result = scanFactory.CreateScan(new ScanSettings(
   target,
-  new List<TestType>() { TestType.HeaderSecurity }));
+  new List<TestType>() { TestType.CrossSiteScripting }));
 ```
 
 Below you will find a list of parameters that can be used to configure a `Scan`:

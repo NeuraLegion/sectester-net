@@ -188,7 +188,7 @@ public class SecRunnerTests
     var builder = new ScanSettingsBuilder()
       .WithTests(new List<TestType>
       {
-        TestType.Csrf
+        TestType.CrossSiteRequestForgery
       });
     await _sut.Init(_options);
 
@@ -206,7 +206,7 @@ public class SecRunnerTests
     var builder = new ScanSettingsBuilder()
       .WithTests(new List<TestType>
       {
-        TestType.Csrf
+        TestType.CrossSiteRequestForgery
       });
 
     // act

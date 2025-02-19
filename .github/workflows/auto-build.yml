@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -27,13 +27,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Using macos-12 because we need Xcode 13.3 or later (macos-latest currently points at macos-11 which uses Xcode 13.2)
-        # Using windows-2019 because windows-latest is much slower and we don't need anything in particular from it.
-        os: [ ubuntu-latest, windows-2019, macos-12 ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 

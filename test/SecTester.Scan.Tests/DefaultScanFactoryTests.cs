@@ -29,10 +29,7 @@ public class DefaultScanFactoryTests : IDisposable
   public async Task CreateScan_CreatesScan()
   {
     // arrange
-    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<TestType>
-    {
-      TestType.CrossSiteScripting
-    });
+    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<string> { "xss" });
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
 
@@ -48,7 +45,7 @@ public class DefaultScanFactoryTests : IDisposable
       x.Name == "MyScan" &&
       x.FileId == FileId &&
       x.Module == Module.Dast &&
-      x.Tests!.Contains(TestType.CrossSiteScripting) &&
+      x.Tests!.Contains("xss") &&
       x.Tests!.Count() == 1 &&
       x.DiscoveryTypes!.Contains(Discovery.Archive) &&
       x.DiscoveryTypes!.Count() == 1
@@ -59,10 +56,7 @@ public class DefaultScanFactoryTests : IDisposable
   public async Task CreateScan_GeneratesUploadHarFile()
   {
     // arrange
-    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<TestType>
-    {
-      TestType.CrossSiteScripting
-    });
+    var settings = new ScanSettings("MyScan", new Target("https://example.com"), new List<string> { "xss" });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);
@@ -85,10 +79,7 @@ public class DefaultScanFactoryTests : IDisposable
   {
     // arrange
     var settings = new ScanSettings("MyScan", new Target($"https://{new string('a', 1 + DefaultScanFactory.MaxSlugLength)}.example.com"),
-      new List<TestType>
-      {
-        TestType.CrossSiteScripting
-      });
+      new List<string> { "xss" });
 
     _scans.UploadHar(Arg.Any<UploadHarOptions>()).Returns(FileId);
     _scans.CreateScan(Arg.Any<ScanConfig>()).Returns(ScanId);

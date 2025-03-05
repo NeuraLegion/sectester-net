@@ -20,10 +20,10 @@ public sealed record ScanSettings
   private readonly int? _poolSize;
   private readonly TimeSpan? _slowEpTimeout;
   private readonly TimeSpan? _targetTimeout;
-  private readonly IEnumerable<TestType> _tests;
+  private readonly IEnumerable<string> _tests;
   private readonly Target _target;
 
-  public ScanSettings(string name, Target target, IEnumerable<TestType> tests)
+  public ScanSettings(string name, Target target, IEnumerable<string> tests)
   {
     Name = name;
     Target = target;
@@ -132,7 +132,7 @@ public sealed record ScanSettings
   /// <summary>
   ///   The list of tests to be performed against the target application
   /// </summary>
-  public IEnumerable<TestType> Tests
+  public IEnumerable<string> Tests
   {
     get => _tests;
     init
@@ -140,11 +140,6 @@ public sealed record ScanSettings
       if (value is null)
       {
         throw new ArgumentNullException(nameof(Tests));
-      }
-
-      if (value.Any(x => !Enum.IsDefined(typeof(TestType), x)))
-      {
-        throw new ArgumentException("Unknown test type supplied.");
       }
 
       var unique = value.Distinct().ToArray();

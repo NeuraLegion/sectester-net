@@ -19,7 +19,7 @@ public class ScanSettingsBuilderTests
   };
   private readonly ScanSettingsBuilder _sut = new();
   private readonly Target _target = new(Url);
-  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.CrossSiteScripting };
+  private readonly IEnumerable<string> _tests = new List<string> { "xss" };
 
   private readonly TimeSpan _timeout = TimeSpan.FromSeconds(100);
 

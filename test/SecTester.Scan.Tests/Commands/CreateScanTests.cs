@@ -19,7 +19,7 @@ public class CreateScanTests
     Smart = true,
     Tests = new[]
     {
-      TestType.CrossSiteRequestForgery, TestType.BrokenJwtAuthentication
+      "xss", "jwt"
     },
     DiscoveryTypes = new[]
     {

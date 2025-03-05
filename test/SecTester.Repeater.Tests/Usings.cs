@@ -14,7 +14,6 @@ global using SecTester.Core;
 global using SecTester.Core.Bus;
 global using SecTester.Core.Exceptions;
 global using SecTester.Core.Logger;
-global using SecTester.Core.Utils;
 global using SecTester.Repeater.Api;
 global using SecTester.Repeater.Bus;
 global using SecTester.Repeater.Extensions;

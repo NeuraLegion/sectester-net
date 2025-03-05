@@ -7,7 +7,7 @@ public record ScanConfig(string Name)
 {
   public string Name { get; } = Name ?? throw new ArgumentNullException(nameof(Name));
   public Module? Module { get; init; }
-  public IEnumerable<TestType>? Tests { get; init; }
+  public IEnumerable<string>? Tests { get; init; }
   public IEnumerable<Discovery>? DiscoveryTypes { get; init; }
   public int? PoolSize { get; init; }
   public IEnumerable<AttackParamLocation>? AttackParamLocations { get; init; }

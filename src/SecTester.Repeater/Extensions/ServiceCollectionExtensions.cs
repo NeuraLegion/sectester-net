@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SecTester.Core.Extensions;
-using SecTester.Core.Utils;
 using SecTester.Repeater.Api;
 using SecTester.Repeater.Bus;
 using SecTester.Repeater.Runners;

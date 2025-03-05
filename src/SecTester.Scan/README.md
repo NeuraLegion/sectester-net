@@ -33,23 +33,23 @@ The factory exposes the `CreateScan` method that returns a new [Scan instance](#
 ```csharp
 await using var result = scanFactory.CreateScan(new ScanSettings(
   target,
-  new List<TestType>() { TestType.CrossSiteScripting }));
+  new List<string>() { "xss" }));
 ```
 
 Below you will find a list of parameters that can be used to configure a `Scan`:
 
-| Option                 | Description                                                                                                                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Target`               | The target that will be attacked. For details, see [here](#defining-a-target-for-attack).                                                                                                          |
-| `Tests`                | The list of tests to be performed against the target application. [Learn more about tests](https://docs.brightsec.com/docs/vulnerability-guide)                                                    |
-| `RepeaterId`           | Connects the scan to a Repeater agent, which provides secure access to local networks.                                                                                                             |
-| `Smart`                | Minimize scan time by using automatic smart decisions regarding parameter skipping, detection phases, etc. Enabled by default.                                                                     |
-| `SkipStaticParams`     | Use an advanced algorithm to automatically determine if a parameter has any effect on the target system's behavior when changed, and skip testing such static parameters. Enabled by default.      |
-| `PoolSize`             | Sets the maximum concurrent requests for the scan, to control the load on your server. By default, `10`.                                                                                           |
-| `AttackParamLocations` | Defines which part of the request to attack. By default, `body`, `query`, and `fragment`.                                                                                                          |
-| `SlowEpTimeout`        | Automatically validate entry-point response time before initiating the vulnerability testing, and reduce scan time by skipping any entry-points that take too long to respond. By default, 1000ms. |
-| `TargetTimeout`        | Measure timeout responses from the target application globally, and stop the scan if the target is unresponsive for longer than the specified time. By default, 5min.                              |
-| `Name`                 | The scan name. The method and hostname by default, e.g. `GET example.com`.                                                                                                                         |
+| Option                 | Description                                                                                                                                                                                                                                                |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Target`               | The target that will be attacked. For details, see [here](#defining-a-target-for-attack).                                                                                                                                                                  |
+| `Tests`                | The list of tests to be performed against the target application. To retrieve the complete list, send a request to the [API](https://app.brightsec.com/api/v1/scans/tests). [Learn more about tests](https://docs.brightsec.com/docs/vulnerability-guide). |
+| `RepeaterId`           | Connects the scan to a Repeater agent, which provides secure access to local networks.                                                                                                                                                                     |
+| `Smart`                | Minimize scan time by using automatic smart decisions regarding parameter skipping, detection phases, etc. Enabled by default.                                                                                                                             |
+| `SkipStaticParams`     | Use an advanced algorithm to automatically determine if a parameter has any effect on the target system's behavior when changed, and skip testing such static parameters. Enabled by default.                                                              |
+| `PoolSize`             | Sets the maximum concurrent requests for the scan, to control the load on your server. By default, `10`.                                                                                                                                                   |
+| `AttackParamLocations` | Defines which part of the request to attack. By default, `body`, `query`, and `fragment`.                                                                                                                                                                  |
+| `SlowEpTimeout`        | Automatically validate entry-point response time before initiating the vulnerability testing, and reduce scan time by skipping any entry-points that take too long to respond. By default, 1000ms.                                                         |
+| `TargetTimeout`        | Measure timeout responses from the target application globally, and stop the scan if the target is unresponsive for longer than the specified time. By default, 5min.                                                                                      |
+| `Name`                 | The scan name. The method and hostname by default, e.g. `GET example.com`.                                                                                                                                                                                 |
 
 We provide a fluent interface for building a `ScanSettings` object. To use it, you start by creating a `ScanSettingsBuilder` instance, and then you call its methods to specify the various settings you want to use for the scan.
 

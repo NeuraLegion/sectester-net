@@ -19,7 +19,7 @@ public class ScanSettingsBuilder
   private bool _smart = true;
   private Target? _target;
   private TimeSpan _targetTimeout = TimeSpan.FromMinutes(5);
-  private IEnumerable<TestType> _tests = new List<TestType>();
+  private IEnumerable<string> _tests = new List<string>();
 
   /// <summary>
   ///   Sets a target for the scan.
@@ -103,7 +103,7 @@ public class ScanSettingsBuilder
   /// <summary>
   ///   Sets a list of tests to run for the scan.
   /// </summary>
-  public ScanSettingsBuilder WithTests(IEnumerable<TestType> value)
+  public ScanSettingsBuilder WithTests(IEnumerable<string> value)
   {
     _tests = value;
     return this;

@@ -186,10 +186,7 @@ public class SecRunnerTests
   {
     // arrange
     var builder = new ScanSettingsBuilder()
-      .WithTests(new List<TestType>
-      {
-        TestType.CrossSiteRequestForgery
-      });
+      .WithTests(new List<string> { "xss" });
     await _sut.Init(_options);
 
     // act
@@ -204,10 +201,7 @@ public class SecRunnerTests
   {
     // arrange
     var builder = new ScanSettingsBuilder()
-      .WithTests(new List<TestType>
-      {
-        TestType.CrossSiteRequestForgery
-      });
+      .WithTests(new List<string> { "xss" });
 
     // act
     var act = () => _sut.CreateScan(builder);

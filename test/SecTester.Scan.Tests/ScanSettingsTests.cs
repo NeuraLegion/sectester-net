@@ -7,7 +7,7 @@ public class ScanSettingsTests
   private const string DefaultName = "GET example.com";
 
   private readonly Target _target = new(Url);
-  private readonly IEnumerable<TestType> _tests = new List<TestType> { TestType.CrossSiteScripting };
+  private readonly IEnumerable<string> _tests = new List<string> { "xss" };
 
   public static readonly IEnumerable<object[]> InvalidNames = new List<object[]>
   {
@@ -37,8 +37,7 @@ public class ScanSettingsTests
   public static readonly IEnumerable<object[]> InvalidTests = new List<object[]>
   {
     new object[] { null!, "*Tests*" },
-    new object[] { new List<TestType> { (TestType) 1000 }, "Unknown test type supplied." },
-    new object[] { Array.Empty<TestType>(), "Please provide at least one test."  }
+    new object[] { Array.Empty<string>(), "Please provide at least one test."  }
   };
 
   public static readonly IEnumerable<object[]> InvalidAttackLocationParams = new List<object[]>
@@ -61,7 +60,7 @@ public class ScanSettingsTests
 
   [Theory]
   [MemberData(nameof(InvalidTests))]
-  public void ScanSettings_ThrowsExceptionWhenTestsIsInvalid(IEnumerable<TestType> input, string expectedErrorMessage)
+  public void ScanSettings_ThrowsExceptionWhenTestsIsInvalid(IEnumerable<string> input, string expectedErrorMessage)
   {
     // act
     var action = () => new ScanSettings(DefaultName, _target, input);
@@ -75,10 +74,7 @@ public class ScanSettingsTests
   public void ScanSettings_SetsUniqueTests()
   {
     // arrange
-    var input = new List<TestType>
-    {
-      TestType.CrossSiteRequestForgery, TestType.CrossSiteRequestForgery
-    };
+    var input = new List<string> { "csrf", "csrf" };
     var expected = input.Distinct();
 
     // act

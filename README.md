@@ -1,6 +1,6 @@
 # SecTester SDK for .NET
 
-> ⚠️ **Archived**
+> [!CAUTION]
 >
 > This repository is archived and development will no longer continue.
 
